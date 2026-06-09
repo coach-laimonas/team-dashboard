@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Quadrant Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --muted: #888;
+    --dim: #555;
+    --accent: #c8f04a;
+    --accent2: #4af0c8;
+    --red: #ff5a5a;
+    --amber: #f0a84a;
+    --blue: #4a8ff0;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(15,15,15,0.95);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #week-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  #refresh-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #refresh-btn.loading { opacity: 0.5; pointer-events: none; }
+
+  #status-bar {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    text-align: center;
+    padding: 6px;
+    border-bottom: 1px solid var(--border);
+    min-height: 24px;
+    transition: color 0.3s;
+  }
+  #status-bar.error { color: var(--red); }
+  #status-bar.ok { color: var(--accent2); }
+
+  .main { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
+
+  /* Athlete tabs */
+  .tabs-row {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 10px 18px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--muted); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Metric cards */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metric-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+  }
+  .metric-value span { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+  .metric-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 4px;
+  }
+  .metric-sub.up { color: var(--accent); }
+  .metric-sub.warn { color: var(--amber); }
+
+  /* Charts */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .chart-card-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .leg-sq { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .chart-wrap { position: relative; width: 100%; height: 200px; }
+
+  /* Table */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 10px;
+  }
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  th {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 10px 14px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    font-weight: 500;
+  }
+  th:first-child { text-align: left; width: 28%; }
+  td {
+    padding: 9px 14px;
+    text-align: right;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  td:first-child { text-align: left; color: var(--muted); font-size: 11px; }
+  tr:last-child td { border-bottom: none; }
+  tr.total-row td { background: var(--surface2); font-weight: 600; font-family: var(--mono); font-size: 12px; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  /* Loading skeleton */
+  .skeleton { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  @media (max-width: 700px) {
+    .main { padding: 16px; }
+    header { padding: 14px 16px; }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡ Quadrant Report</div>
+  <div class="header-right">
+    <span id="week-label">—</span>
+    <button id="refresh-btn" onclick="loadData()">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M1 8a7 7 0 1 0 1.5-4.3"/><path d="M1 2v3h3"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<div id="status-bar">Loading data from Google Sheets…</div>
+
+<div class="main">
+  <div class="tabs-row" id="tabs-row"></div>
+  <div id="panel-container"><div class="empty-state skeleton">Fetching athlete data…</div></div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SHEET_ID = '19ljSyAJZUSp9lYPOIKNzpBe-7JSz5qlweNTIFKtHH98';
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let athletes = [];
+let currentAthlete = null;
+const chartReg = {};
+
+// ── FETCH & PARSE ────────────────────────────────────────────────────────────
+async function loadData() {
+  const btn = document.getElementById('refresh-btn');
+  const status = document.getElementById('status-bar');
+  btn.classList.add('loading');
+  status.className = '';
+  status.textContent = 'Fetching latest data…';
+
+  try {
+    const res = await fetch(CSV_URL + '&t=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const csv = await res.text();
+    athletes = parseCSV(csv);
+    if (!athletes.length) throw new Error('No data found in sheet');
+
+    const now = new Date();
+    document.getElementById('week-label').textContent =
+      'Week of ' + now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+
+    status.className = 'ok';
+    status.textContent = `✓ Updated — ${athletes.length} athletes loaded · ${new Date().toLocaleTimeString()}`;
+
+    buildTabs();
+    showAthlete(currentAthlete && athletes.find(a=>a.name===currentAthlete) ? currentAthlete : athletes[0].name);
+  } catch(e) {
+    status.className = 'error';
+    status.textContent = '✗ Could not load data. Make sure the sheet is shared publicly (Anyone with link → Viewer). ' + e.message;
+  }
+  btn.classList.remove('loading');
+}
+
+function parseCSV(csv) {
+  const lines = csv.trim().split('\n').map(l => l.split(','));
+  const headers = lines[0].map(h => h.trim());
+  const rows = lines.slice(1).map(l => {
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = (l[i]||'').trim());
+    return obj;
+  });
+
+  const byAthlete = {};
+  rows.forEach(r => {
+    if (!byAthlete[r.athlete]) byAthlete[r.athlete] = [];
+    byAthlete[r.athlete].push(r);
+  });
+
+  return Object.entries(byAthlete).map(([name, rows]) => {
+    const days = ['mon','tue','wed','thu','fri','sat','sun'];
+    const activities = rows.map(r => ({
+      name: r.activity,
+      minutes: days.map(d => parseInt(r[d])||0)
+    }));
+    const intensity = days.map(d => parseInt(rows[0]['intensity_'+d])||0);
+    const loading   = days.map(d => parseInt(rows[0]['loading_'+d])||0);
+    const totalByDay = days.map((_,i) => activities.reduce((s,a) => s + a.minutes[i], 0));
+    const activeDays = totalByDay.filter(t => t > 0).length;
+    const totalVol   = totalByDay.reduce((s,v) => s+v, 0);
+    const avgDur     = activeDays ? Math.round(totalVol / 7) : 0;
+    const avgInt     = Math.round((intensity.reduce((s,v)=>s+v,0)/7)*10)/10;
+    const peakIdx    = totalByDay.indexOf(Math.max(...totalByDay));
+    const dayLabels  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    return { name, activities, intensity, loading, totalByDay, totalVol, avgDur, avgInt, activeDays, peakDay: dayLabels[peakIdx] };
+  });
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function buildTabs() {
+  const row = document.getElementById('tabs-row');
+  row.innerHTML = athletes.map(a =>
+    `<div class="tab" data-name="${a.name}" onclick="showAthlete('${a.name}')">${a.name}</div>`
+  ).join('');
+}
+
+// ── PANEL ─────────────────────────────────────────────────────────────────────
+function showAthlete(name) {
+  currentAthlete = name;
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.name === name)
+  );
+
+  const a = athletes.find(x => x.name === name);
+  if (!a) return;
+
+  Object.values(chartReg).forEach(c => c.destroy());
+  Object.keys(chartReg).forEach(k => delete chartReg[k]);
+
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  // Badge colors
+  function badgeStyle(z) {
+    if (z === 0) return 'background:#2a2a2a;color:#666';
+    if (z <= 2)  return 'background:#0d2240;color:#4a8ff0';
+    if (z <= 5)  return 'background:#2a1f0a;color:#f0a84a';
+    return 'background:#2a0d0d;color:#ff5a5a';
+  }
+
+  // Activity row (only non-zero or always show)
+  function actRow(actName) {
+    const act = a.activities.find(x => x.name === actName);
+    const mins = act ? act.minutes : [0,0,0,0,0,0,0];
+    return `<tr>
+      <td>${actName}</td>
+      ${mins.map(v => `<td>${v || '—'}</td>`).join('')}
+    </tr>`;
+  }
+
+  document.getElementById('panel-container').innerHTML = `
+    <div class="metrics-row">
+      <div class="metric">
+        <div class="metric-label">Avg duration</div>
+        <div class="metric-value">${a.avgDur}<span>min</span></div>
+        <div class="metric-sub ${a.avgDur >= 85 ? 'up' : 'warn'}">vs. 90 min target</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg intensity</div>
+        <div class="metric-value">${a.avgInt}<span>/ 10</span></div>
+        <div class="metric-sub ${a.avgInt >= 4 ? 'up' : 'warn'}">vs. 5 target</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total volume</div>
+        <div class="metric-value">${a.totalVol}<span>min</span></div>
+        <div class="metric-sub">${a.activeDays} active days</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Peak load day</div>
+        <div class="metric-value">${a.peakDay}</div>
+        <div class="metric-sub">${Math.max(...a.totalByDay)} min</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-title">Daily volume (min)</div>
+        <div class="legend">
+          <span class="leg"><span class="leg-sq" style="background:#4a8ff0"></span>Str &amp; Power</span>
+          <span class="leg"><span class="leg-sq" style="background:#4af0a8"></span>Basketball Skills</span>
+          <span class="leg"><span class="leg-sq" style="background:#555"></span>Gen phys. prep</span>
+        </div>
+        <div class="chart-wrap"><canvas id="vol-chart" role="img" aria-label="Daily volume chart for ${name}"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Intensity &amp; loading zone</div>
+        <div class="legend">
+          <span class="leg"><span class="leg-sq" style="background:#f0a84a"></span>Intensity (1–10)</span>
+          <span class="leg"><span class="leg-sq" style="background:#c8f04a"></span>Loading zone (1–5)</span>
+        </div>
+        <div class="chart-wrap"><canvas id="int-chart" role="img" aria-label="Intensity and loading zone chart for ${name}"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-label">Weekly schedule breakdown</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            ${days.map(d=>`<th>${d}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${actRow('Game')}
+          ${actRow('General phys. prep')}
+          ${actRow('Str & Power')}
+          ${actRow('Basketball Skills')}
+          <tr class="total-row">
+            <td>Total (min)</td>
+            ${a.totalByDay.map(v=>`<td>${v}</td>`).join('')}
+          </tr>
+          <tr>
+            <td>Intensity zone</td>
+            ${a.intensity.map(v=>`<td><span class="badge" style="${badgeStyle(v)}">${v}</span></td>`).join('')}
+          </tr>
+          <tr>
+            <td>Loading zone</td>
+            ${a.loading.map(v=>`<td>${v}</td>`).join('')}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  requestAnimationFrame(() => {
+    // Get activity data
+    const sp  = (a.activities.find(x=>x.name==='Str & Power')    ||{minutes:[0,0,0,0,0,0,0]}).minutes;
+    const bs  = (a.activities.find(x=>x.name==='Basketball Skills')||{minutes:[0,0,0,0,0,0,0]}).minutes;
+    const gpp = (a.activities.find(x=>x.name==='General phys. prep')||{minutes:[0,0,0,0,0,0,0]}).minutes;
+
+    const gridC = 'rgba(255,255,255,0.06)';
+    const tickC = '#555';
+
+    chartReg['vol'] = new Chart(document.getElementById('vol-chart'), {
+      type: 'bar',
+      data: {
+        labels: days,
+        datasets: [
+          { label: 'Str & Power',      data: sp,  backgroundColor: '#4a8ff0', stack: 'a' },
+          { label: 'Basketball Skills', data: bs,  backgroundColor: '#4af0a8', stack: 'a' },
+          { label: 'Gen phys. prep',    data: gpp, backgroundColor: '#444',   stack: 'a' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { stacked: true, ticks: { color: tickC, font: { size: 11 } }, grid: { color: gridC }, border: { display: false } },
+          y: { stacked: true, min: 0, ticks: { color: tickC, font: { size: 11 }, stepSize: 60 }, grid: { color: gridC }, border: { display: false } }
+        }
+      }
+    });
+
+    chartReg['int'] = new Chart(document.getElementById('int-chart'), {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [
+          { label: 'Intensity', data: a.intensity, borderColor: '#f0a84a', backgroundColor: 'rgba(240,168,74,0.1)', tension: 0.35, pointRadius: 4, pointBackgroundColor: '#f0a84a', fill: true },
+          { label: 'Loading',   data: a.loading,   borderColor: '#c8f04a', borderDash: [4,3], backgroundColor: 'transparent', tension: 0.35, pointRadius: 4, pointBackgroundColor: '#c8f04a' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: tickC, font: { size: 11 } }, grid: { color: gridC }, border: { display: false } },
+          y: { min: 0, max: 10, ticks: { color: tickC, font: { size: 11 }, stepSize: 2 }, grid: { color: gridC }, border: { display: false } }
+        }
+      }
+    });
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>
