@@ -316,13 +316,18 @@ async function loadData() {
 }
 
 function parseCSV(csv) {
-  const lines = csv.trim().split('\n').map(l => l.split(','));
+  // Remove BOM, detect separator (comma or tab)
+  csv = csv.replace(/^\uFEFF/, '');
+  const sep = csv.indexOf('\t') !== -1 ? '\t' : ',';
+  const lines = csv.trim().split('\n').map(l => l.split(sep));
   const headers = lines[0].map(h => h.trim());
-  const rows = lines.slice(1).map(l => {
-    const obj = {};
-    headers.forEach((h,i) => obj[h] = (l[i]||'').trim());
-    return obj;
-  });
+  const rows = lines.slice(1)
+    .map(l => {
+      const obj = {};
+      headers.forEach((h,i) => obj[h] = (l[i]||'').trim());
+      return obj;
+    })
+    .filter(r => r.athlete && r.athlete.length > 0 && r.activity && r.activity.length > 0);
 
   const byAthlete = {};
   rows.forEach(r => {
