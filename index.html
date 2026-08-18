@@ -237,6 +237,64 @@
     font-weight: 500;
   }
 
+  /* Intensity scale */
+  .intensity-scale {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    font-size: 12px;
+  }
+  .is-header {
+    display: grid;
+    grid-template-columns: 52px 130px 1fr 1fr;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 14px;
+    gap: 12px;
+  }
+  .is-score-h, .is-label-h, .is-def-h, .is-example-h {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-weight: 500;
+  }
+  .is-row {
+    display: grid;
+    grid-template-columns: 52px 130px 1fr 1fr;
+    gap: 12px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--c) 60%, var(--surface));
+    align-items: center;
+    transition: opacity 0.15s;
+  }
+  .is-row:last-child { border-bottom: none; }
+  .is-row:hover { opacity: 0.85; }
+  .is-score {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--t);
+  }
+  .is-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--t);
+  }
+  .is-def {
+    font-size: 11px;
+    color: var(--text);
+    opacity: 0.85;
+  }
+  .is-example {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
   .skeleton { animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
@@ -465,6 +523,27 @@ function showAthlete(name) {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="section-label" style="margin-top:32px;">Intensity scale reference</div>
+    <div class="intensity-scale">
+      <div class="is-header">
+        <div class="is-score-h">Score</div>
+        <div class="is-label-h">Level</div>
+        <div class="is-def-h">Definition</div>
+        <div class="is-example-h">Example</div>
+      </div>
+      <div class="is-row" style="--c:#2a2a2a;--t:#777"><div class="is-score">0</div><div class="is-label">Day off</div><div class="is-def">No activity — complete rest</div><div class="is-example">Complete rest</div></div>
+      <div class="is-row" style="--c:#0d260d;--t:#66bb6a"><div class="is-score">1</div><div class="is-label">Very low</div><div class="is-def">Minimal movement, no effort</div><div class="is-example">Stationary shooting</div></div>
+      <div class="is-row" style="--c:#103010;--t:#81c784"><div class="is-score">2</div><div class="is-label">Low</div><div class="is-def">No max effort — no sprinting, no jumping</div><div class="is-example">Stationary shooting, easy jogging + shooting</div></div>
+      <div class="is-row" style="--c:#133813;--t:#a5d6a7"><div class="is-score">3</div><div class="is-label">Low–moderate</div><div class="is-def">Light movement, controlled pace</div><div class="is-example">Easy dribbling, light footwork</div></div>
+      <div class="is-row" style="--c:#2e2200;--t:#ffd54f"><div class="is-score">4</div><div class="is-label">Moderate</div><div class="is-def">No max effort, short rest times</div><div class="is-example">Movement shooting / skill work, running + shooting</div></div>
+      <div class="is-row" style="--c:#352800;--t:#ffb300"><div class="is-score">5</div><div class="is-label">Moderate–high</div><div class="is-def">Max effort drills, low reps, long rest time</div><div class="is-example">Intensive movement skill work, small spaces, long rest after reps</div></div>
+      <div class="is-row" style="--c:#3a1f00;--t:#ff8f00"><div class="is-score">6</div><div class="is-label">High</div><div class="is-def">Max effort, short distance sprint, long rest times</div><div class="is-example">Sprint drills, explosive movements</div></div>
+      <div class="is-row" style="--c:#3d1500;--t:#f57c00"><div class="is-score">7</div><div class="is-label">High–intensive</div><div class="is-def">Max effort drills, high reps, short rest, bigger court</div><div class="is-example">Race against clock, 2v2, 3v3</div></div>
+      <div class="is-row" style="--c:#3d0a0a;--t:#ef5350"><div class="is-score">8</div><div class="is-label">Intensive</div><div class="is-def">Full court drills, short rest</div><div class="is-example">Full court running/sprinting, minimal rest</div></div>
+      <div class="is-row" style="--c:#380606;--t:#e53935"><div class="is-score">9</div><div class="is-label">Very intensive</div><div class="is-def">Near maximum sustained effort</div><div class="is-example">Extended high-intensity sequences</div></div>
+      <div class="is-row" style="--c:#300000;--t:#c62828"><div class="is-score">10</div><div class="is-label">Max</div><div class="is-def">High intensity "live" — no subs, long stretches, competitive</div><div class="is-example">5v5 full court</div></div>
     </div>
   `;
 
