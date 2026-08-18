@@ -443,8 +443,8 @@ function parseCSV(csv) {
     const totalByDay = days.map((_,i) => activities.reduce((s,a) => s + a.minutes[i], 0));
     const activeDays = totalByDay.filter(t => t > 0).length;
     const totalVol   = totalByDay.reduce((s,v) => s+v, 0);
-    const avgDur     = Math.round(totalVol / 7);
-    const avgInt     = Math.round((intensity.reduce((s,v)=>s+v,0)/7)*10)/10;
+    const avgDur     = activeDays ? Math.round(totalVol / activeDays) : 0;
+    const avgInt     = activeDays ? Math.round((intensity.filter(v=>v>0).reduce((s,v)=>s+v,0)/activeDays)*10)/10 : 0;
     const peakIdx    = totalByDay.indexOf(Math.max(...totalByDay));
     const dayLabels  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     return { name, activities, intensity, loading, totalByDay, totalVol, avgDur, avgInt, activeDays, peakDay: dayLabels[peakIdx] };
@@ -491,12 +491,12 @@ function showAthlete(name) {
   document.getElementById('panel-container').innerHTML = `
     <div class="metrics-row">
       <div class="metric">
-        <div class="metric-label">Avg duration</div>
+        <div class="metric-label">Avg duration (active days)</div>
         <div class="metric-value">${a.avgDur}<span>min</span></div>
         <div class="metric-sub">per day</div>
       </div>
       <div class="metric">
-        <div class="metric-label">Avg intensity</div>
+        <div class="metric-label">Avg intensity (active days)</div>
         <div class="metric-value">${a.avgInt}<span>/ 10</span></div>
         <div class="metric-sub">weekly average</div>
       </div>
