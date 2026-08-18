@@ -11,19 +11,19 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0f0f0f;
-    --surface: #181818;
-    --surface2: #222222;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #f0f0f0;
-    --muted: #888;
-    --dim: #555;
-    --accent: #c8f04a;
-    --accent2: #4af0c8;
-    --red: #ff5a5a;
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface2: #eaf0f9;
+    --border: rgba(30,80,180,0.1);
+    --border2: rgba(30,80,180,0.2);
+    --text: #0d1b3e;
+    --muted: #4a6080;
+    --dim: #8ca0bc;
+    --accent: #e8630a;
+    --accent2: #1a56c4;
+    --red: #e8630a;
     --amber: #f0a84a;
-    --blue: #4a8ff0;
+    --blue: #1a56c4;
     --mono: 'DM Mono', monospace;
     --sans: 'DM Sans', sans-serif;
   }
@@ -38,7 +38,7 @@
     justify-content: space-between;
     position: sticky;
     top: 0;
-    background: rgba(15,15,15,0.95);
+    background: rgba(244,247,251,0.97);
     backdrop-filter: blur(8px);
     z-index: 100;
   }
@@ -48,7 +48,7 @@
     font-size: 13px;
     font-weight: 500;
     letter-spacing: 0.1em;
-    color: var(--accent);
+    color: var(--blue);
     text-transform: uppercase;
   }
 
@@ -82,7 +82,7 @@
     align-items: center;
     gap: 6px;
   }
-  #refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
   #refresh-btn.loading { opacity: 0.5; pointer-events: none; }
 
   #status-bar {
@@ -122,7 +122,7 @@
     transition: color 0.15s;
   }
   .tab:hover { color: var(--muted); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
 
   .metrics-row {
     display: grid;
@@ -157,7 +157,7 @@
     color: var(--dim);
     margin-top: 4px;
   }
-  .metric-sub.up { color: var(--accent); }
+  .metric-sub.up { color: var(--blue); }
   .metric-sub.warn { color: var(--amber); }
 
   .charts-row {
@@ -272,7 +272,7 @@
     transition: opacity 0.15s;
   }
   .is-row:last-child { border-bottom: none; }
-  .is-row:hover { opacity: 0.85; }
+  .is-row:hover { opacity: 0.75; }
   .is-score {
     font-family: var(--mono);
     font-size: 15px;
@@ -287,7 +287,7 @@
   .is-def {
     font-size: 11px;
     color: var(--text);
-    opacity: 0.85;
+    opacity: 0.9;
   }
   .is-example {
     font-size: 11px;
@@ -434,10 +434,10 @@ function showAthlete(name) {
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
   function badgeStyle(z) {
-    if (z === 0) return 'background:#2a2a2a;color:#666';
-    if (z <= 2)  return 'background:#0d2240;color:#4a8ff0';
-    if (z <= 5)  return 'background:#2a1f0a;color:#f0a84a';
-    return 'background:#2a0d0d;color:#ff5a5a';
+    if (z === 0) return 'background:#eaf0f9;color:#8ca0bc';
+    if (z <= 2)  return 'background:#ddeaff;color:#1a56c4';
+    if (z <= 5)  return 'background:#fff3e0;color:#cc6600';
+    return 'background:#ffe8e0;color:#c0400a';
   }
 
   function actRow(actName) {
@@ -477,18 +477,18 @@ function showAthlete(name) {
       <div class="chart-card">
         <div class="chart-card-title">Daily volume (min)</div>
         <div class="legend">
-          <span class="leg"><span class="leg-sq" style="background:#4a8ff0"></span>Str &amp; Power</span>
-          <span class="leg"><span class="leg-sq" style="background:#4af0a8"></span>Basketball Skills</span>
-          <span class="leg"><span class="leg-sq" style="background:#555"></span>Gen phys. prep</span>
-          <span class="leg"><span class="leg-sq" style="background:#a855f7"></span>Conditioning</span>
+          <span class="leg"><span class="leg-sq" style="background:#1a56c4"></span>Str &amp; Power</span>
+          <span class="leg"><span class="leg-sq" style="background:#e8630a"></span>Basketball Skills</span>
+          <span class="leg"><span class="leg-sq" style="background:#8ca0bc"></span>Gen phys. prep</span>
+          <span class="leg"><span class="leg-sq" style="background:#f0a84a"></span>Conditioning</span>
         </div>
         <div class="chart-wrap"><canvas id="vol-chart"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Intensity &amp; loading zone</div>
         <div class="legend">
-          <span class="leg"><span class="leg-sq" style="background:#f0a84a"></span>Intensity (1–10)</span>
-          <span class="leg"><span class="leg-sq" style="background:#c8f04a"></span>Loading zone (1–5)</span>
+          <span class="leg"><span class="leg-sq" style="background:#e8630a"></span>Intensity (1–10)</span>
+          <span class="leg"><span class="leg-sq" style="background:#1a56c4"></span>Loading zone (1–5)</span>
         </div>
         <div class="chart-wrap"><canvas id="int-chart"></canvas></div>
       </div>
@@ -533,17 +533,17 @@ function showAthlete(name) {
         <div class="is-def-h">Definition</div>
         <div class="is-example-h">Example</div>
       </div>
-      <div class="is-row" style="--c:#2a2a2a;--t:#777"><div class="is-score">0</div><div class="is-label">Day off</div><div class="is-def">No activity — complete rest</div><div class="is-example">Complete rest</div></div>
-      <div class="is-row" style="--c:#0d260d;--t:#66bb6a"><div class="is-score">1</div><div class="is-label">Very low</div><div class="is-def">Minimal movement, no effort</div><div class="is-example">Stationary shooting</div></div>
-      <div class="is-row" style="--c:#103010;--t:#81c784"><div class="is-score">2</div><div class="is-label">Low</div><div class="is-def">No max effort — no sprinting, no jumping</div><div class="is-example">Stationary shooting, easy jogging + shooting</div></div>
-      <div class="is-row" style="--c:#133813;--t:#a5d6a7"><div class="is-score">3</div><div class="is-label">Low–moderate</div><div class="is-def">Light movement, controlled pace</div><div class="is-example">Easy dribbling, light footwork</div></div>
-      <div class="is-row" style="--c:#2e2200;--t:#ffd54f"><div class="is-score">4</div><div class="is-label">Moderate</div><div class="is-def">No max effort, short rest times</div><div class="is-example">Movement shooting / skill work, running + shooting</div></div>
-      <div class="is-row" style="--c:#352800;--t:#ffb300"><div class="is-score">5</div><div class="is-label">Moderate–high</div><div class="is-def">Max effort drills, low reps, long rest time</div><div class="is-example">Intensive movement skill work, small spaces, long rest after reps</div></div>
-      <div class="is-row" style="--c:#3a1f00;--t:#ff8f00"><div class="is-score">6</div><div class="is-label">High</div><div class="is-def">Max effort, short distance sprint, long rest times</div><div class="is-example">Sprint drills, explosive movements</div></div>
-      <div class="is-row" style="--c:#3d1500;--t:#f57c00"><div class="is-score">7</div><div class="is-label">High–intensive</div><div class="is-def">Max effort drills, high reps, short rest, bigger court</div><div class="is-example">Race against clock, 2v2, 3v3</div></div>
-      <div class="is-row" style="--c:#3d0a0a;--t:#ef5350"><div class="is-score">8</div><div class="is-label">Intensive</div><div class="is-def">Full court drills, short rest</div><div class="is-example">Full court running/sprinting, minimal rest</div></div>
-      <div class="is-row" style="--c:#380606;--t:#e53935"><div class="is-score">9</div><div class="is-label">Very intensive</div><div class="is-def">Near maximum sustained effort</div><div class="is-example">Extended high-intensity sequences</div></div>
-      <div class="is-row" style="--c:#300000;--t:#c62828"><div class="is-score">10</div><div class="is-label">Max</div><div class="is-def">High intensity "live" — no subs, long stretches, competitive</div><div class="is-example">5v5 full court</div></div>
+      <div class="is-row" style="--c:#f0f0f0;--t:#888888"><div class="is-score">0</div><div class="is-label">Day off</div><div class="is-def">No activity — complete rest</div><div class="is-example">Complete rest</div></div>
+      <div class="is-row" style="--c:#e8f5e9;--t:#2e7d32"><div class="is-score">1</div><div class="is-label">Very low</div><div class="is-def">Minimal movement, no effort</div><div class="is-example">Stationary shooting</div></div>
+      <div class="is-row" style="--c:#dcedc8;--t:#388e3c"><div class="is-score">2</div><div class="is-label">Low</div><div class="is-def">No max effort — no sprinting, no jumping</div><div class="is-example">Stationary shooting, easy jogging + shooting</div></div>
+      <div class="is-row" style="--c:#c8e6c9;--t:#43a047"><div class="is-score">3</div><div class="is-label">Low–moderate</div><div class="is-def">Light movement, controlled pace</div><div class="is-example">Easy dribbling, light footwork</div></div>
+      <div class="is-row" style="--c:#fff9c4;--t:#c49000"><div class="is-score">4</div><div class="is-label">Moderate</div><div class="is-def">No max effort, short rest times</div><div class="is-example">Movement shooting / skill work, running + shooting</div></div>
+      <div class="is-row" style="--c:#fff3cd;--t:#e65100"><div class="is-score">5</div><div class="is-label">Moderate–high</div><div class="is-def">Max effort drills, low reps, long rest time</div><div class="is-example">Intensive movement skill work, small spaces, long rest after reps</div></div>
+      <div class="is-row" style="--c:#ffe0b2;--t:#e65100"><div class="is-score">6</div><div class="is-label">High</div><div class="is-def">Max effort, short distance sprint, long rest times</div><div class="is-example">Sprint drills, explosive movements</div></div>
+      <div class="is-row" style="--c:#ffccbc;--t:#bf360c"><div class="is-score">7</div><div class="is-label">High–intensive</div><div class="is-def">Max effort drills, high reps, short rest, bigger court</div><div class="is-example">Race against clock, 2v2, 3v3</div></div>
+      <div class="is-row" style="--c:#ffcdd2;--t:#c62828"><div class="is-score">8</div><div class="is-label">Intensive</div><div class="is-def">Full court drills, short rest</div><div class="is-example">Full court running/sprinting, minimal rest</div></div>
+      <div class="is-row" style="--c:#ffb3b3;--t:#b71c1c"><div class="is-score">9</div><div class="is-label">Very intensive</div><div class="is-def">Near maximum sustained effort</div><div class="is-example">Extended high-intensity sequences</div></div>
+      <div class="is-row" style="--c:#ff8a80;--t:#7f0000"><div class="is-score">10</div><div class="is-label">Max</div><div class="is-def">High intensity "live" — no subs, long stretches, competitive</div><div class="is-example">5v5 full court</div></div>
     </div>
   `;
 
@@ -553,18 +553,18 @@ function showAthlete(name) {
     const gpp  = (a.activities.find(x=>x.name==='General phys. prep') ||{minutes:[0,0,0,0,0,0,0]}).minutes;
     const cond = (a.activities.find(x=>x.name==='Conditioning')       ||{minutes:[0,0,0,0,0,0,0]}).minutes;
 
-    const gridC = 'rgba(255,255,255,0.06)';
-    const tickC = '#555';
+    const gridC = 'rgba(30,80,180,0.08)';
+    const tickC = '#4a6080';
 
     chartReg['vol'] = new Chart(document.getElementById('vol-chart'), {
       type: 'bar',
       data: {
         labels: days,
         datasets: [
-          { label: 'Str & Power',       data: sp,   backgroundColor: '#4a8ff0', stack: 'a' },
-          { label: 'Basketball Skills', data: bs,   backgroundColor: '#4af0a8', stack: 'a' },
-          { label: 'Gen phys. prep',    data: gpp,  backgroundColor: '#444',   stack: 'a' },
-          { label: 'Conditioning',      data: cond, backgroundColor: '#a855f7', stack: 'a' }
+          { label: 'Str & Power',       data: sp,   backgroundColor: '#1a56c4', stack: 'a' },
+          { label: 'Basketball Skills', data: bs,   backgroundColor: '#e8630a', stack: 'a' },
+          { label: 'Gen phys. prep',    data: gpp,  backgroundColor: '#8ca0bc', stack: 'a' },
+          { label: 'Conditioning',      data: cond, backgroundColor: '#f0a84a', stack: 'a' }
         ]
       },
       options: {
@@ -582,8 +582,8 @@ function showAthlete(name) {
       data: {
         labels: days,
         datasets: [
-          { label: 'Intensity', data: a.intensity, borderColor: '#f0a84a', backgroundColor: 'rgba(240,168,74,0.1)', tension: 0.35, pointRadius: 4, pointBackgroundColor: '#f0a84a', fill: true },
-          { label: 'Loading',   data: a.loading,   borderColor: '#c8f04a', borderDash: [4,3], backgroundColor: 'transparent', tension: 0.35, pointRadius: 4, pointBackgroundColor: '#c8f04a' }
+          { label: 'Intensity', data: a.intensity, borderColor: '#e8630a', backgroundColor: 'rgba(232,99,10,0.08)', tension: 0.35, pointRadius: 4, pointBackgroundColor: '#e8630a', fill: true },
+          { label: 'Loading',   data: a.loading,   borderColor: '#1a56c4', borderDash: [4,3], backgroundColor: 'transparent', tension: 0.35, pointRadius: 4, pointBackgroundColor: '#1a56c4' }
         ]
       },
       options: {
