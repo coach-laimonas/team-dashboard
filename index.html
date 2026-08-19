@@ -408,26 +408,46 @@
     <div class="avail-status" id="avail-status">Loading…</div>
 
     <!-- Summary cards -->
-    <div class="metrics-row" style="margin-bottom:20px;">
-      <div class="metric">
-        <div class="metric-label">Ready today</div>
-        <div class="metric-value" id="avail-ready-count" style="color:#00875a;">—</div>
-        <div class="metric-sub">full participation</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+
+      <!-- Today -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;">Today</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:600;color:#00875a;" id="avail-ready-count">—</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Ready</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:600;color:#b25f00;" id="avail-limited-count">—</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Limited</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:600;color:#c0300a;" id="avail-notready-count">—</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Not Ready</div>
+          </div>
+        </div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Limited today</div>
-        <div class="metric-value" id="avail-limited-count" style="color:#b25f00;">—</div>
-        <div class="metric-sub">modified training</div>
+
+      <!-- Tomorrow -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;">Tomorrow</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:600;color:#00875a;" id="avail-tmr-ready">—</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Ready</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:600;color:#b25f00;" id="avail-tmr-limited">—</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Limited</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:600;color:#c0300a;" id="avail-tmr-not">—</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Not Ready</div>
+          </div>
+        </div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Not ready today</div>
-        <div class="metric-value" id="avail-notready-count" style="color:#c0300a;">—</div>
-        <div class="metric-sub">no participation</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Period</div>
-        <div class="metric-value" id="avail-date-range" style="font-size:13px;line-height:1.4;">—</div>
-      </div>
+
     </div>
 
     <!-- Availability table -->
@@ -860,33 +880,31 @@ function renderAvailability(csvText) {
   const sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
   const allLines = csvText.split(/\r?\n/).map(l => l.split(sep).map(c => (c||'').trim()));
 
-  // Sheet structure:
-  // Row 0: "DATE:" + empty cols + date labels starting at col 4
+  // Structure:
+  // Row 0: ["","","","","DATE:","9/19","9/20","9/21","9/22","9/23","9/24",...]
   // Row 1: empty
-  // Row 2: "" "" "CURRENT ISSUE" "LIMITATIONS FOR PRACTICE" "Today" "+1 Day" "+2 Days" ...
-  // Rows 3+: player rows (col0=name, col2=issue, col3=limits, col4-9=statuses)
-  // Somewhere near end: COMMENTS row (col2="COMMENTS", col3=text)
+  // Row 2: ["","","CURRENT ISSUE","LIMITATIONS FOR PRACTICE","TODAY","+1 DAY",...]
+  // Row 3+: player rows — col0=name, col2=issue, col3=limitations, col4-9=statuses
+  // Near end: row where col2="COMMENTS", col3=comment text
 
   const dateRow  = allLines[0] || [];
   const labelRow = allLines[2] || [];
 
-  // Date values from row 0, cols 4–9
-  const dateValues = dateRow.slice(4, 10).filter(d => d);
+  // Dates are in cols 5-10 of row 0 (after "DATE:" at col 4)
+  const dateValues = dateRow.slice(5, 11).filter(d => d);
 
-  // Day column headers from labelRow cols 4-9
+  // Day headers from label row cols 4-9
   const dayHeaders = labelRow.slice(4, 10);
 
-  // Player rows: col 0 non-empty, not a comment/header row
+  // Player rows: col 0 has a non-empty name, not a comment/header
   const playerRows = allLines.slice(3).filter(r => {
     const name = (r[0]||'').trim();
-    return name && !name.toUpperCase().includes('COMMENT') && name !== 'DATE:';
+    return name && !name.toUpperCase().includes('COMMENT') && name !== 'DATE:' && name !== 'I';
   });
 
-  // Comments: row where col 2 contains "COMMENT"
+  // Comments: row where col 2 = "COMMENTS"
   const commentRow = allLines.find(r => (r[2]||'').toUpperCase().includes('COMMENT'));
-  const commentText = commentRow
-    ? commentRow.slice(3).filter(Boolean).join(' ').trim()
-    : '';
+  const commentText = commentRow ? (commentRow[3]||'').trim() : '';
 
   // Period label
   const period = dateValues.length
@@ -894,29 +912,35 @@ function renderAvailability(csvText) {
     : '—';
   document.getElementById('avail-date-range').textContent = period;
 
-  // Summary counts from "Today" column (col 4)
-  let ready=0, limited=0, notReady=0;
+  // Count for Today (col 4) and Tomorrow (col 5)
+  let todayReady=0, todayLimited=0, todayNot=0;
+  let tmrReady=0, tmrLimited=0, tmrNot=0;
   playerRows.forEach(r => {
-    const v = (r[4]||'').toLowerCase();
-    if (v === 'ready') ready++;
-    else if (v === 'limited') limited++;
-    else if (v === 'not ready') notReady++;
+    const today = (r[4]||'').toLowerCase();
+    const tmr   = (r[5]||'').toLowerCase();
+    if (today==='ready') todayReady++; else if (today==='limited') todayLimited++; else if (today==='not ready') todayNot++;
+    if (tmr==='ready')   tmrReady++;   else if (tmr==='limited')   tmrLimited++;   else if (tmr==='not ready')   tmrNot++;
   });
-  document.getElementById('avail-ready-count').textContent    = ready;
-  document.getElementById('avail-limited-count').textContent  = limited;
-  document.getElementById('avail-notready-count').textContent = notReady;
 
-  // Table header — use date values as sub-header for day columns
-  document.getElementById('avail-thead').innerHTML = `
-    <tr>
-      <th class="name-col">Player</th>
-      <th class="issue-col">Current Issue</th>
-      <th class="limit-col">Limitations</th>
-      ${dayHeaders.map((h,i) => {
-        const dateLabel = dateValues[i] ? `<div style="font-size:8px;color:var(--blue);margin-top:2px;">${dateValues[i]}</div>` : '';
-        return `<th>${h||'—'}${dateLabel}</th>`;
-      }).join('')}
-    </tr>`;
+  document.getElementById('avail-ready-count').textContent    = todayReady;
+  document.getElementById('avail-limited-count').textContent  = todayLimited;
+  document.getElementById('avail-notready-count').textContent = todayNot;
+
+  // Tomorrow summary
+  document.getElementById('avail-tmr-ready').textContent   = tmrReady;
+  document.getElementById('avail-tmr-limited').textContent  = tmrLimited;
+  document.getElementById('avail-tmr-not').textContent      = tmrNot;
+
+  // Table header — day label + date underneath
+  document.getElementById('avail-thead').innerHTML = `<tr>
+    <th class="name-col">Player</th>
+    <th class="issue-col">Current Issue</th>
+    <th class="limit-col">Limitations</th>
+    ${dayHeaders.map((h,i) => {
+      const sub = dateValues[i] ? `<div style="font-size:8px;color:var(--blue);margin-top:2px;font-weight:400;">${dateValues[i]}</div>` : '';
+      return `<th>${h||'—'}${sub}</th>`;
+    }).join('')}
+  </tr>`;
 
   // Table body
   document.getElementById('avail-tbody').innerHTML = playerRows.map(r => {
