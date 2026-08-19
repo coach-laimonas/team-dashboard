@@ -855,108 +855,135 @@ function renderWellness() {
 
 // ── AVAILABILITY ─────────────────────────────────────────────────────────────
 async function loadAvailability() {
-  const status = document.getElementById('avail-status');
-  status.className = 'avail-status';
-  status.textContent = 'Loading availability…';
+  var availStatus = document.getElementById('avail-status');
+  availStatus.className = 'avail-status';
+  availStatus.textContent = 'Loading availability…';
   try {
-    const res = await fetch(AVAILABILITY_CSV + '&t=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
+    var res = await fetch(AVAILABILITY_CSV + '&t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var text = await res.text();
     renderAvailability(text);
   } catch(e) {
-    status.className = 'avail-status error';
-    status.textContent = '✗ Could not load availability data. ' + e.message;
+    availStatus.className = 'avail-status error';
+    availStatus.textContent = '✗ Could not load availability data. ' + e.message;
   }
 }
 
 function statusBadge(val) {
-  const v = (val||'').trim();
+  var v = (val || '').trim();
   if (!v) return '<span style="color:var(--dim)">—</span>';
-  const vl = v.toLowerCase();
-  if (vl === 'ready')     return `<span class="avail-badge avail-ready">${v}</span>`;
-  if (vl === 'limited')   return `<span class="avail-badge avail-limited">${v}</span>`;
-  if (vl === 'not ready') return `<span class="avail-badge avail-not">${v}</span>`;
-  return `<span style="color:var(--muted);font-size:11px;">${v}</span>`;
+  var vl = v.toLowerCase();
+  if (vl === 'ready')     return '<span class="avail-badge avail-ready">' + v + '</span>';
+  if (vl === 'limited')   return '<span class="avail-badge avail-limited">' + v + '</span>';
+  if (vl === 'not ready') return '<span class="avail-badge avail-not">' + v + '</span>';
+  return '<span style="color:var(--muted);font-size:11px;">' + v + '</span>';
 }
 
 function renderAvailability(csvText) {
+  var availStatus = document.getElementById('avail-status');
   csvText = csvText.replace(/^\uFEFF/, '');
-  const sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
-  const allLines = csvText.split(/\r?\n/).map(l => l.split(sep).map(c => (c||'').trim()));
+  var sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
+  var allLines = csvText.split('\n').map(function(l) {
+    return l.replace(/\r$/, '').split(sep).map(function(c) { return (c || '').trim(); });
+  });
 
-  // DEBUG — show first 5 rows
-  const status = document.getElementById('avail-status');
-  status.className = 'avail-status';
-  status.textContent = `DEBUG: ${allLines.length} rows, sep="${sep==='	'?'TAB':sep}", row0: [${allLines[0]?.slice(0,8).join(' | ')}]`;
-
-  // Find the header row — the one containing "TODAY" or "CURRENT ISSUE"
-  const headerRowIdx = allLines.findIndex(r =>
-    r.some(c => c.toUpperCase() === 'TODAY' || c.toUpperCase().includes('CURRENT ISSUE'))
-  );
-
-  status.textContent += ` | headerRowIdx=${headerRowIdx}`;
+  // Find header row containing TODAY or CURRENT ISSUE
+  var headerRowIdx = -1;
+  for (var i = 0; i < allLines.length; i++) {
+    var row = allLines[i];
+    for (var j = 0; j < row.length; j++) {
+      var cu = row[j].toUpperCase();
+      if (cu === 'TODAY' || cu.indexOf('CURRENT ISSUE') !== -1) {
+        headerRowIdx = i;
+        break;
+      }
+    }
+    if (headerRowIdx !== -1) break;
+  }
 
   if (headerRowIdx < 0) {
-    status.className = 'avail-status error';
-    status.textContent += ' | ✗ Header row not found';
+    availStatus.className = 'avail-status error';
+    availStatus.textContent = '✗ Could not find header row in availability sheet';
     return;
   }
-  const headerRow = allLines[headerRowIdx];
-  status.textContent += ` | headerRow: [${headerRow.slice(0,8).join(' | ')}]`;
 
-  // Find the date row — the one containing "DATE:"
-  const dateRowIdx = allLines.findIndex(r => r.some(c => c.toUpperCase().includes('DATE')));
-  const dateRow = dateRowIdx >= 0 ? allLines[dateRowIdx] : [];
+  var headerRow = allLines[headerRowIdx];
+
+  // Find date row containing DATE:
+  var dateRow = [];
+  for (var i = 0; i < allLines.length; i++) {
+    for (var j = 0; j < allLines[i].length; j++) {
+      if (allLines[i][j].toUpperCase().indexOf('DATE') !== -1) {
+        dateRow = allLines[i];
+        break;
+      }
+    }
+    if (dateRow.length) break;
+  }
 
   // Detect column indices from header row
-  const hUpper = headerRow.map(c => c.toUpperCase());
-  const iName    = 0; // always col 0
-  const iIssue   = hUpper.findIndex(c => c.includes('CURRENT ISSUE'));
-  const iLimit   = hUpper.findIndex(c => c.includes('LIMITATION'));
-  const iTodayCol = hUpper.findIndex(c => c === 'TODAY');
+  var iIssue = -1, iLimit = -1, iTodayCol = -1;
+  for (var i = 0; i < headerRow.length; i++) {
+    var cu = headerRow[i].toUpperCase();
+    if (cu.indexOf('CURRENT ISSUE') !== -1) iIssue = i;
+    if (cu.indexOf('LIMITATION') !== -1) iLimit = i;
+    if (cu === 'TODAY') iTodayCol = i;
+  }
 
-  // Status columns: TODAY through +5 DAYS (6 cols starting at iTodayCol)
-  const statusCols = [];
-  for (let i = iTodayCol; i < Math.min(iTodayCol + 6, headerRow.length); i++) {
+  if (iTodayCol < 0) {
+    availStatus.className = 'avail-status error';
+    availStatus.textContent = '✗ Could not find TODAY column';
+    return;
+  }
+
+  // 6 status columns starting at TODAY
+  var statusCols = [];
+  for (var i = iTodayCol; i < Math.min(iTodayCol + 6, headerRow.length); i++) {
     statusCols.push({ idx: i, label: headerRow[i] });
   }
 
-  // Dates from the date row — same column positions as statusCols
-  const dateValues = statusCols.map(sc => {
-    const v = (dateRow[sc.idx]||'').trim();
-    return v && !v.toUpperCase().includes('DATE') ? v : '';
+  // Date values aligned to status cols
+  var dateValues = statusCols.map(function(sc) {
+    var v = (dateRow[sc.idx] || '').trim();
+    return (v && v.toUpperCase().indexOf('DATE') === -1) ? v : '';
   });
 
-  // Period label
-  const filled = dateValues.filter(Boolean);
-  const period = filled.length ? `${filled[0]} — ${filled[filled.length-1]}` : '—';
-  document.getElementById('avail-date-range').textContent = period;
+  var filled = dateValues.filter(Boolean);
+  var period = filled.length ? filled[0] + ' — ' + filled[filled.length - 1] : '';
+  document.getElementById('avail-date-range').textContent = period || '—';
 
-  // Player rows: rows after the header, col 0 non-empty, not the comment row
-  const playerRows = allLines.slice(headerRowIdx + 1).filter(r => {
-    const name = (r[iName]||'').trim();
-    return name && !name.toUpperCase().includes('COMMENT') && !name.toUpperCase().includes('DATE');
+  // Player rows: after header, col0 non-empty, not a comment/empty row
+  var playerRows = [];
+  for (var i = headerRowIdx + 1; i < allLines.length; i++) {
+    var r = allLines[i];
+    var name = (r[0] || '').trim();
+    if (name && name.toUpperCase().indexOf('COMMENT') === -1 && name.toUpperCase().indexOf('DATE') === -1) {
+      playerRows.push(r);
+    }
+  }
+
+  // Comments row
+  var commentText = '';
+  for (var i = 0; i < allLines.length; i++) {
+    var r = allLines[i];
+    var checkCol = iIssue >= 0 ? iIssue : 2;
+    if ((r[checkCol] || '').toUpperCase().indexOf('COMMENT') !== -1) {
+      commentText = (r[iLimit >= 0 ? iLimit : 3] || '').trim();
+      break;
+    }
+  }
+
+  // Summary counts
+  var todayReady=0, todayLimited=0, todayNot=0;
+  var tmrReady=0, tmrLimited=0, tmrNot=0;
+  var col0 = statusCols[0] ? statusCols[0].idx : iTodayCol;
+  var col1 = statusCols[1] ? statusCols[1].idx : iTodayCol + 1;
+  playerRows.forEach(function(r) {
+    var t = (r[col0] || '').toLowerCase();
+    var m = (r[col1] || '').toLowerCase();
+    if (t === 'ready') todayReady++; else if (t === 'limited') todayLimited++; else if (t === 'not ready') todayNot++;
+    if (m === 'ready') tmrReady++;   else if (m === 'limited') tmrLimited++;   else if (m === 'not ready') tmrNot++;
   });
-
-  // Comments row: col where iIssue contains "COMMENTS" or col iLimit has text
-  const commentRow = allLines.find(r =>
-    (r[iIssue]||'').toUpperCase().includes('COMMENT') ||
-    (r[iLimit > 0 ? iLimit - 1 : 2]||'').toUpperCase().includes('COMMENT')
-  );
-  const commentText = commentRow
-    ? (commentRow[iLimit] || commentRow[(iLimit || 3)] || '').trim()
-    : '';
-
-  // Summary counts: Today = statusCols[0], Tomorrow = statusCols[1]
-  let todayReady=0, todayLimited=0, todayNot=0;
-  let tmrReady=0,   tmrLimited=0,   tmrNot=0;
-  playerRows.forEach(r => {
-    const t = (r[statusCols[0]?.idx]||'').toLowerCase();
-    const m = (r[statusCols[1]?.idx]||'').toLowerCase();
-    if (t==='ready') todayReady++; else if (t==='limited') todayLimited++; else if (t==='not ready') todayNot++;
-    if (m==='ready') tmrReady++;   else if (m==='limited') tmrLimited++;   else if (m==='not ready') tmrNot++;
-  });
-
   document.getElementById('avail-ready-count').textContent    = todayReady;
   document.getElementById('avail-limited-count').textContent  = todayLimited;
   document.getElementById('avail-notready-count').textContent = todayNot;
@@ -965,31 +992,34 @@ function renderAvailability(csvText) {
   document.getElementById('avail-tmr-not').textContent        = tmrNot;
 
   // Table header
-  document.getElementById('avail-thead').innerHTML = `<tr>
-    <th class="name-col">Player</th>
-    ${iIssue >= 0 ? '<th class="issue-col">Current Issue</th>' : ''}
-    ${iLimit >= 0 ? '<th class="limit-col">Limitations</th>' : ''}
-    ${statusCols.map((sc, i) => {
-      const sub = dateValues[i] ? `<div style="font-size:8px;color:var(--blue);margin-top:2px;font-weight:400;">${dateValues[i]}</div>` : '';
-      return `<th>${sc.label}${sub}</th>`;
-    }).join('')}
-  </tr>`;
+  var thead = '<tr><th class="name-col">Player</th>';
+  if (iIssue >= 0) thead += '<th class="issue-col">Current Issue</th>';
+  if (iLimit >= 0) thead += '<th class="limit-col">Limitations</th>';
+  statusCols.forEach(function(sc, i) {
+    var sub = dateValues[i] ? '<div style="font-size:8px;color:var(--blue);margin-top:2px;font-weight:400;">' + dateValues[i] + '</div>' : '';
+    thead += '<th>' + sc.label + sub + '</th>';
+  });
+  thead += '</tr>';
+  document.getElementById('avail-thead').innerHTML = thead;
 
   // Table body
-  document.getElementById('avail-tbody').innerHTML = playerRows.map(r => {
-    const name  = (r[iName]||'').trim();
-    const issue = iIssue >= 0 ? (r[iIssue]||'').trim() : '';
-    const limit = iLimit >= 0 ? (r[iLimit]||'').trim() : '';
-    return `<tr>
-      <td class="name-col">${name}</td>
-      ${iIssue >= 0 ? `<td class="issue-col">${issue || '<span style="color:var(--dim)">—</span>'}</td>` : ''}
-      ${iLimit >= 0 ? `<td class="limit-col">${limit || '<span style="color:var(--dim)">—</span>'}</td>` : ''}
-      ${statusCols.map(sc => `<td>${statusBadge(r[sc.idx]||'')}</td>`).join('')}
-    </tr>`;
+  var tbody = playerRows.map(function(r) {
+    var name  = (r[0] || '').trim();
+    var issue = iIssue >= 0 ? (r[iIssue] || '').trim() : '';
+    var limit = iLimit >= 0 ? (r[iLimit] || '').trim() : '';
+    var row = '<tr><td class="name-col">' + name + '</td>';
+    if (iIssue >= 0) row += '<td class="issue-col">' + (issue || '<span style="color:var(--dim)">—</span>') + '</td>';
+    if (iLimit >= 0) row += '<td class="limit-col">' + (limit || '<span style="color:var(--dim)">—</span>') + '</td>';
+    statusCols.forEach(function(sc) {
+      row += '<td>' + statusBadge(r[sc.idx] || '') + '</td>';
+    });
+    row += '</tr>';
+    return row;
   }).join('');
+  document.getElementById('avail-tbody').innerHTML = tbody;
 
   // Comments
-  const commentCard = document.getElementById('avail-comment-card');
+  var commentCard = document.getElementById('avail-comment-card');
   if (commentText) {
     document.getElementById('avail-comment-text').textContent = commentText;
     commentCard.style.display = '';
@@ -997,9 +1027,8 @@ function renderAvailability(csvText) {
     commentCard.style.display = 'none';
   }
 
-  const status = document.getElementById('avail-status');
-  status.className = 'avail-status ok';
-  status.textContent = `✓ ${playerRows.length} players · ${period}`;
+  availStatus.className = 'avail-status ok';
+  availStatus.textContent = '✓ ' + playerRows.length + ' players · ' + (period || '—');
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
