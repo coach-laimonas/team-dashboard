@@ -884,15 +884,25 @@ function renderAvailability(csvText) {
   const sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
   const allLines = csvText.split(/\r?\n/).map(l => l.split(sep).map(c => (c||'').trim()));
 
+  // DEBUG — show first 5 rows
+  const status = document.getElementById('avail-status');
+  status.className = 'avail-status';
+  status.textContent = `DEBUG: ${allLines.length} rows, sep="${sep==='	'?'TAB':sep}", row0: [${allLines[0]?.slice(0,8).join(' | ')}]`;
+
   // Find the header row — the one containing "TODAY" or "CURRENT ISSUE"
   const headerRowIdx = allLines.findIndex(r =>
     r.some(c => c.toUpperCase() === 'TODAY' || c.toUpperCase().includes('CURRENT ISSUE'))
   );
+
+  status.textContent += ` | headerRowIdx=${headerRowIdx}`;
+
   if (headerRowIdx < 0) {
-    document.getElementById('avail-status').textContent = '✗ Could not parse availability sheet';
+    status.className = 'avail-status error';
+    status.textContent += ' | ✗ Header row not found';
     return;
   }
   const headerRow = allLines[headerRowIdx];
+  status.textContent += ` | headerRow: [${headerRow.slice(0,8).join(' | ')}]`;
 
   // Find the date row — the one containing "DATE:"
   const dateRowIdx = allLines.findIndex(r => r.some(c => c.toUpperCase().includes('DATE')));
