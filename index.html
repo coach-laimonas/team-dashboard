@@ -208,9 +208,115 @@
     font-size: 13px; font-weight: 500; color: var(--text);
   }
 
+  /* ── AVAILABILITY ── */
+  .avail-section { margin-top: 36px; }
+  .avail-section-title {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avail-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .avail-dates {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+  }
+  .avail-date-label {
+    font-family: var(--mono); font-size: 10px; color: var(--dim);
+    letter-spacing: 0.06em; margin-right: 4px;
+  }
+  .avail-date-chip {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); letter-spacing: 0.04em;
+  }
+
+  .avail-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  .avail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .avail-table th {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--dim); padding: 10px 14px;
+    border-bottom: 1px solid var(--border); background: var(--surface2);
+    font-weight: 500; text-align: center; white-space: nowrap;
+  }
+  .avail-table th:first-child { text-align: left; width: 180px; }
+  .avail-table th.issue-col { text-align: left; width: 120px; }
+  .avail-table th.limit-col { text-align: left; width: 160px; }
+  .avail-table td {
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+    text-align: center; vertical-align: middle;
+  }
+  .avail-table td:first-child { text-align: left; font-weight: 500; color: var(--text); white-space: nowrap; }
+  .avail-table td.issue-cell { text-align: left; font-size: 11px; color: var(--muted); }
+  .avail-table td.limit-cell { text-align: left; font-size: 11px; color: var(--muted); }
+  .avail-table tr:last-child td { border-bottom: none; }
+  .avail-table tr:hover td { background: var(--surface2); }
+
+  .avail-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .avail-ready   { background: #e6f4ea; color: #1e7e34; }
+  .avail-limited { background: #fff3cd; color: #856404; }
+  .avail-notready{ background: #fde8e8; color: #b91c1c; }
+  .avail-empty   { color: var(--dim); font-size: 11px; }
+
+  .avail-comment-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 8px;
+  }
+  .avail-comment-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 8px;
+  }
+  .avail-comment-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .avail-legend { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .avail-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+
+  .avail-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+  .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .avail-sum-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+  .avail-sum-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .avail-sum-value.green { color: #1e7e34; }
+  .avail-sum-value.amber { color: #856404; }
+  .avail-sum-value.red   { color: #b91c1c; }
+
   .empty-state { padding: 48px; text-align: center; color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
   .skeleton { animation: pulse 1.5s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── AVAILABILITY ── */
+  .avail-status { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-bottom: 20px; min-height: 16px; }
+  .avail-status.ok { color: var(--accent2); }
+  .avail-status.error { color: var(--red); }
+  .avail-dates-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .avail-date-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
+  .avail-date-range { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--blue); }
+  .avail-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; overflow-x: auto; }
+  .avail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .avail-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); white-space: nowrap; font-weight: 500; text-align: center; }
+  .avail-table th.name-col { text-align: left; min-width: 170px; }
+  .avail-table th.issue-col { text-align: left; min-width: 110px; }
+  .avail-table th.limit-col { text-align: left; min-width: 180px; }
+  .avail-table th:last-child { border-right: none; }
+  .avail-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); vertical-align: middle; text-align: center; white-space: nowrap; }
+  .avail-table td.name-col { text-align: left; font-weight: 500; color: var(--text); }
+  .avail-table td.issue-col { text-align: left; color: var(--red); font-family: var(--mono); font-size: 11px; }
+  .avail-table td.limit-col { text-align: left; color: var(--muted); font-size: 11px; white-space: normal; min-width: 180px; }
+  .avail-table td:last-child { border-right: none; }
+  .avail-table tr:last-child td { border-bottom: none; }
+  .avail-table tr:hover td { background: var(--surface2); }
+  .avail-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; }
+  .avail-ready   { background: #e6f9f2; color: #00875a; }
+  .avail-limited { background: #fff7e0; color: #b25f00; }
+  .avail-not     { background: #fff0f0; color: #c0300a; }
+  .avail-empty   { color: var(--dim); font-size: 11px; }
+  .avail-comment-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 24px; }
+  .avail-comment-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+  .avail-comment-text { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+  .avail-comment-empty { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+  .avail-legend-row { display: flex; gap: 8px; align-items: center; }
 </style>
 </head>
 <body>
@@ -251,6 +357,8 @@
 
   <!-- ══ WELLNESS PAGE ══ -->
   <div id="page-wellness" style="display:none;">
+
+    <!-- ══ WELLNESS ══ -->
     <div class="wellness-header-row">
       <div class="wellness-title">Player Wellness</div>
       <div class="day-nav">
@@ -262,18 +370,9 @@
     <div class="wellness-status" id="wellness-status">Loading…</div>
 
     <div class="pie-grid">
-      <div class="pie-card">
-        <div class="pie-card-title">Fatigue</div>
-        <div class="pie-wrap"><canvas id="pie-fatigue"></canvas></div>
-      </div>
-      <div class="pie-card">
-        <div class="pie-card-title">Muscle Soreness</div>
-        <div class="pie-wrap"><canvas id="pie-soreness"></canvas></div>
-      </div>
-      <div class="pie-card">
-        <div class="pie-card-title">Sleep Quality</div>
-        <div class="pie-wrap"><canvas id="pie-sleep"></canvas></div>
-      </div>
+      <div class="pie-card"><div class="pie-card-title">Fatigue</div><div class="pie-wrap"><canvas id="pie-fatigue"></canvas></div></div>
+      <div class="pie-card"><div class="pie-card-title">Muscle Soreness</div><div class="pie-wrap"><canvas id="pie-soreness"></canvas></div></div>
+      <div class="pie-card"><div class="pie-card-title">Sleep Quality</div><div class="pie-wrap"><canvas id="pie-sleep"></canvas></div></div>
     </div>
 
     <div class="drilldown" id="pie-drilldown">
@@ -295,6 +394,56 @@
         <tbody id="comment-body"></tbody>
       </table>
     </div>
+
+    <!-- ══ PLAYER AVAILABILITY ══ -->
+    <div style="border-top:2px solid var(--border);margin:36px 0 28px;"></div>
+    <div class="wellness-header-row" style="margin-bottom:8px;">
+      <div class="wellness-title">Player Availability</div>
+      <div class="avail-legend-row">
+        <span class="avail-badge avail-ready">Ready</span>
+        <span class="avail-badge avail-limited">Limited</span>
+        <span class="avail-badge avail-not">Not Ready</span>
+      </div>
+    </div>
+    <div class="avail-status" id="avail-status">Loading…</div>
+
+    <!-- Summary cards -->
+    <div class="metrics-row" style="margin-bottom:20px;">
+      <div class="metric">
+        <div class="metric-label">Ready today</div>
+        <div class="metric-value" id="avail-ready-count" style="color:#00875a;">—</div>
+        <div class="metric-sub">full participation</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Limited today</div>
+        <div class="metric-value" id="avail-limited-count" style="color:#b25f00;">—</div>
+        <div class="metric-sub">modified training</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Not ready today</div>
+        <div class="metric-value" id="avail-notready-count" style="color:#c0300a;">—</div>
+        <div class="metric-sub">no participation</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Period</div>
+        <div class="metric-value" id="avail-date-range" style="font-size:13px;line-height:1.4;">—</div>
+      </div>
+    </div>
+
+    <!-- Availability table -->
+    <div class="avail-wrap">
+      <table class="avail-table">
+        <thead id="avail-thead"></thead>
+        <tbody id="avail-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Availability comment -->
+    <div class="avail-comment-card" id="avail-comment-card" style="display:none;">
+      <div class="avail-comment-label">Comments</div>
+      <div class="avail-comment-text" id="avail-comment-text"></div>
+    </div>
+
   </div>
 
 </div><!-- /main -->
@@ -302,7 +451,8 @@
 <script>
 // ── CSV URLs ──────────────────────────────────────────────────────────────────
 const WORKOUT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8h3woy8ASxFEepex26EudzzqeygULXyYil2IcjMjJ6kmE6Jql60NHGwx8fD-U3yxiAPSv3SrLQSTW/pub?output=csv';
-const WELLNESS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn9Yytd5qEBHAtB6oNKfCiltSPfIX8ujUbZZmEr1TkWwdhXdDIOypq7PY7vbZNQixAZ0df7uuXL_SL/pub?output=csv';
+const WELLNESS_CSV      = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn9Yytd5qEBHAtB6oNKfCiltSPfIX8ujUbZZmEr1TkWwdhXdDIOypq7PY7vbZNQixAZ0df7uuXL_SL/pub?output=csv';
+const AVAILABILITY_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDPC79mBEw2RtYqtQVToveh6mStxy5Wg1hByYO0KAagTkCeCUHuiNbqNdaHIAOqQ/pub?output=csv';
 
 // Score colors: 1=red … 5=green
 const SCORE_COLORS = ['#d63031','#e17055','#fdcb6e','#81b214','#00b894'];
@@ -332,7 +482,7 @@ function showPage(page) {
 async function loadAll() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('loading');
-  await Promise.all([loadWorkouts(), loadWellness()]);
+  await Promise.all([loadWorkouts(), loadWellness(), loadAvailability()]);
   btn.classList.remove('loading');
 }
 
@@ -681,6 +831,119 @@ function renderWellness() {
     tbody.innerHTML += `<tr><td style="color:var(--dim);white-space:nowrap;">${d}</td><td style="font-weight:500;white-space:nowrap;">${name}</td><td>${comment}</td></tr>`;
   });
   if (!hasComments) tbody.innerHTML = `<tr><td colspan="3" class="no-data">No comments for this day</td></tr>`;
+}
+
+// ── AVAILABILITY ─────────────────────────────────────────────────────────────
+async function loadAvailability() {
+  try {
+    const res = await fetch(AVAILABILITY_CSV + '&t=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    renderAvailability(text);
+  } catch(e) {
+    console.warn('Availability load failed:', e.message);
+  }
+}
+
+function statusBadge(val) {
+  const v = (val||'').trim();
+  if (!v) return '<span style="color:var(--dim)">—</span>';
+  const vl = v.toLowerCase();
+  if (vl === 'ready')     return `<span class="avail-badge avail-ready">${v}</span>`;
+  if (vl === 'limited')   return `<span class="avail-badge avail-limited">${v}</span>`;
+  if (vl === 'not ready') return `<span class="avail-badge avail-not">${v}</span>`;
+  return `<span style="color:var(--muted);font-size:11px;">${v}</span>`;
+}
+
+function renderAvailability(csvText) {
+  csvText = csvText.replace(/^\uFEFF/, '');
+  const sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
+  const allLines = csvText.split(/\r?\n/).map(l => l.split(sep).map(c => (c||'').trim()));
+
+  // Sheet structure:
+  // Row 0: "DATE:" + empty cols + date labels starting at col 4
+  // Row 1: empty
+  // Row 2: "" "" "CURRENT ISSUE" "LIMITATIONS FOR PRACTICE" "Today" "+1 Day" "+2 Days" ...
+  // Rows 3+: player rows (col0=name, col2=issue, col3=limits, col4-9=statuses)
+  // Somewhere near end: COMMENTS row (col2="COMMENTS", col3=text)
+
+  const dateRow  = allLines[0] || [];
+  const labelRow = allLines[2] || [];
+
+  // Date values from row 0, cols 4–9
+  const dateValues = dateRow.slice(4, 10).filter(d => d);
+
+  // Day column headers from labelRow cols 4-9
+  const dayHeaders = labelRow.slice(4, 10);
+
+  // Player rows: col 0 non-empty, not a comment/header row
+  const playerRows = allLines.slice(3).filter(r => {
+    const name = (r[0]||'').trim();
+    return name && !name.toUpperCase().includes('COMMENT') && name !== 'DATE:';
+  });
+
+  // Comments: row where col 2 contains "COMMENT"
+  const commentRow = allLines.find(r => (r[2]||'').toUpperCase().includes('COMMENT'));
+  const commentText = commentRow
+    ? commentRow.slice(3).filter(Boolean).join(' ').trim()
+    : '';
+
+  // Period label
+  const period = dateValues.length
+    ? `${dateValues[0]} — ${dateValues[dateValues.length-1]}`
+    : '—';
+  document.getElementById('avail-date-range').textContent = period;
+
+  // Summary counts from "Today" column (col 4)
+  let ready=0, limited=0, notReady=0;
+  playerRows.forEach(r => {
+    const v = (r[4]||'').toLowerCase();
+    if (v === 'ready') ready++;
+    else if (v === 'limited') limited++;
+    else if (v === 'not ready') notReady++;
+  });
+  document.getElementById('avail-ready-count').textContent    = ready;
+  document.getElementById('avail-limited-count').textContent  = limited;
+  document.getElementById('avail-notready-count').textContent = notReady;
+
+  // Table header — use date values as sub-header for day columns
+  document.getElementById('avail-thead').innerHTML = `
+    <tr>
+      <th class="name-col">Player</th>
+      <th class="issue-col">Current Issue</th>
+      <th class="limit-col">Limitations</th>
+      ${dayHeaders.map((h,i) => {
+        const dateLabel = dateValues[i] ? `<div style="font-size:8px;color:var(--blue);margin-top:2px;">${dateValues[i]}</div>` : '';
+        return `<th>${h||'—'}${dateLabel}</th>`;
+      }).join('')}
+    </tr>`;
+
+  // Table body
+  document.getElementById('avail-tbody').innerHTML = playerRows.map(r => {
+    const name  = r[0] || '—';
+    const issue = (r[2]||'').trim();
+    const limit = (r[3]||'').trim();
+    const days  = r.slice(4, 10);
+    return `<tr>
+      <td class="name-col">${name}</td>
+      <td class="issue-col">${issue || '<span style="color:var(--dim)">—</span>'}</td>
+      <td class="limit-col">${limit || '<span style="color:var(--dim)">—</span>'}</td>
+      ${days.map(d => `<td>${statusBadge(d)}</td>`).join('')}
+    </tr>`;
+  }).join('');
+
+  // Comments
+  const commentCard = document.getElementById('avail-comment-card');
+  if (commentText) {
+    document.getElementById('avail-comment-text').textContent = commentText;
+    commentCard.style.display = '';
+  } else {
+    commentCard.style.display = 'none';
+  }
+
+  const status = document.getElementById('avail-status');
+  status.className = 'avail-status ok';
+  status.textContent = `✓ ${playerRows.length} players · ${period}`;
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
