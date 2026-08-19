@@ -855,13 +855,17 @@ function renderWellness() {
 
 // ── AVAILABILITY ─────────────────────────────────────────────────────────────
 async function loadAvailability() {
+  const status = document.getElementById('avail-status');
+  status.className = 'avail-status';
+  status.textContent = 'Loading availability…';
   try {
     const res = await fetch(AVAILABILITY_CSV + '&t=' + Date.now());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     renderAvailability(text);
   } catch(e) {
-    console.warn('Availability load failed:', e.message);
+    status.className = 'avail-status error';
+    status.textContent = '✗ Could not load availability data. ' + e.message;
   }
 }
 
@@ -880,79 +884,97 @@ function renderAvailability(csvText) {
   const sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
   const allLines = csvText.split(/\r?\n/).map(l => l.split(sep).map(c => (c||'').trim()));
 
-  // Structure:
-  // Row 0: ["","","","","DATE:","9/19","9/20","9/21","9/22","9/23","9/24",...]
-  // Row 1: empty
-  // Row 2: ["","","CURRENT ISSUE","LIMITATIONS FOR PRACTICE","TODAY","+1 DAY",...]
-  // Row 3+: player rows — col0=name, col2=issue, col3=limitations, col4-9=statuses
-  // Near end: row where col2="COMMENTS", col3=comment text
+  // Find the header row — the one containing "TODAY" or "CURRENT ISSUE"
+  const headerRowIdx = allLines.findIndex(r =>
+    r.some(c => c.toUpperCase() === 'TODAY' || c.toUpperCase().includes('CURRENT ISSUE'))
+  );
+  if (headerRowIdx < 0) {
+    document.getElementById('avail-status').textContent = '✗ Could not parse availability sheet';
+    return;
+  }
+  const headerRow = allLines[headerRowIdx];
 
-  const dateRow  = allLines[0] || [];
-  const labelRow = allLines[2] || [];
+  // Find the date row — the one containing "DATE:"
+  const dateRowIdx = allLines.findIndex(r => r.some(c => c.toUpperCase().includes('DATE')));
+  const dateRow = dateRowIdx >= 0 ? allLines[dateRowIdx] : [];
 
-  // Dates are in cols 5-10 of row 0 (after "DATE:" at col 4)
-  const dateValues = dateRow.slice(5, 11).filter(d => d);
+  // Detect column indices from header row
+  const hUpper = headerRow.map(c => c.toUpperCase());
+  const iName    = 0; // always col 0
+  const iIssue   = hUpper.findIndex(c => c.includes('CURRENT ISSUE'));
+  const iLimit   = hUpper.findIndex(c => c.includes('LIMITATION'));
+  const iTodayCol = hUpper.findIndex(c => c === 'TODAY');
 
-  // Day headers from label row cols 4-9
-  const dayHeaders = labelRow.slice(4, 10);
+  // Status columns: TODAY through +5 DAYS (6 cols starting at iTodayCol)
+  const statusCols = [];
+  for (let i = iTodayCol; i < Math.min(iTodayCol + 6, headerRow.length); i++) {
+    statusCols.push({ idx: i, label: headerRow[i] });
+  }
 
-  // Player rows: col 0 has a non-empty name, not a comment/header
-  const playerRows = allLines.slice(3).filter(r => {
-    const name = (r[0]||'').trim();
-    return name && !name.toUpperCase().includes('COMMENT') && name !== 'DATE:' && name !== 'I';
+  // Dates from the date row — same column positions as statusCols
+  const dateValues = statusCols.map(sc => {
+    const v = (dateRow[sc.idx]||'').trim();
+    return v && !v.toUpperCase().includes('DATE') ? v : '';
   });
 
-  // Comments: row where col 2 = "COMMENTS"
-  const commentRow = allLines.find(r => (r[2]||'').toUpperCase().includes('COMMENT'));
-  const commentText = commentRow ? (commentRow[3]||'').trim() : '';
-
   // Period label
-  const period = dateValues.length
-    ? `${dateValues[0]} — ${dateValues[dateValues.length-1]}`
-    : '—';
+  const filled = dateValues.filter(Boolean);
+  const period = filled.length ? `${filled[0]} — ${filled[filled.length-1]}` : '—';
   document.getElementById('avail-date-range').textContent = period;
 
-  // Count for Today (col 4) and Tomorrow (col 5)
+  // Player rows: rows after the header, col 0 non-empty, not the comment row
+  const playerRows = allLines.slice(headerRowIdx + 1).filter(r => {
+    const name = (r[iName]||'').trim();
+    return name && !name.toUpperCase().includes('COMMENT') && !name.toUpperCase().includes('DATE');
+  });
+
+  // Comments row: col where iIssue contains "COMMENTS" or col iLimit has text
+  const commentRow = allLines.find(r =>
+    (r[iIssue]||'').toUpperCase().includes('COMMENT') ||
+    (r[iLimit > 0 ? iLimit - 1 : 2]||'').toUpperCase().includes('COMMENT')
+  );
+  const commentText = commentRow
+    ? (commentRow[iLimit] || commentRow[(iLimit || 3)] || '').trim()
+    : '';
+
+  // Summary counts: Today = statusCols[0], Tomorrow = statusCols[1]
   let todayReady=0, todayLimited=0, todayNot=0;
-  let tmrReady=0, tmrLimited=0, tmrNot=0;
+  let tmrReady=0,   tmrLimited=0,   tmrNot=0;
   playerRows.forEach(r => {
-    const today = (r[4]||'').toLowerCase();
-    const tmr   = (r[5]||'').toLowerCase();
-    if (today==='ready') todayReady++; else if (today==='limited') todayLimited++; else if (today==='not ready') todayNot++;
-    if (tmr==='ready')   tmrReady++;   else if (tmr==='limited')   tmrLimited++;   else if (tmr==='not ready')   tmrNot++;
+    const t = (r[statusCols[0]?.idx]||'').toLowerCase();
+    const m = (r[statusCols[1]?.idx]||'').toLowerCase();
+    if (t==='ready') todayReady++; else if (t==='limited') todayLimited++; else if (t==='not ready') todayNot++;
+    if (m==='ready') tmrReady++;   else if (m==='limited') tmrLimited++;   else if (m==='not ready') tmrNot++;
   });
 
   document.getElementById('avail-ready-count').textContent    = todayReady;
   document.getElementById('avail-limited-count').textContent  = todayLimited;
   document.getElementById('avail-notready-count').textContent = todayNot;
+  document.getElementById('avail-tmr-ready').textContent      = tmrReady;
+  document.getElementById('avail-tmr-limited').textContent    = tmrLimited;
+  document.getElementById('avail-tmr-not').textContent        = tmrNot;
 
-  // Tomorrow summary
-  document.getElementById('avail-tmr-ready').textContent   = tmrReady;
-  document.getElementById('avail-tmr-limited').textContent  = tmrLimited;
-  document.getElementById('avail-tmr-not').textContent      = tmrNot;
-
-  // Table header — day label + date underneath
+  // Table header
   document.getElementById('avail-thead').innerHTML = `<tr>
     <th class="name-col">Player</th>
-    <th class="issue-col">Current Issue</th>
-    <th class="limit-col">Limitations</th>
-    ${dayHeaders.map((h,i) => {
+    ${iIssue >= 0 ? '<th class="issue-col">Current Issue</th>' : ''}
+    ${iLimit >= 0 ? '<th class="limit-col">Limitations</th>' : ''}
+    ${statusCols.map((sc, i) => {
       const sub = dateValues[i] ? `<div style="font-size:8px;color:var(--blue);margin-top:2px;font-weight:400;">${dateValues[i]}</div>` : '';
-      return `<th>${h||'—'}${sub}</th>`;
+      return `<th>${sc.label}${sub}</th>`;
     }).join('')}
   </tr>`;
 
   // Table body
   document.getElementById('avail-tbody').innerHTML = playerRows.map(r => {
-    const name  = r[0] || '—';
-    const issue = (r[2]||'').trim();
-    const limit = (r[3]||'').trim();
-    const days  = r.slice(4, 10);
+    const name  = (r[iName]||'').trim();
+    const issue = iIssue >= 0 ? (r[iIssue]||'').trim() : '';
+    const limit = iLimit >= 0 ? (r[iLimit]||'').trim() : '';
     return `<tr>
       <td class="name-col">${name}</td>
-      <td class="issue-col">${issue || '<span style="color:var(--dim)">—</span>'}</td>
-      <td class="limit-col">${limit || '<span style="color:var(--dim)">—</span>'}</td>
-      ${days.map(d => `<td>${statusBadge(d)}</td>`).join('')}
+      ${iIssue >= 0 ? `<td class="issue-col">${issue || '<span style="color:var(--dim)">—</span>'}</td>` : ''}
+      ${iLimit >= 0 ? `<td class="limit-col">${limit || '<span style="color:var(--dim)">—</span>'}</td>` : ''}
+      ${statusCols.map(sc => `<td>${statusBadge(r[sc.idx]||'')}</td>`).join('')}
     </tr>`;
   }).join('');
 
