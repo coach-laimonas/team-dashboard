@@ -131,6 +131,17 @@
   .comment-table tr:hover td { background: var(--surface2); }
   .no-data { font-family: var(--mono); font-size: 11px; color: var(--dim); padding: 20px 14px; }
 
+
+  /* ACTIVITY TAB */
+  .act-topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+  .act-type-badge { display:inline-block; padding:2px 8px; border-radius:3px; font-family:var(--mono); font-size:10px; font-weight:500; background:var(--surface2); color:var(--muted); }
+  .act-type-game { background:#fff3e0; color:#cc6600; }
+  .act-type-mixed { background:#e8f0fe; color:#1a56c4; }
+  .act-type-strength { background:#fce4ec; color:#b71c1c; }
+  .act-type-skills { background:#e8f5e9; color:#2e7d32; }
+  .act-type-conditioning { background:#f3e5f5; color:#6a1b9a; }
+  .act-num { font-family:var(--mono); font-weight:600; }
+  .act-dim { color:var(--dim); font-size:11px; }
   /* AVAILABILITY */
   .avail-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
@@ -184,8 +195,56 @@
 
 <div class="main">
   <div class="page-tabs">
-    <div class="page-tab active" onclick="showPage('workouts')">Individual Workouts</div>
+    <div class="page-tab active" onclick="showPage('activity')">Player Activity &amp; Practice Load</div>
     <div class="page-tab" onclick="showPage('wellness')">Team Wellness</div>
+    <div class="page-tab" onclick="showPage('workouts')">Individual Practices</div>
+  </div>
+
+
+  <!-- ACTIVITY PAGE -->
+  <div id="page-activity">
+    <div class="act-topbar">
+      <div class="day-nav">
+        <button class="day-nav-btn" onclick="actShiftDay(-1)">← Prev day</button>
+        <div class="day-nav-label" id="act-day-label">Today</div>
+        <button class="day-nav-btn" id="act-next-btn" onclick="actShiftDay(1)" disabled>Next day →</button>
+      </div>
+      <div class="w-status" id="act-status">Loading…</div>
+    </div>
+
+    <!-- Day summary cards -->
+    <div class="metrics-row" id="act-day-cards" style="margin-bottom:24px"></div>
+
+    <!-- Day table -->
+    <div class="section-label">Player breakdown — selected day</div>
+    <div class="table-wrap" style="margin-bottom:32px;overflow-x:auto">
+      <table id="act-day-table" style="table-layout:auto;min-width:700px">
+        <thead id="act-day-thead"></thead>
+        <tbody id="act-day-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- 7-day charts -->
+    <div class="section-label">Past 7 days — team overview</div>
+    <div class="charts-row" style="margin-bottom:24px">
+      <div class="chart-card">
+        <div class="chart-card-title">Total team load (PC) per day</div>
+        <div class="chart-wrap"><canvas id="act-load-chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Total team minutes per day</div>
+        <div class="chart-wrap"><canvas id="act-min-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 7-day per-player table -->
+    <div class="section-label">Past 7 days — per player summary</div>
+    <div class="table-wrap" style="overflow-x:auto">
+      <table id="act-week-table" style="table-layout:auto;min-width:700px">
+        <thead id="act-week-thead"></thead>
+        <tbody id="act-week-tbody"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- WORKOUTS PAGE -->
@@ -270,6 +329,7 @@
 var WORKOUT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8h3woy8ASxFEepex26EudzzqeygULXyYil2IcjMjJ6kmE6Jql60NHGwx8fD-U3yxiAPSv3SrLQSTW/pub?output=csv';
 var WELLNESS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn9Yytd5qEBHAtB6oNKfCiltSPfIX8ujUbZZmEr1TkWwdhXdDIOypq7PY7vbZNQixAZ0df7uuXL_SL/pub?output=csv';
 var AVAIL_CSV    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDPC79mBEw2RtYqtQVToveh6mStxy5Wg1hByYO0KAagTkCeCUHuiNbqNdaHIAOqQ/pub?output=csv';
+var ACTIVITY_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFzeR7REdLwy71kz-dtLhexw59cyENKgjNhRvYVsQLnptLs6pCkKJtYLYACdqluA/pub?output=csv';
 
 var SCORE_COLORS = ['#d63031','#e17055','#fdcb6e','#81b214','#00b894'];
 var gridC = 'rgba(30,80,180,0.08)';
@@ -281,12 +341,15 @@ var moodChartObj = null;
 
 // ── PAGE TABS ────────────────────────────────────────────────────────────────
 function showPage(page) {
-  document.querySelectorAll('.page-tab').forEach(function(t) {
-    t.classList.toggle('active', t.textContent.toLowerCase().indexOf(page === 'workouts' ? 'workout' : 'wellness') !== -1);
+  var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices'};
+  document.querySelectorAll('.page-tab').forEach(function(t,i) {
+    var pages = ['activity','wellness','workouts'];
+    t.classList.toggle('active', pages[i] === page);
   });
+  document.getElementById('page-activity').style.display = page === 'activity' ? '' : 'none';
   document.getElementById('page-workouts').style.display = page === 'workouts' ? '' : 'none';
-  document.getElementById('page-wellness').style.display  = page === 'wellness'  ? '' : 'none';
-  document.getElementById('header-sub').textContent = page === 'workouts' ? 'Individual Workouts' : 'Team Wellness';
+  document.getElementById('page-wellness').style.display = page === 'wellness'  ? '' : 'none';
+  document.getElementById('header-sub').textContent = labels[page] || '';
 }
 
 // ── REFRESH ──────────────────────────────────────────────────────────────────
@@ -296,7 +359,8 @@ function loadAll() {
   var p1 = loadWorkouts();
   var p2 = loadWellness();
   var p3 = loadAvailability();
-  Promise.all([p1, p2, p3]).then(function() { btn.classList.remove('loading'); });
+  var p4 = loadActivity();
+  Promise.all([p1, p2, p3, p4]).then(function() { btn.classList.remove('loading'); });
 }
 
 // ── WORKOUTS ─────────────────────────────────────────────────────────────────
@@ -704,7 +768,222 @@ function renderAvailability(csvText) {
   if(el){el.className='w-status ok';el.textContent='✓ '+pRows.length+' players · '+(period||'—');}
 }
 
+// ── ACTIVITY ──────────────────────────────────────────────────────────────────
+var activityRows = [];
+var actDayOffset = 0;
+var actLoadChart = null, actMinChart = null;
+
+function loadActivity() {
+  return fetch(ACTIVITY_CSV + '&t=' + Date.now())
+    .then(function(r){return r.text();})
+    .then(function(text){
+      activityRows = parseActivityCSV(text);
+      renderActivity();
+    })
+    .catch(function(e){
+      var el = document.getElementById('act-status');
+      if(el){el.className='w-status error';el.textContent='✗ '+e.message;}
+    });
+}
+
+function parseActivityCSV(text) {
+  text = text.replace(/^\uFEFF/,'');
+  var sep = text.indexOf('\t') !== -1 ? '\t' : ',';
+  var lines = text.trim().split('\n');
+  // Find header row (contains "Athlete" or "Date")
+  var hIdx = 0;
+  for(var i=0;i<Math.min(lines.length,5);i++){
+    if(lines[i].toLowerCase().indexOf('athlete')!==-1||lines[i].toLowerCase().indexOf('date')!==-1){hIdx=i;break;}
+  }
+  var headers = lines[hIdx].replace(/\r$/,'').split(sep).map(function(h){return h.trim().replace(/^"+|"+$/g,'');});
+  return lines.slice(hIdx+1).map(function(l){
+    var cols = l.replace(/\r$/,'').split(sep);
+    var o = {};
+    headers.forEach(function(h,i){o[h]=(cols[i]||'').trim().replace(/^"+|"+$/g,'');});
+    return o;
+  }).filter(function(r){return r['Athlete']||r['athlete'];});
+}
+
+function actDateKey(d){ return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear(); }
+
+function parseDateStr(s) {
+  // Handles M/D/YYYY
+  var parts = s.split('/');
+  if(parts.length===3) return new Date(parseInt(parts[2]),parseInt(parts[0])-1,parseInt(parts[1]));
+  return new Date(s);
+}
+
+function actShiftDay(delta){
+  actDayOffset += delta;
+  if(actDayOffset>0) actDayOffset=0;
+  renderActivity();
+}
+
+function typeBadge(t){
+  var tl=(t||'').toLowerCase();
+  var cls='act-type-badge';
+  if(tl.indexOf('game')!==-1) cls+=' act-type-game';
+  else if(tl.indexOf('mixed')!==-1) cls+=' act-type-mixed';
+  else if(tl.indexOf('strength')!==-1||tl.indexOf('power')!==-1) cls+=' act-type-strength';
+  else if(tl.indexOf('skill')!==-1||tl.indexOf('basketball')!==-1) cls+=' act-type-skills';
+  else if(tl.indexOf('condition')!==-1||tl.indexOf('running')!==-1) cls+=' act-type-conditioning';
+  return '<span class="'+cls+'">'+t+'</span>';
+}
+
+function renderActivity(){
+  var target = new Date();
+  target.setDate(target.getDate()+actDayOffset);
+  var tKey = actDateKey(target);
+  var isToday = tKey === actDateKey(new Date());
+  var dStr = target.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('act-day-label').textContent = (isToday?'Today':'') + ' — ' + dStr;
+  document.getElementById('act-next-btn').disabled = isToday;
+
+  // Filter rows for selected day
+  var dayRows = activityRows.filter(function(r){
+    var d = parseDateStr(r['Date']||'');
+    return actDateKey(d) === tKey;
+  });
+
+  var statusEl = document.getElementById('act-status');
+
+  // ── Day summary cards ──
+  var totalMin = 0, totalPC = 0, players = {}, types = {};
+  dayRows.forEach(function(r){
+    var min = parseInt(r['Duration (min)'])||0;
+    var pc  = parseInt(r['PC'])||0;
+    var name = r['Athlete']||r['athlete']||'';
+    var type = r['Training Type']||'';
+    totalMin += min; totalPC += pc;
+    if(name) players[name]=true;
+    if(type) types[type]=(types[type]||0)+1;
+  });
+  var playerCount = Object.keys(players).length;
+  var topType = Object.keys(types).sort(function(a,b){return types[b]-types[a];})[0]||'—';
+
+  document.getElementById('act-day-cards').innerHTML =
+    '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+dStr.split(',')[0]+'</div></div>'
+    +'<div class="metric"><div class="metric-label">Total minutes</div><div class="metric-value">'+totalMin+'<span>min</span></div><div class="metric-sub">team combined</div></div>'
+    +'<div class="metric"><div class="metric-label">Total load (PC)</div><div class="metric-value">'+totalPC.toLocaleString()+'</div><div class="metric-sub">team combined</div></div>'
+    +'<div class="metric"><div class="metric-label">Training type</div><div class="metric-value" style="font-size:16px;line-height:1.2">'+topType+'</div></div>';
+
+  // ── Day table ──
+  var thead = '<tr>'
+    +'<th style="text-align:left;width:170px">Player</th>'
+    +'<th style="text-align:left">Type</th>'
+    +'<th>Duration</th>'
+    +'<th>DR</th>'
+    +'<th>Load (PC)</th>'
+    +'<th style="text-align:left">Group</th>'
+    +'<th style="text-align:left">Notes</th>'
+    +'</tr>';
+  document.getElementById('act-day-thead').innerHTML = thead;
+
+  if(!dayRows.length){
+    statusEl.className='w-status error';
+    statusEl.textContent='No activity data for '+dStr;
+    document.getElementById('act-day-tbody').innerHTML='<tr><td colspan="7" style="padding:20px;color:var(--dim);font-family:var(--mono);font-size:11px;text-align:center">No data for this day</td></tr>';
+  } else {
+    statusEl.className='w-status ok';
+    statusEl.textContent='✓ '+dayRows.length+' records for '+dStr;
+    document.getElementById('act-day-tbody').innerHTML = dayRows.map(function(r){
+      return '<tr>'
+        +'<td style="font-weight:500;text-align:left">'+(r['Athlete']||'—')+'</td>'
+        +'<td style="text-align:left">'+typeBadge(r['Training Type']||'')+'</td>'
+        +'<td class="act-num">'+(r['Duration (min)']||'—')+'<span class="act-dim"> min</span></td>'
+        +'<td class="act-num">'+(r['DR']||'—')+'</td>'
+        +'<td class="act-num">'+(parseInt(r['PC'])||'—').toLocaleString()+'</td>'
+        +'<td style="text-align:left;color:var(--muted);font-size:11px">'+(r['Group']||'—')+'</td>'
+        +'<td style="text-align:left;color:var(--muted);font-size:11px;white-space:normal">'+(r['Notes:']||r['Notes']||'—')+'</td>'
+        +'</tr>';
+    }).join('');
+  }
+
+  // ── 7-day data ──
+  var today = new Date();
+  var days7 = [];
+  for(var i=6;i>=0;i--){
+    var d=new Date(today);
+    d.setDate(today.getDate()-i);
+    days7.push(d);
+  }
+
+  var dayLoadMap={}, dayMinMap={}, dayLabelMap={};
+  days7.forEach(function(d){
+    var k=actDateKey(d);
+    dayLoadMap[k]=0; dayMinMap[k]=0;
+    dayLabelMap[k]=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+  });
+  activityRows.forEach(function(r){
+    var d=parseDateStr(r['Date']||'');
+    var k=actDateKey(d);
+    if(k in dayLoadMap){
+      dayLoadMap[k]+=(parseInt(r['PC'])||0);
+      dayMinMap[k]+=(parseInt(r['Duration (min)'])||0);
+    }
+  });
+  var chartLabels = days7.map(function(d){return dayLabelMap[actDateKey(d)];});
+  var loadData    = days7.map(function(d){return dayLoadMap[actDateKey(d)];});
+  var minData     = days7.map(function(d){return dayMinMap[actDateKey(d)];});
+
+  if(actLoadChart) actLoadChart.destroy();
+  actLoadChart = new Chart(document.getElementById('act-load-chart'),{
+    type:'bar',
+    data:{labels:chartLabels,datasets:[{label:'Total Load (PC)',data:loadData,backgroundColor:days7.map(function(d){return actDateKey(d)===tKey?'#e8630a':'#1a56c4';}),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' PC: '+ctx.raw.toLocaleString();}}}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}}}
+  });
+
+  if(actMinChart) actMinChart.destroy();
+  actMinChart = new Chart(document.getElementById('act-min-chart'),{
+    type:'bar',
+    data:{labels:chartLabels,datasets:[{label:'Total Minutes',data:minData,backgroundColor:days7.map(function(d){return actDateKey(d)===tKey?'#e8630a':'#1a56c4';}),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' '+ctx.raw+' min';}}}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}}}
+  });
+
+  // ── 7-day per-player table ──
+  var playerData={};
+  days7.forEach(function(d){
+    var k=actDateKey(d);
+    activityRows.filter(function(r){return actDateKey(parseDateStr(r['Date']||''))===k;}).forEach(function(r){
+      var name=r['Athlete']||'';
+      if(!name) return;
+      if(!playerData[name]) playerData[name]={mins:Array(7).fill(0),loads:Array(7).fill(0),types:{}};
+      var idx=days7.findIndex(function(dd){return actDateKey(dd)===k;});
+      playerData[name].mins[idx]+=(parseInt(r['Duration (min)'])||0);
+      playerData[name].loads[idx]+=(parseInt(r['PC'])||0);
+      var t=r['Training Type']||'';
+      if(t) playerData[name].types[t]=(playerData[name].types[t]||0)+1;
+    });
+  });
+
+  var wThead='<tr><th style="text-align:left;width:160px">Player</th>'
+    +chartLabels.map(function(l){return '<th>'+l+'<div style="font-size:8px;font-weight:400;color:var(--blue);margin-top:1px">PC</div></th>';}).join('')
+    +'<th>7d Total<div style="font-size:8px;font-weight:400;color:var(--blue);margin-top:1px">min</div></th>'
+    +'<th>7d Load<div style="font-size:8px;font-weight:400;color:var(--blue);margin-top:1px">PC</div></th>'
+    +'</tr>';
+  document.getElementById('act-week-thead').innerHTML=wThead;
+
+  var names=Object.keys(playerData).sort();
+  document.getElementById('act-week-tbody').innerHTML = names.map(function(name){
+    var pd=playerData[name];
+    var totalMin7=pd.mins.reduce(function(a,b){return a+b;},0);
+    var totalPC7=pd.loads.reduce(function(a,b){return a+b;},0);
+    return '<tr>'
+      +'<td style="font-weight:500;text-align:left">'+name+'</td>'
+      +pd.loads.map(function(v,i){
+        var hasData=v>0||pd.mins[i]>0;
+        return '<td style="font-family:var(--mono)">'
+          +(hasData?'<span style="display:block;font-size:12px;color:var(--text)">'+v.toLocaleString()+'</span><span style="font-size:10px;color:var(--dim)">'+pd.mins[i]+'m</span>':'<span style="color:var(--dim)">—</span>')
+          +'</td>';
+      }).join('')
+      +'<td class="act-num">'+totalMin7+'<span class="act-dim"> min</span></td>'
+      +'<td class="act-num">'+totalPC7.toLocaleString()+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+showPage('activity');
 loadAll();
 </script>
 </body>
