@@ -861,10 +861,12 @@ function renderActivity(){
   var playerCount = Object.keys(players).length;
   var topType = Object.keys(types).sort(function(a,b){return types[b]-types[a];})[0]||'—';
 
+  var avgMin = playerCount ? Math.round(totalMin/playerCount) : 0;
+  var avgPC  = playerCount ? Math.round(totalPC/playerCount)  : 0;
   document.getElementById('act-day-cards').innerHTML =
     '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+dStr.split(',')[0]+'</div></div>'
-    +'<div class="metric"><div class="metric-label">Total minutes</div><div class="metric-value">'+totalMin+'<span>min</span></div><div class="metric-sub">team combined</div></div>'
-    +'<div class="metric"><div class="metric-label">Total load (PC)</div><div class="metric-value">'+totalPC.toLocaleString()+'</div><div class="metric-sub">team combined</div></div>'
+    +'<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">team average</div></div>'
+    +'<div class="metric"><div class="metric-label">Avg load (PC) / player</div><div class="metric-value">'+avgPC.toLocaleString()+'</div><div class="metric-sub">team average</div></div>'
     +'<div class="metric"><div class="metric-label">Training type</div><div class="metric-value" style="font-size:16px;line-height:1.2">'+topType+'</div></div>';
 
   // ── Day table ──
@@ -886,15 +888,35 @@ function renderActivity(){
   } else {
     statusEl.className='w-status ok';
     statusEl.textContent='✓ '+dayRows.length+' records for '+dStr;
-    document.getElementById('act-day-tbody').innerHTML = dayRows.map(function(r){
+    // Group by player for day table
+    var byPlayer = {};
+    dayRows.forEach(function(r){
+      var name = r['Athlete']||'';
+      if(!name) return;
+      if(!byPlayer[name]) byPlayer[name]={types:[],totalMin:0,totalPC:0,drs:[],groups:[],notes:[]};
+      var t = r['Training Type']||'';
+      if(t && byPlayer[name].types.indexOf(t)===-1) byPlayer[name].types.push(t);
+      byPlayer[name].totalMin += (parseInt(r['Duration (min)'])||0);
+      byPlayer[name].totalPC  += (parseInt(r['PC'])||0);
+      var dr = r['DR']||'';
+      if(dr && byPlayer[name].drs.indexOf(dr)===-1) byPlayer[name].drs.push(dr);
+      var g = r['Group']||'';
+      if(g && byPlayer[name].groups.indexOf(g)===-1) byPlayer[name].groups.push(g);
+      var n = (r['Notes:']||r['Notes']||'').trim();
+      if(n && byPlayer[name].notes.indexOf(n)===-1) byPlayer[name].notes.push(n);
+    });
+    document.getElementById('act-day-tbody').innerHTML = Object.keys(byPlayer).sort().map(function(name){
+      var p = byPlayer[name];
+      var typesHtml = p.types.map(function(t){return typeBadge(t);}).join(' ');
+      var notesStr  = p.notes.filter(Boolean).join(', ')||'—';
       return '<tr>'
-        +'<td style="font-weight:500;text-align:left">'+(r['Athlete']||'—')+'</td>'
-        +'<td style="text-align:left">'+typeBadge(r['Training Type']||'')+'</td>'
-        +'<td class="act-num">'+(r['Duration (min)']||'—')+'<span class="act-dim"> min</span></td>'
-        +'<td class="act-num">'+(r['DR']||'—')+'</td>'
-        +'<td class="act-num">'+(parseInt(r['PC'])||'—').toLocaleString()+'</td>'
-        +'<td style="text-align:left;color:var(--muted);font-size:11px">'+(r['Group']||'—')+'</td>'
-        +'<td style="text-align:left;color:var(--muted);font-size:11px;white-space:normal">'+(r['Notes:']||r['Notes']||'—')+'</td>'
+        +'<td style="font-weight:500;text-align:left">'+name+'</td>'
+        +'<td style="text-align:left">'+typesHtml+'</td>'
+        +'<td class="act-num">'+p.totalMin+'<span class="act-dim"> min</span></td>'
+        +'<td class="act-num">'+(p.drs.join(', ')||'—')+'</td>'
+        +'<td class="act-num">'+p.totalPC.toLocaleString()+'</td>'
+        +'<td style="text-align:left;color:var(--muted);font-size:11px">'+(p.groups.join(', ')||'—')+'</td>'
+        +'<td style="text-align:left;color:var(--muted);font-size:11px;white-space:normal">'+notesStr+'</td>'
         +'</tr>';
     }).join('');
   }
