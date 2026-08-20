@@ -1207,24 +1207,6 @@ function renderActivity(){
   var secColorMap={};
   secTypes.forEach(function(t,i){secColorMap[t]=secColors[i%secColors.length];});
 
-  // Legend HTML
-  var legendHtml='<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:11px;font-family:var(--mono);">';
-  legendHtml+='<span style="display:flex;align-items:center;gap:5px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#1a56c4;display:inline-block"></span>Avg team PC (main)</span>';
-  secTypes.forEach(function(t){
-    legendHtml+='<span style="display:flex;align-items:center;gap:5px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:'+secColorMap[t]+';display:inline-block"></span>'+t+' avg PC (7+ players)</span>';
-  });
-  legendHtml+='</div>';
-
-  // Inject legend before table
-  var weekSection=document.getElementById('act-week-table');
-  var legendEl=document.getElementById('act-week-legend');
-  if(!legendEl){
-    var ld=document.createElement('div');
-    ld.id='act-week-legend';
-    weekSection.parentNode.insertBefore(ld,weekSection);
-  }
-  document.getElementById('act-week-legend').innerHTML=legendHtml;
-
   // Table header
   var wThead='<tr><th style="text-align:left;width:80px">Date</th><th style="text-align:left;width:80px">Day</th><th>Players</th>'
     +'<th>Avg PC<div style="font-size:8px;font-weight:400;color:var(--blue);margin-top:1px">main</div></th>'
