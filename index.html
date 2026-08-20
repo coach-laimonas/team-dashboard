@@ -820,15 +820,32 @@ function actShiftDay(delta){
   renderActivity();
 }
 
+// Global activity color map — consistent across badges, table, charts
+var ACT_COLOR_MAP = {
+  game:        {bg:'#fff3e0',text:'#cc6600',chart:'#e8630a'},
+  mixed:       {bg:'#e8f0fe',text:'#1a56c4',chart:'#1a56c4'},
+  strength:    {bg:'#fce4ec',text:'#b71c1c',chart:'#e53935'},
+  power:       {bg:'#fce4ec',text:'#b71c1c',chart:'#e53935'},
+  basketball:  {bg:'#e8f5e9',text:'#2e7d32',chart:'#43a047'},
+  skills:      {bg:'#e8f5e9',text:'#2e7d32',chart:'#43a047'},
+  conditioning:{bg:'#f3e5f5',text:'#6a1b9a',chart:'#8e24aa'},
+  running:     {bg:'#f3e5f5',text:'#6a1b9a',chart:'#8e24aa'},
+  default:     {bg:'#eaf0f9',text:'#4a6080',chart:'#8ca0bc'}
+};
+
+function getActColors(t) {
+  var tl = (t||'').toLowerCase();
+  if(tl.indexOf('game')!==-1)                              return ACT_COLOR_MAP.game;
+  if(tl.indexOf('mixed')!==-1)                             return ACT_COLOR_MAP.mixed;
+  if(tl.indexOf('strength')!==-1||tl.indexOf('power')!==-1) return ACT_COLOR_MAP.strength;
+  if(tl.indexOf('basketball')!==-1||tl.indexOf('skill')!==-1) return ACT_COLOR_MAP.basketball;
+  if(tl.indexOf('condition')!==-1||tl.indexOf('running')!==-1) return ACT_COLOR_MAP.conditioning;
+  return ACT_COLOR_MAP.default;
+}
+
 function typeBadge(t){
-  var tl=(t||'').toLowerCase();
-  var cls='act-type-badge';
-  if(tl.indexOf('game')!==-1) cls+=' act-type-game';
-  else if(tl.indexOf('mixed')!==-1) cls+=' act-type-mixed';
-  else if(tl.indexOf('strength')!==-1||tl.indexOf('power')!==-1) cls+=' act-type-strength';
-  else if(tl.indexOf('skill')!==-1||tl.indexOf('basketball')!==-1) cls+=' act-type-skills';
-  else if(tl.indexOf('condition')!==-1||tl.indexOf('running')!==-1) cls+=' act-type-conditioning';
-  return '<span class="'+cls+'">'+t+'</span>';
+  var c = getActColors(t);
+  return '<span class="act-type-badge" style="background:'+c.bg+';color:'+c.text+'">'+t+'</span>';
 }
 
 function renderActivity(){
@@ -949,9 +966,6 @@ function renderActivity(){
   var minData     = days7.map(function(d){return dayMinMap[actDateKey(d)];});
 
   // ── Build per-day averages + secondary stacked data for charts ──
-  var ACT_COLORS = {'main':'#1a56c4','highlighted':'#e8630a','sec0':'#9c27b0','sec1':'#00897b','sec2':'#c62828','sec3':'#f57c00','sec4':'#1565c0'};
-  var secColorList = [ACT_COLORS.sec0,ACT_COLORS.sec1,ACT_COLORS.sec2,ACT_COLORS.sec3,ACT_COLORS.sec4];
-
   // For each day compute: main avg PC, avg min, and secondary type avg PCs (threshold 7+)
   var dayChartData = days7.map(function(d){
     var k = actDateKey(d);
@@ -991,39 +1005,79 @@ function renderActivity(){
   dayChartData.forEach(function(dd){Object.keys(dd.sec).forEach(function(t){allSecTypesChart[t]=true;});});
   var secTypesList=Object.keys(allSecTypesChart);
 
-  // ── Load chart (stacked avg PC) ──
-  var loadDatasets=[];
-  // Main dataset — avg PC total minus secondary PCs (so stacking shows breakdown)
-  loadDatasets.push({
-    label:'Avg PC (main)',
-    data:dayChartData.map(function(dd){
-      var secSum=secTypesList.reduce(function(s,t){return s+(dd.sec[t]||0);},0);
-      return Math.max(0,dd.avgPC-secSum);
-    }),
-    backgroundColor:dayChartData.map(function(dd){return dd.isSelected?'#e8630a':'#1a56c4';}),
-    borderRadius:0,
-    stack:'pc'
+  // ── Collect all activity types that appear across 7 days with 7+ players ──
+  var allChartTypes = {};
+  dayChartData.forEach(function(dd){
+    Object.keys(dd.sec).forEach(function(t){
+      // Exclude Day Off or zero-PC types
+      if(t.toLowerCase().indexOf('day off')!==-1||t.toLowerCase().indexOf('rest')!==-1) return;
+      allChartTypes[t] = true;
+    });
   });
-  secTypesList.forEach(function(t,i){
+  var chartTypesList = Object.keys(allChartTypes);
+
+  // Main type: the dominant type for each day (most players)
+  // We'll show main as one dataset per activity type — each its own color, grouped bars
+  // Find all unique main types across 7 days
+  var allMainTypes = {};
+  dayChartData.forEach(function(dd,i){
+    var k = actDateKey(days7[i]);
+    var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k; });
+    var typeCount = {};
+    dayR.forEach(function(r){
+      var t=(r['Training Type']||'').trim();
+      if(t&&t.toLowerCase().indexOf('day off')===-1) typeCount[t]=(typeCount[t]||0)+1;
+    });
+    // Dominant type = most players
+    var dom = Object.keys(typeCount).sort(function(a,b){return typeCount[b]-typeCount[a];})[0]||'';
+    dd.mainType = dom;
+    if(dom) allMainTypes[dom]=true;
+  });
+
+  // Build datasets: one per activity type, showing its avg PC for days it appears with 7+ players
+  // For days with fewer players doing that type, show 0 (not stacked, grouped)
+  var loadDatasets = [];
+  var allTypesForChart = {};
+  // Include main types + secondary types
+  dayChartData.forEach(function(dd){ if(dd.mainType) allTypesForChart[dd.mainType]=true; });
+  chartTypesList.forEach(function(t){ allTypesForChart[t]=true; });
+  var typesForChart = Object.keys(allTypesForChart).filter(function(t){
+    return t.toLowerCase().indexOf('day off')===-1&&t.toLowerCase().indexOf('rest')===-1;
+  });
+
+  // For each type, build a dataset
+  typesForChart.forEach(function(t){
+    var c = getActColors(t);
     loadDatasets.push({
-      label:t+' avg PC',
-      data:dayChartData.map(function(dd){return dd.sec[t]||0;}),
-      backgroundColor:secColorList[i%secColorList.length],
-      borderRadius:0,
-      stack:'pc'
+      label: t,
+      data: dayChartData.map(function(dd,i){
+        // avg PC for players who did this activity on this day
+        var k = actDateKey(days7[i]);
+        var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k&&(r['Training Type']||'').trim()===t; });
+        if(!dayR.length) return 0;
+        var byP={};
+        dayR.forEach(function(r){var n=r['Athlete']||'';if(n){if(!byP[n])byP[n]=0;byP[n]+=(parseInt(r['PC'])||0);}});
+        var ps=Object.keys(byP);
+        return ps.length?Math.round(ps.reduce(function(s,p){return s+byP[p];},0)/ps.length):0;
+      }),
+      backgroundColor: c.chart,
+      borderRadius: 3,
+      stack: 'pc'
     });
   });
 
-  // ── Min chart (avg minutes, stacked by same secondary types) ──
-  var minDatasets=[{
+  // Min chart — one bar per day, avg minutes, colored by main activity type
+  var minDatasets = [{
     label:'Avg minutes',
-    data:dayChartData.map(function(dd){return dd.avgMin;}),
-    backgroundColor:dayChartData.map(function(dd){return dd.isSelected?'#e8630a':'#1a56c4';}),
-    borderRadius:4,
-    stack:'min'
+    data: dayChartData.map(function(dd){ return dd.avgMin; }),
+    backgroundColor: dayChartData.map(function(dd){
+      var c = getActColors(dd.mainType||'');
+      return dd.isSelected ? '#e8630a' : c.chart;
+    }),
+    borderRadius: 4
   }];
 
-  var showLegend = secTypesList.length > 0;
+  var showLegend = typesForChart.length > 1;
 
   if(actLoadChart) actLoadChart.destroy();
   actLoadChart = new Chart(document.getElementById('act-load-chart'),{
