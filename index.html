@@ -226,6 +226,23 @@
     <!-- Day summary cards -->
     <div class="metrics-row" id="act-day-cards" style="margin-bottom:24px"></div>
 
+    <!-- Drill pie charts -->
+    <div class="section-label">Practice structure — selected day</div>
+    <div class="pie-grid" style="margin-bottom:28px;">
+      <div class="pie-card">
+        <div class="pie-card-title">Drill type × time</div>
+        <div class="pie-wrap"><canvas id="drill-type-chart"></canvas></div>
+      </div>
+      <div class="pie-card">
+        <div class="pie-card-title">Players in space × time</div>
+        <div class="pie-wrap"><canvas id="drill-space-chart"></canvas></div>
+      </div>
+      <div class="pie-card">
+        <div class="pie-card-title">Drill size × time</div>
+        <div class="pie-wrap"><canvas id="drill-size-chart"></canvas></div>
+      </div>
+    </div>
+
     <!-- Day table -->
     <div class="section-label">Player breakdown — selected day</div>
     <div class="table-wrap" style="margin-bottom:32px;overflow-x:auto">
@@ -357,6 +374,7 @@ var WORKOUT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8h3woy8ASx
 var WELLNESS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn9Yytd5qEBHAtB6oNKfCiltSPfIX8ujUbZZmEr1TkWwdhXdDIOypq7PY7vbZNQixAZ0df7uuXL_SL/pub?output=csv';
 var AVAIL_CSV    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDPC79mBEw2RtYqtQVToveh6mStxy5Wg1hByYO0KAagTkCeCUHuiNbqNdaHIAOqQ/pub?output=csv';
 var ACTIVITY_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFzeR7REdLwy71kz-dtLhexw59cyENKgjNhRvYVsQLnptLs6pCkKJtYLYACdqluA/pub?output=csv';
+var DRILL_CSV    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRyp4qnXKoZjG0-mi3a_ciY3sIaJ_y5oTNrGKQ44wpdWJ6FCAZMn96n8bUEclaE0g/pub?output=csv';
 
 var SCORE_COLORS = ['#d63031','#e17055','#fdcb6e','#81b214','#00b894'];
 var gridC = 'rgba(30,80,180,0.08)';
@@ -387,7 +405,8 @@ function loadAll() {
   var p2 = loadWellness();
   var p3 = loadAvailability();
   var p4 = loadActivity();
-  Promise.all([p1, p2, p3, p4]).then(function() { btn.classList.remove('loading'); });
+  var p5 = loadDrills();
+  Promise.all([p1, p2, p3, p4, p5]).then(function() { btn.classList.remove('loading'); });
 }
 
 // ── WORKOUTS ─────────────────────────────────────────────────────────────────
@@ -799,6 +818,7 @@ function renderAvailability(csvText) {
 var activityRows = [];
 var actDayOffset = 0;
 var actLoadChart = null, actMinChart = null;
+var drillTypeChart = null, drillSpaceChart = null, drillSizeChart = null;
 
 function loadActivity() {
   return fetch(ACTIVITY_CSV + '&t=' + Date.now())
@@ -874,6 +894,100 @@ function typeBadge(t){
   return '<span class="act-type-badge" style="background:'+c.bg+';color:'+c.text+'">'+t+'</span>';
 }
 
+
+function loadDrills() {
+  return fetch(DRILL_CSV + '&t=' + Date.now())
+    .then(function(r){ return r.text(); })
+    .then(function(text){ drillRows = parseDrillCSV(text); })
+    .catch(function(e){ console.warn('Drill CSV failed:', e.message); });
+}
+
+function parseDrillCSV(text) {
+  text = text.replace(/^\uFEFF/, '');
+  var sep = text.indexOf('\t') !== -1 ? '\t' : ',';
+  var lines = text.trim().split('\n');
+  // Find header row containing "Drill Type"
+  var hIdx = 0;
+  for(var i = 0; i < Math.min(lines.length, 5); i++) {
+    if(lines[i].toLowerCase().indexOf('drill type') !== -1) { hIdx = i; break; }
+  }
+  var headers = lines[hIdx].replace(/\r$/, '').split(sep).map(function(h){ return h.trim().replace(/^"+|"+$/g,''); });
+  var rows = [];
+  var lastDay = '', lastDate = '';
+  lines.slice(hIdx + 1).forEach(function(l) {
+    var cols = l.replace(/\r$/, '').split(sep).map(function(c){ return c.trim().replace(/^"+|"+$/g,''); });
+    var o = {};
+    headers.forEach(function(h, i){ o[h] = cols[i] || ''; });
+    // Carry forward Day and Date from previous rows
+    if(o['Day']) lastDay = o['Day'];
+    if(o['Date']) lastDate = o['Date'];
+    o['Day']  = lastDay;
+    o['Date'] = lastDate;
+    // Skip summary/empty rows (no Drill Type)
+    if(!o['Drill Type'] || !o['Time']) return;
+    var t = parseInt(o['Time']);
+    if(!t) return;
+    rows.push(o);
+  });
+  return rows;
+}
+
+function parseDrillDate(s) {
+  var parts = (s||'').split('/');
+  if(parts.length === 3) return new Date(parseInt(parts[2]), parseInt(parts[0])-1, parseInt(parts[1]));
+  return new Date(s);
+}
+
+var DRILL_COLORS = [
+  '#1a56c4','#43a047','#e8630a','#8e24aa','#e53935',
+  '#00897b','#f57c00','#6d4c41','#546e7a','#d81b60',
+  '#c0ca33','#039be5'
+];
+
+function buildDrillPie(canvasId, data, existing) {
+  if(existing) existing.destroy();
+  if(!data || !Object.keys(data).length) return null;
+  var labels = Object.keys(data);
+  var values = labels.map(function(k){ return data[k]; });
+  var colors = labels.map(function(_, i){ return DRILL_COLORS[i % DRILL_COLORS.length]; });
+  return new Chart(document.getElementById(canvasId), {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: tickC, font: { size: 10 }, boxWidth: 10, padding: 6 } },
+        tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.label + ': ' + ctx.raw + ' min'; } } }
+      }
+    }
+  });
+}
+
+function buildDrillPies(tKey) {
+  // Filter drill rows for selected day
+  var dayDrills = drillRows.filter(function(r){
+    if(!r['Date']) return false;
+    var d = parseDrillDate(r['Date']);
+    return actDateKey(d) === tKey;
+  });
+
+  // Aggregate time by category
+  var byType = {}, bySpace = {}, bySize = {};
+  dayDrills.forEach(function(r) {
+    var t   = (r['Drill Type'] || '').trim();
+    var sp  = (r['Players in Space'] || '').trim();
+    var sz  = (r['Drill Size'] || '').trim();
+    var min = parseInt(r['Time']) || 0;
+    if(t)  byType[t]  = (byType[t]  || 0) + min;
+    if(sp) bySpace[sp]= (bySpace[sp] || 0) + min;
+    if(sz) bySize[sz] = (bySize[sz]  || 0) + min;
+  });
+
+  drillTypeChart  = buildDrillPie('drill-type-chart',  byType,  drillTypeChart);
+  drillSpaceChart = buildDrillPie('drill-space-chart', bySpace, drillSpaceChart);
+  drillSizeChart  = buildDrillPie('drill-size-chart',  bySize,  drillSizeChart);
+}
+
 function renderActivity(){
   var target = new Date();
   target.setDate(target.getDate()+actDayOffset);
@@ -890,6 +1004,9 @@ function renderActivity(){
   });
 
   var statusEl = document.getElementById('act-status');
+
+  // ── Drill pie charts ──
+  buildDrillPies(tKey);
 
   // ── Day summary cards ──
   var totalMin = 0, totalPC = 0, players = {}, types = {};
