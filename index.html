@@ -256,12 +256,41 @@
     <div class="section-label">Past 7 days — team overview</div>
     <div class="charts-row" style="margin-bottom:24px">
       <div class="chart-card">
-        <div class="chart-card-title">Avg load per player (PC) — stacked by activity</div>
+        <div class="chart-card-title">Avg load per player (PS) — stacked by activity</div>
         <div class="chart-wrap"><canvas id="act-load-chart"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Avg minutes per player per day</div>
         <div class="chart-wrap"><canvas id="act-min-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Monotony chart -->
+    <div class="section-label">Training load monotony &amp; strain — rolling 7 days</div>
+    <div class="charts-row" style="margin-bottom:8px;">
+      <div class="chart-card" style="grid-column:1/-1">
+        <div class="chart-card-title">Monotony &amp; strain per day</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="monotony-chart"></canvas></div>
+      </div>
+    </div>
+    <!-- Interpretation legend -->
+    <div style="background:#fff;border:1px solid rgba(30,80,180,0.1);border-radius:8px;padding:14px 18px;margin-bottom:28px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#8ca0bc;margin-bottom:8px;">Monotony interpretation</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#43a047;margin-right:6px;vertical-align:middle"></span><strong>&lt; 1.5</strong> <span style="color:#4a6080">— Good variation, low overtraining risk</span></span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f57c00;margin-right:6px;vertical-align:middle"></span><strong>1.5 – 2.0</strong> <span style="color:#4a6080">— Moderate, monitor closely</span></span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e53935;margin-right:6px;vertical-align:middle"></span><strong>&gt; 2.0</strong> <span style="color:#4a6080">— High monotony, overtraining concern</span></span>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#8ca0bc;margin-bottom:8px;">How it is calculated</div>
+        <div style="font-size:11px;color:#4a6080;line-height:1.7;">
+          <strong>Daily load</strong> = Avg team PS that day<br>
+          <strong>Monotony</strong> = Mean(7d loads) ÷ SD(7d loads)<br>
+          <strong>Strain</strong> = Weekly load × Monotony<br>
+          <span style="color:#8ca0bc">Rolling 7-day window, updated daily</span>
+        </div>
       </div>
     </div>
 
@@ -819,6 +848,7 @@ var activityRows = [];
 var actDayOffset = 0;
 var actLoadChart = null, actMinChart = null;
 var drillTypeChart = null, drillSpaceChart = null, drillSizeChart = null;
+var monotonyChart = null;
 
 function loadActivity() {
   return fetch(ACTIVITY_CSV + '&t=' + Date.now())
@@ -988,6 +1018,165 @@ function buildDrillPies(tKey) {
   drillSizeChart  = buildDrillPie('drill-size-chart',  bySize,  drillSizeChart);
 }
 
+
+function buildMonotonyChart() {
+  // Collect all unique dates from activity data, sorted
+  var dateMap = {};
+  activityRows.forEach(function(r){
+    var d = parseDateStr(r['Date']||'');
+    if(!isNaN(d)) {
+      var k = actDateKey(d);
+      if(!dateMap[k]) dateMap[k] = { sum:0, n:0, ts:d.getTime() };
+      dateMap[k].sum += (parseInt(r['PC'])||0);
+      dateMap[k].count = (dateMap[k].count||0) + 1;
+    }
+  });
+
+  // Compute avg team PC per day
+  // Group by player per day first to get true team average
+  var dayPlayerMap = {};
+  activityRows.forEach(function(r){
+    var d = parseDateStr(r['Date']||'');
+    if(isNaN(d)) return;
+    var k = actDateKey(d);
+    var name = r['Athlete']||'';
+    if(!name) return;
+    if(!dayPlayerMap[k]) dayPlayerMap[k] = {};
+    if(!dayPlayerMap[k][name]) dayPlayerMap[k][name] = 0;
+    dayPlayerMap[k][name] += (parseInt(r['PC'])||0);
+  });
+
+  // Avg PS per day = mean across players
+  var dayAvgPC = {};
+  Object.keys(dayPlayerMap).forEach(function(k){
+    var players = Object.keys(dayPlayerMap[k]);
+    var total = players.reduce(function(s,p){ return s + dayPlayerMap[k][p]; }, 0);
+    dayAvgPC[k] = players.length ? total / players.length : 0;
+  });
+
+  // Sort dates
+  var sortedKeys = Object.keys(dayAvgPC).sort(function(a,b){
+    return new Date(a) - new Date(b);
+  });
+
+  if(sortedKeys.length < 2) {
+    if(monotonyChart) { monotonyChart.destroy(); monotonyChart = null; }
+    return;
+  }
+
+  // Compute rolling 7-day monotony and strain for each date
+  var labels = [], monotonyData = [], strainData = [], bgColors = [];
+
+  sortedKeys.forEach(function(k, idx) {
+    // Get 7-day window ending on this day
+    var window7 = sortedKeys.slice(Math.max(0, idx - 6), idx + 1);
+    var loads = window7.map(function(wk){ return dayAvgPC[wk] || 0; });
+
+    var mean = loads.reduce(function(s,v){return s+v;},0) / loads.length;
+    var variance = loads.reduce(function(s,v){return s+Math.pow(v-mean,2);},0) / loads.length;
+    var sd = Math.sqrt(variance);
+
+    var monotony = sd > 0 ? parseFloat((mean / sd).toFixed(2)) : null;
+    var weeklyLoad = loads.reduce(function(s,v){return s+v;},0);
+    var strain = monotony !== null ? parseFloat((weeklyLoad * monotony).toFixed(0)) : null;
+
+    // Date label DD/MM
+    var dt = parseDateStr(k);
+    var label = String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0');
+
+    // Color by monotony zone
+    var color = monotony === null ? '#8ca0bc'
+      : monotony < 1.5 ? '#43a047'
+      : monotony < 2.0 ? '#f57c00'
+      : '#e53935';
+
+    labels.push(label);
+    monotonyData.push(monotony);
+    strainData.push(strain);
+    bgColors.push(color);
+  });
+
+  if(monotonyChart) monotonyChart.destroy();
+  monotonyChart = new Chart(document.getElementById('monotony-chart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Monotony',
+          data: monotonyData,
+          borderColor: '#1a56c4',
+          backgroundColor: 'rgba(26,86,196,0.06)',
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: bgColors,
+          pointBorderColor: bgColors,
+          pointHoverRadius: 7,
+          tension: 0.3,
+          fill: true,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Strain',
+          data: strainData,
+          borderColor: '#e8630a',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [5,3],
+          pointRadius: 4,
+          pointBackgroundColor: '#e8630a',
+          pointHoverRadius: 6,
+          tension: 0.3,
+          fill: false,
+          yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true, position: 'top',
+          labels: { color: tickC, font: { size: 11 }, boxWidth: 12, padding: 16 }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              if(ctx.datasetIndex === 0) return ' Monotony: ' + ctx.raw;
+              return ' Strain: ' + (ctx.raw||'').toLocaleString();
+            },
+            afterBody: function(ctx) {
+              var m = monotonyData[ctx[0].dataIndex];
+              if(m === null) return '';
+              if(m < 1.5) return '✓ Good variation';
+              if(m < 2.0) return '⚠ Monitor closely';
+              return '✗ High — overtraining risk';
+            }
+          }
+        },
+        // Threshold lines via annotation plugin (fallback: just reference lines)
+      },
+      scales: {
+        x: { ticks: { color: tickC, font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 20 }, grid: { color: gridC }, border: { display: false } },
+        y: {
+          min: 0,
+          ticks: { color: tickC, font: { size: 11 } },
+          grid: { color: gridC },
+          border: { display: false },
+          title: { display: true, text: 'Monotony', color: tickC, font: { size: 10 } }
+        },
+        y2: {
+          position: 'right',
+          ticks: { color: '#e8630a', font: { size: 11 } },
+          grid: { drawOnChartArea: false },
+          border: { display: false },
+          title: { display: true, text: 'Strain', color: '#e8630a', font: { size: 10 } }
+        }
+      }
+    }
+  });
+}
+
 function renderActivity(){
   var target = new Date();
   target.setDate(target.getDate()+actDayOffset);
@@ -1026,7 +1215,7 @@ function renderActivity(){
   document.getElementById('act-day-cards').innerHTML =
     '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+dStr.split(',')[0]+'</div></div>'
     +'<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">team average</div></div>'
-    +'<div class="metric"><div class="metric-label">Avg load (PC) / player</div><div class="metric-value">'+avgPC.toLocaleString()+'</div><div class="metric-sub">team average</div></div>'
+    +'<div class="metric"><div class="metric-label">Avg load (PS) / player</div><div class="metric-value">'+avgPC.toLocaleString()+'</div><div class="metric-sub">team average</div></div>'
 ;
 
   // ── Day table ──
@@ -1035,7 +1224,7 @@ function renderActivity(){
     +'<th style="text-align:left">Type</th>'
     +'<th>Duration</th>'
 
-    +'<th>Load (PC)</th>'
+    +'<th>Load (PS)</th>'
     +'<th style="text-align:left">Group</th>'
     +'<th style="text-align:left">Notes</th>'
     +'</tr>';
@@ -1108,8 +1297,11 @@ function renderActivity(){
   var loadData    = days7.map(function(d){return dayLoadMap[actDateKey(d)];});
   var minData     = days7.map(function(d){return dayMinMap[actDateKey(d)];});
 
+  // ── Monotony chart (uses all activity data) ──
+  buildMonotonyChart();
+
   // ── Build per-day averages + secondary stacked data for charts ──
-  // For each day compute: main avg PC, avg min, and secondary type avg PCs (threshold 7+)
+  // For each day compute: main avg PS, avg min, and secondary type avg PSs (threshold 7+)
   var dayChartData = days7.map(function(d){
     var k = actDateKey(d);
     var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k; });
@@ -1177,7 +1369,7 @@ function renderActivity(){
     if(dom) allMainTypes[dom]=true;
   });
 
-  // Build datasets: one per activity type, showing its avg PC for days it appears with 7+ players
+  // Build datasets: one per activity type, showing its avg PS for days it appears with 7+ players
   // For days with fewer players doing that type, show 0 (not stacked, grouped)
   var loadDatasets = [];
   var allTypesForChart = {};
@@ -1194,7 +1386,7 @@ function renderActivity(){
     loadDatasets.push({
       label: t,
       data: dayChartData.map(function(dd,i){
-        // avg PC for players who did this activity on this day
+        // avg PS for players who did this activity on this day
         var k = actDateKey(days7[i]);
         var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k&&(r['Training Type']||'').trim()===t; });
         if(!dayR.length) return 0;
@@ -1230,7 +1422,7 @@ function renderActivity(){
       responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
-        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+ctx.raw.toLocaleString()+' PC';}}}
+        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+ctx.raw.toLocaleString()+' PS';}}}
       },
       scales:{
         x:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
@@ -1297,7 +1489,7 @@ function renderActivity(){
     var typeCount={};
     pNames.forEach(function(p){Object.keys(byP[p].types).forEach(function(t){typeCount[t]=(typeCount[t]||0)+1;});});
     var secondary=Object.keys(typeCount).filter(function(t){return typeCount[t]>=SECONDARY_THRESHOLD;});
-    // For secondary, compute avg PC among players who did it
+    // For secondary, compute avg PS among players who did it
     var secData={};
     secondary.forEach(function(t){
       var dayRt=dayR.filter(function(r){return (r['Training Type']||'').trim()===t;});
@@ -1326,10 +1518,10 @@ function renderActivity(){
 
   // Table header
   var wThead='<tr><th style="text-align:left;width:80px">Date</th><th style="text-align:left;width:80px">Day</th><th>Players</th>'
-    +'<th>Avg PC<div style="font-size:8px;font-weight:400;color:var(--blue);margin-top:1px">main</div></th>'
+    +'<th>Avg PS<div style="font-size:8px;font-weight:400;color:var(--blue);margin-top:1px">main</div></th>'
     +'<th>Avg Min</th>';
   secTypes.forEach(function(t){
-    wThead+='<th style="color:'+secColorMap[t]+'">Avg PC<div style="font-size:8px;font-weight:400;margin-top:1px">'+t+'</div></th>';
+    wThead+='<th style="color:'+secColorMap[t]+'">Avg PS<div style="font-size:8px;font-weight:400;margin-top:1px">'+t+'</div></th>';
   });
   wThead+='</tr>';
   document.getElementById('act-week-thead').innerHTML=wThead;
