@@ -7,101 +7,48 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #f4f7fb;
-    --surface: #ffffff;
-    --surface2: #eaf0f9;
-    --border: rgba(30,80,180,0.1);
-    --border2: rgba(30,80,180,0.2);
-    --text: #0d1b3e;
-    --muted: #4a6080;
-    --dim: #8ca0bc;
-    --accent: #e8630a;
-    --accent2: #1a56c4;
-    --red: #e8630a;
-    --amber: #f0a84a;
-    --blue: #1a56c4;
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-    --score-1: #d63031;
-    --score-2: #e17055;
-    --score-3: #fdcb6e;
-    --score-4: #81b214;
-    --score-5: #00b894;
+    --bg: #f4f7fb; --surface: #ffffff; --surface2: #eaf0f9;
+    --border: rgba(30,80,180,0.1); --border2: rgba(30,80,180,0.2);
+    --text: #0d1b3e; --muted: #4a6080; --dim: #8ca0bc;
+    --accent: #e8630a; --accent2: #1a56c4; --red: #e8630a;
+    --amber: #f0a84a; --blue: #1a56c4;
+    --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif;
   }
-
   body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-  /* ── HEADER ── */
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 18px 32px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0;
-    background: rgba(244,247,251,0.97);
-    backdrop-filter: blur(8px); z-index: 100;
-  }
+  /* HEADER */
+  header { border-bottom: 1px solid var(--border); padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(244,247,251,0.97); backdrop-filter: blur(8px); z-index: 100; }
   .logo-wrap { display: flex; align-items: center; gap: 12px; }
   .logo-text { display: flex; flex-direction: column; gap: 1px; }
   .logo-team { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.08em; color: var(--blue); text-transform: uppercase; line-height: 1; }
-  .logo-sub  { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
+  .logo-sub { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
   .header-right { display: flex; align-items: center; gap: 16px; }
   #week-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
-  #refresh-btn {
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    background: none; border: 1px solid var(--border2); color: var(--muted);
-    padding: 6px 14px; border-radius: 4px; cursor: pointer;
-    transition: all 0.15s; display: flex; align-items: center; gap: 6px;
-  }
+  #refresh-btn { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: none; border: 1px solid var(--border2); color: var(--muted); padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
   #refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
   #refresh-btn.loading { opacity: 0.5; pointer-events: none; }
-
-  #status-bar {
-    font-family: var(--mono); font-size: 10px; color: var(--dim);
-    text-align: center; padding: 6px; border-bottom: 1px solid var(--border);
-    min-height: 24px; transition: color 0.3s;
-  }
+  #status-bar { font-family: var(--mono); font-size: 10px; color: var(--dim); text-align: center; padding: 6px; border-bottom: 1px solid var(--border); min-height: 24px; transition: color 0.3s; }
   #status-bar.error { color: var(--red); }
-  #status-bar.ok    { color: var(--accent2); }
+  #status-bar.ok { color: var(--accent2); }
 
-  /* ── MAIN LAYOUT ── */
+  /* LAYOUT */
   .main { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
 
-  /* ── PAGE TABS (top-level: Workouts / Wellness) ── */
-  .page-tabs {
-    display: flex; gap: 0; border-bottom: 2px solid var(--border);
-    margin-bottom: 28px;
-  }
-  .page-tab {
-    font-family: var(--mono); font-size: 12px; font-weight: 500;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--dim); padding: 12px 24px; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -2px;
-    white-space: nowrap; transition: color 0.15s;
-  }
+  /* PAGE TABS */
+  .page-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 28px; }
+  .page-tab { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 12px 24px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: color 0.15s; }
   .page-tab:hover { color: var(--muted); }
   .page-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
 
-  /* ── ATHLETE TABS ── */
-  .tabs-row {
-    display: flex; gap: 0; border-bottom: 1px solid var(--border);
-    margin-bottom: 28px; overflow-x: auto;
-  }
-  .tab {
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--dim); padding: 10px 18px; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-    white-space: nowrap; transition: color 0.15s;
-  }
+  /* ATHLETE TABS */
+  .tabs-row { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 28px; overflow-x: auto; }
+  .tab { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 10px 18px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: color 0.15s; }
   .tab:hover { color: var(--muted); }
   .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
 
-  /* ── METRIC CARDS ── */
+  /* METRIC CARDS */
   .metrics-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
   .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
   .metric-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
@@ -109,18 +56,17 @@
   .metric-value span { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 2px; }
   .metric-sub { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 4px; }
 
-  /* ── CHARTS ── */
+  /* CHARTS */
   .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
   .chart-card-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
   .chart-wrap { position: relative; width: 100%; height: 200px; }
-
   .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 12px; }
   .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
   .leg-sq { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-
-  /* ── TABLES ── */
   .section-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+
+  /* TABLE */
   .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
   th { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border); background: var(--surface2); font-weight: 500; }
@@ -131,192 +77,89 @@
   tr.total-row td { background: var(--surface2); font-weight: 600; font-family: var(--mono); font-size: 12px; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; }
 
-  /* ── INTENSITY SCALE ── */
+  /* INTENSITY SCALE */
   .intensity-scale { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 32px; font-size: 12px; }
   .is-header { display: grid; grid-template-columns: 52px 130px 1fr 1fr; background: var(--surface2); border-bottom: 1px solid var(--border); padding: 8px 14px; gap: 12px; }
-  .is-score-h,.is-label-h,.is-def-h,.is-example-h { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .is-score-h, .is-label-h, .is-def-h, .is-example-h { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
   .is-row { display: grid; grid-template-columns: 52px 130px 1fr 1fr; padding: 7px 14px; gap: 12px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--c) 30%, white); }
   .is-row:last-child { border-bottom: none; }
   .is-score { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--t); }
   .is-label { font-weight: 600; color: var(--t); }
-  .is-def,.is-example { color: var(--muted); font-size: 11px; }
+  .is-def, .is-example { color: var(--muted); font-size: 11px; }
+  .empty-state { padding: 48px; text-align: center; color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
+  .skeleton { animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  /* ── WELLNESS SECTION ── */
-  .wellness-header-row {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
-  }
-  .wellness-title { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  /* WELLNESS */
+  .w-section-title { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .w-section-title:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+  .w-status { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-bottom: 16px; min-height: 16px; }
+  .w-status.ok { color: var(--accent2); }
+  .w-status.error { color: var(--red); }
 
-  .day-nav { display: flex; align-items: center; gap: 12px; }
-  .day-nav-btn {
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    background: none; border: 1px solid var(--border2); color: var(--muted);
-    padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
-  }
+  /* DAY NAV */
+  .day-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .day-nav-btn { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: none; border: 1px solid var(--border2); color: var(--muted); padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
   .day-nav-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
   .day-nav-btn:disabled { opacity: 0.3; pointer-events: none; }
-  .day-nav-label { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); min-width: 180px; text-align: center; }
+  .day-nav-label { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); min-width: 200px; text-align: center; }
 
-  .wellness-status { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-bottom: 20px; min-height: 16px; }
-  .wellness-status.ok    { color: var(--accent2); }
-  .wellness-status.error { color: var(--red); }
-
-  /* Pie grid */
-  .pie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  /* PIE CHARTS */
+  .pie-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
   .pie-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
   .pie-card-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; text-align: center; }
   .pie-wrap { position: relative; height: 200px; }
 
-  /* Savijauta line chart */
-  .savijauta-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 24px; }
-  .savijauta-wrap { position: relative; height: 200px; }
+  /* DRILLDOWN */
+  .drilldown { display: none; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
+  .drilldown.show { display: block; }
+  .drilldown-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .drilldown-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .drilldown-players { display: flex; flex-wrap: wrap; gap: 8px; }
+  .drilldown-player { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 4px 12px; font-size: 13px; font-weight: 500; color: var(--text); }
 
-  /* Comment table */
+  /* MOOD CHART */
+  .mood-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 24px; }
+  .mood-wrap { position: relative; height: 180px; }
+
+  /* COMMENTS */
   .comment-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
   .comment-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
   .comment-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); background: var(--surface2); font-weight: 500; }
   .comment-table td { padding: 9px 14px; text-align: left; color: var(--text); border-bottom: 1px solid var(--border); }
   .comment-table tr:last-child td { border-bottom: none; }
   .comment-table tr:hover td { background: var(--surface2); }
+  .no-data { font-family: var(--mono); font-size: 11px; color: var(--dim); padding: 20px 14px; }
 
-  .no-data { font-family: var(--mono); font-size: 11px; color: var(--dim); padding: 24px 0; text-align: center; }
-
-  /* ── PIE DRILLDOWN ── */
-  .drilldown {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
-    display: none; animation: fadeIn 0.15s ease;
-  }
-  .drilldown.visible { display: block; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
-  .drilldown-title {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .drilldown-score-dot {
-    width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0;
-  }
-  .drilldown-players {
-    display: flex; flex-wrap: wrap; gap: 8px;
-  }
-  .drilldown-player {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 4px; padding: 4px 12px;
-    font-size: 13px; font-weight: 500; color: var(--text);
-  }
-
-  /* ── AVAILABILITY ── */
-  .avail-section { margin-top: 36px; }
-  .avail-section-title {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--dim); margin-bottom: 16px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .avail-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-
-  .avail-dates {
-    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
-  }
-  .avail-date-label {
-    font-family: var(--mono); font-size: 10px; color: var(--dim);
-    letter-spacing: 0.06em; margin-right: 4px;
-  }
-  .avail-date-chip {
-    font-family: var(--mono); font-size: 10px; font-weight: 500;
-    padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border);
-    background: var(--surface2); color: var(--muted); letter-spacing: 0.04em;
-  }
-
-  .avail-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
-  .avail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .avail-table th {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--dim); padding: 10px 14px;
-    border-bottom: 1px solid var(--border); background: var(--surface2);
-    font-weight: 500; text-align: center; white-space: nowrap;
-  }
-  .avail-table th:first-child { text-align: left; width: 180px; }
-  .avail-table th.issue-col { text-align: left; width: 120px; }
-  .avail-table th.limit-col { text-align: left; width: 160px; }
-  .avail-table td {
-    padding: 9px 14px; border-bottom: 1px solid var(--border);
-    text-align: center; vertical-align: middle;
-  }
-  .avail-table td:first-child { text-align: left; font-weight: 500; color: var(--text); white-space: nowrap; }
-  .avail-table td.issue-cell { text-align: left; font-size: 11px; color: var(--muted); }
-  .avail-table td.limit-cell { text-align: left; font-size: 11px; color: var(--muted); }
-  .avail-table tr:last-child td { border-bottom: none; }
-  .avail-table tr:hover td { background: var(--surface2); }
-
-  .avail-badge {
-    display: inline-block; padding: 3px 10px; border-radius: 4px;
-    font-family: var(--mono); font-size: 10px; font-weight: 500;
-    letter-spacing: 0.04em; white-space: nowrap;
-  }
-  .avail-ready   { background: #e6f4ea; color: #1e7e34; }
-  .avail-limited { background: #fff3cd; color: #856404; }
-  .avail-notready{ background: #fde8e8; color: #b91c1c; }
-  .avail-empty   { color: var(--dim); font-size: 11px; }
-
-  .avail-comment-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 16px 20px; margin-bottom: 8px;
-  }
-  .avail-comment-label {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--dim); margin-bottom: 8px;
-  }
-  .avail-comment-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
-
-  .avail-legend { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-  .avail-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
-
-  .avail-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
-  .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
-  .avail-sum-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
-  .avail-sum-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
-  .avail-sum-value.green { color: #1e7e34; }
-  .avail-sum-value.amber { color: #856404; }
-  .avail-sum-value.red   { color: #b91c1c; }
-
-  .empty-state { padding: 48px; text-align: center; color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
-  .skeleton { animation: pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* ── AVAILABILITY ── */
-  .avail-status { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-bottom: 20px; min-height: 16px; }
-  .avail-status.ok { color: var(--accent2); }
-  .avail-status.error { color: var(--red); }
-  .avail-dates-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
-  .avail-date-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
-  .avail-date-range { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--blue); }
-  .avail-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; overflow-x: auto; }
+  /* AVAILABILITY */
+  .avail-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .avail-sum-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 12px; }
+  .avail-sum-inner { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; text-align: center; }
+  .avail-sum-num { font-size: 28px; font-weight: 600; line-height: 1; }
+  .avail-sum-sub { font-family: var(--mono); font-size: 9px; color: var(--dim); margin-top: 3px; }
+  .avail-legend { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .avail-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; overflow-x: auto; margin-bottom: 20px; }
   .avail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .avail-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); white-space: nowrap; font-weight: 500; text-align: center; }
-  .avail-table th.name-col { text-align: left; min-width: 170px; }
-  .avail-table th.issue-col { text-align: left; min-width: 110px; }
-  .avail-table th.limit-col { text-align: left; min-width: 180px; }
+  .avail-table th:first-child { text-align: left; min-width: 160px; }
+  .avail-table th.issue-h { text-align: left; min-width: 110px; }
+  .avail-table th.limit-h { text-align: left; min-width: 170px; }
   .avail-table th:last-child { border-right: none; }
-  .avail-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); vertical-align: middle; text-align: center; white-space: nowrap; }
-  .avail-table td.name-col { text-align: left; font-weight: 500; color: var(--text); }
-  .avail-table td.issue-col { text-align: left; color: var(--red); font-family: var(--mono); font-size: 11px; }
-  .avail-table td.limit-col { text-align: left; color: var(--muted); font-size: 11px; white-space: normal; min-width: 180px; }
+  .avail-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; vertical-align: middle; white-space: nowrap; font-size: 12px; color: var(--text); }
+  .avail-table td:first-child { text-align: left; font-weight: 500; }
+  .avail-table td.issue-td { text-align: left; color: var(--red); font-family: var(--mono); font-size: 11px; }
+  .avail-table td.limit-td { text-align: left; color: var(--muted); font-size: 11px; white-space: normal; }
   .avail-table td:last-child { border-right: none; }
   .avail-table tr:last-child td { border-bottom: none; }
   .avail-table tr:hover td { background: var(--surface2); }
-  .avail-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; }
-  .avail-ready   { background: #e6f9f2; color: #00875a; }
-  .avail-limited { background: #fff7e0; color: #b25f00; }
-  .avail-not     { background: #fff0f0; color: #c0300a; }
-  .avail-empty   { color: var(--dim); font-size: 11px; }
-  .avail-comment-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 24px; }
-  .avail-comment-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
-  .avail-comment-text { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
-  .avail-comment-empty { font-family: var(--mono); font-size: 11px; color: var(--dim); }
-  .avail-legend-row { display: flex; gap: 8px; align-items: center; }
+  .ab { display: inline-block; padding: 3px 10px; border-radius: 4px; font-family: var(--mono); font-size: 10px; font-weight: 500; }
+  .ab-ready { background: #e6f9f2; color: #00875a; }
+  .ab-limited { background: #fff7e0; color: #b25f00; }
+  .ab-not { background: #fff0f0; color: #c0300a; }
+  .avail-comment-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
+  .avail-comment-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+  .avail-comment-text { font-size: 13px; color: var(--text); line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -331,390 +174,246 @@
   <div class="header-right">
     <span id="week-label">—</span>
     <button id="refresh-btn" onclick="loadAll()">
-      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M1 8a7 7 0 1 0 1.5-4.3"/><path d="M1 2v3h3"/>
-      </svg>
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 8a7 7 0 1 0 1.5-4.3"/><path d="M1 2v3h3"/></svg>
       Refresh
     </button>
   </div>
 </header>
 
-<div id="status-bar">Loading data…</div>
+<div id="status-bar">Loading…</div>
 
 <div class="main">
-
-  <!-- ══ PAGE TABS ══ -->
   <div class="page-tabs">
     <div class="page-tab active" onclick="showPage('workouts')">Individual Workouts</div>
     <div class="page-tab" onclick="showPage('wellness')">Team Wellness</div>
   </div>
 
-  <!-- ══ WORKOUTS PAGE ══ -->
+  <!-- WORKOUTS PAGE -->
   <div id="page-workouts">
     <div class="tabs-row" id="tabs-row"></div>
     <div id="panel-container"><div class="empty-state skeleton">Fetching athlete data…</div></div>
   </div>
 
-  <!-- ══ WELLNESS PAGE ══ -->
-  <div id="page-wellness" style="display:none;">
+  <!-- WELLNESS PAGE -->
+  <div id="page-wellness" style="display:none">
 
-    <!-- ══ WELLNESS ══ -->
-    <div class="wellness-header-row">
-      <div class="wellness-title">Player Wellness</div>
-      <div class="day-nav">
-        <button class="day-nav-btn" onclick="shiftDay(-1)">← Prev day</button>
-        <div class="day-nav-label" id="day-nav-label">Today</div>
-        <button class="day-nav-btn" id="next-day-btn" onclick="shiftDay(1)" disabled>Next day →</button>
-      </div>
+    <!-- Wellness -->
+    <div class="w-section-title" style="border-top:none;margin-top:0;padding-top:0;">Player Wellness</div>
+    <div class="day-nav">
+      <button class="day-nav-btn" onclick="shiftDay(-1)">← Prev day</button>
+      <div class="day-nav-label" id="day-nav-label">Today</div>
+      <button class="day-nav-btn" id="next-day-btn" onclick="shiftDay(1)" disabled>Next day →</button>
     </div>
-    <div class="wellness-status" id="wellness-status">Loading…</div>
-
+    <div class="w-status" id="wellness-status">Loading…</div>
     <div class="pie-grid">
       <div class="pie-card"><div class="pie-card-title">Fatigue</div><div class="pie-wrap"><canvas id="pie-fatigue"></canvas></div></div>
       <div class="pie-card"><div class="pie-card-title">Muscle Soreness</div><div class="pie-wrap"><canvas id="pie-soreness"></canvas></div></div>
       <div class="pie-card"><div class="pie-card-title">Sleep Quality</div><div class="pie-wrap"><canvas id="pie-sleep"></canvas></div></div>
     </div>
-
-    <div class="drilldown" id="pie-drilldown">
-      <div class="drilldown-title">
-        <span class="drilldown-score-dot" id="drilldown-dot"></span>
-        <span id="drilldown-title-text"></span>
-      </div>
+    <div class="drilldown" id="drilldown">
+      <div class="drilldown-title"><span class="drilldown-dot" id="drilldown-dot"></span><span id="drilldown-text"></span></div>
       <div class="drilldown-players" id="drilldown-players"></div>
     </div>
-
-    <div class="savijauta-card">
+    <div class="mood-card">
       <div class="chart-card-title">Mood — weekly average</div>
-      <div class="savijauta-wrap"><canvas id="mood-chart"></canvas></div>
+      <div class="mood-wrap"><canvas id="mood-chart"></canvas></div>
     </div>
-
-    <div class="comment-card" id="comment-card">
+    <div class="comment-card">
       <table class="comment-table">
         <thead><tr><th>Date</th><th>Player</th><th>Comment</th></tr></thead>
         <tbody id="comment-body"></tbody>
       </table>
     </div>
 
-    <!-- ══ PLAYER AVAILABILITY ══ -->
-    <div style="border-top:2px solid var(--border);margin:36px 0 28px;"></div>
-    <div class="wellness-header-row" style="margin-bottom:8px;">
-      <div class="wellness-title">Player Availability</div>
-      <div class="avail-legend-row">
-        <span class="avail-badge avail-ready">Ready</span>
-        <span class="avail-badge avail-limited">Limited</span>
-        <span class="avail-badge avail-not">Not Ready</span>
-      </div>
-    </div>
-    <div class="avail-status" id="avail-status">Loading…</div>
-
-    <!-- Summary cards -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-
-      <!-- Today -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;">
-        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;">Today</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          <div style="text-align:center;">
-            <div style="font-size:28px;font-weight:600;color:#00875a;" id="avail-ready-count">—</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Ready</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:28px;font-weight:600;color:#b25f00;" id="avail-limited-count">—</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Limited</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:28px;font-weight:600;color:#c0300a;" id="avail-notready-count">—</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Not Ready</div>
-          </div>
+    <!-- Availability -->
+    <div class="w-section-title">Player Availability</div>
+    <div class="w-status" id="avail-status">Loading…</div>
+    <div class="avail-summary-grid">
+      <div class="avail-sum-card">
+        <div class="avail-sum-label">Today</div>
+        <div class="avail-sum-inner">
+          <div><div class="avail-sum-num" id="t-ready" style="color:#00875a">—</div><div class="avail-sum-sub">Ready</div></div>
+          <div><div class="avail-sum-num" id="t-limited" style="color:#b25f00">—</div><div class="avail-sum-sub">Limited</div></div>
+          <div><div class="avail-sum-num" id="t-not" style="color:#c0300a">—</div><div class="avail-sum-sub">Not Ready</div></div>
         </div>
       </div>
-
-      <!-- Tomorrow -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;">
-        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;">Tomorrow</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          <div style="text-align:center;">
-            <div style="font-size:28px;font-weight:600;color:#00875a;" id="avail-tmr-ready">—</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Ready</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:28px;font-weight:600;color:#b25f00;" id="avail-tmr-limited">—</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Limited</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:28px;font-weight:600;color:#c0300a;" id="avail-tmr-not">—</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:2px;">Not Ready</div>
-          </div>
+      <div class="avail-sum-card">
+        <div class="avail-sum-label">Tomorrow (+1 Day)</div>
+        <div class="avail-sum-inner">
+          <div><div class="avail-sum-num" id="m-ready" style="color:#00875a">—</div><div class="avail-sum-sub">Ready</div></div>
+          <div><div class="avail-sum-num" id="m-limited" style="color:#b25f00">—</div><div class="avail-sum-sub">Limited</div></div>
+          <div><div class="avail-sum-num" id="m-not" style="color:#c0300a">—</div><div class="avail-sum-sub">Not Ready</div></div>
         </div>
       </div>
-
     </div>
-
-    <!-- Availability table -->
+    <div class="avail-legend">
+      <span class="ab ab-ready">Ready</span>
+      <span class="ab ab-limited">Limited</span>
+      <span class="ab ab-not">Not Ready</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-left:4px;" id="avail-period"></span>
+    </div>
     <div class="avail-wrap">
       <table class="avail-table">
         <thead id="avail-thead"></thead>
         <tbody id="avail-tbody"></tbody>
       </table>
     </div>
-
-    <!-- Availability comment -->
-    <div class="avail-comment-card" id="avail-comment-card" style="display:none;">
+    <div class="avail-comment-card" id="avail-comment-card" style="display:none">
       <div class="avail-comment-label">Comments</div>
       <div class="avail-comment-text" id="avail-comment-text"></div>
     </div>
 
   </div>
-
-</div><!-- /main -->
+</div>
 
 <script>
-// ── CSV URLs ──────────────────────────────────────────────────────────────────
-const WORKOUT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8h3woy8ASxFEepex26EudzzqeygULXyYil2IcjMjJ6kmE6Jql60NHGwx8fD-U3yxiAPSv3SrLQSTW/pub?output=csv';
-const WELLNESS_CSV      = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn9Yytd5qEBHAtB6oNKfCiltSPfIX8ujUbZZmEr1TkWwdhXdDIOypq7PY7vbZNQixAZ0df7uuXL_SL/pub?output=csv';
-const AVAILABILITY_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDPC79mBEw2RtYqtQVToveh6mStxy5Wg1hByYO0KAagTkCeCUHuiNbqNdaHIAOqQ/pub?output=csv';
+var WORKOUT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8h3woy8ASxFEepex26EudzzqeygULXyYil2IcjMjJ6kmE6Jql60NHGwx8fD-U3yxiAPSv3SrLQSTW/pub?output=csv';
+var WELLNESS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn9Yytd5qEBHAtB6oNKfCiltSPfIX8ujUbZZmEr1TkWwdhXdDIOypq7PY7vbZNQixAZ0df7uuXL_SL/pub?output=csv';
+var AVAIL_CSV    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDPC79mBEw2RtYqtQVToveh6mStxy5Wg1hByYO0KAagTkCeCUHuiNbqNdaHIAOqQ/pub?output=csv';
 
-// Score colors: 1=red … 5=green
-const SCORE_COLORS = ['#d63031','#e17055','#fdcb6e','#81b214','#00b894'];
+var SCORE_COLORS = ['#d63031','#e17055','#fdcb6e','#81b214','#00b894'];
+var gridC = 'rgba(30,80,180,0.08)';
+var tickC = '#4a6080';
 
-const gridC = 'rgba(30,80,180,0.08)';
-const tickC = '#4a6080';
+var athletes = [], currentAthlete = null, chartReg = {};
+var wellnessRows = [], dayOffset = 0;
+var moodChartObj = null;
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let athletes = [], currentAthlete = null;
-const chartReg = {};
-let wellnessRows = [], dayOffset = 0;
-let moodChart;
-let currentPage = 'workouts';
-
-// ── PAGE SWITCHING ────────────────────────────────────────────────────────────
+// ── PAGE TABS ────────────────────────────────────────────────────────────────
 function showPage(page) {
-  currentPage = page;
-  document.querySelectorAll('.page-tab').forEach(t =>
-    t.classList.toggle('active', t.textContent.toLowerCase().includes(page === 'workouts' ? 'workout' : 'wellness'))
-  );
+  document.querySelectorAll('.page-tab').forEach(function(t) {
+    t.classList.toggle('active', t.textContent.toLowerCase().indexOf(page === 'workouts' ? 'workout' : 'wellness') !== -1);
+  });
   document.getElementById('page-workouts').style.display = page === 'workouts' ? '' : 'none';
   document.getElementById('page-wellness').style.display  = page === 'wellness'  ? '' : 'none';
   document.getElementById('header-sub').textContent = page === 'workouts' ? 'Individual Workouts' : 'Team Wellness';
 }
 
-// ── REFRESH ALL ───────────────────────────────────────────────────────────────
-async function loadAll() {
-  const btn = document.getElementById('refresh-btn');
+// ── REFRESH ──────────────────────────────────────────────────────────────────
+function loadAll() {
+  var btn = document.getElementById('refresh-btn');
   btn.classList.add('loading');
-  await Promise.all([loadWorkouts(), loadWellness(), loadAvailability()]);
-  btn.classList.remove('loading');
+  var p1 = loadWorkouts();
+  var p2 = loadWellness();
+  var p3 = loadAvailability();
+  Promise.all([p1, p2, p3]).then(function() { btn.classList.remove('loading'); });
 }
 
-// ── WORKOUTS ──────────────────────────────────────────────────────────────────
-async function loadWorkouts() {
-  const status = document.getElementById('status-bar');
+// ── WORKOUTS ─────────────────────────────────────────────────────────────────
+function loadWorkouts() {
+  var status = document.getElementById('status-bar');
   status.className = '';
-  status.textContent = 'Fetching latest data…';
-  try {
-    const res = await fetch(WORKOUT_CSV + '&t=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const csv = await res.text();
-    athletes = parseWorkoutCSV(csv);
-    if (!athletes.length) throw new Error('No athlete data found');
-    const now = new Date();
-    document.getElementById('week-label').textContent =
-      'Week of ' + now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-    status.className = 'ok';
-    status.textContent = `✓ Updated — ${athletes.length} athletes · ${now.toLocaleTimeString()}`;
-    buildAthleteTabs();
-    showAthlete(currentAthlete && athletes.find(a=>a.name===currentAthlete) ? currentAthlete : athletes[0].name);
-  } catch(e) {
-    status.className = 'error';
-    status.textContent = '✗ Could not load workout data. ' + e.message;
-  }
+  status.textContent = 'Fetching data…';
+  return fetch(WORKOUT_CSV + '&t=' + Date.now())
+    .then(function(r) { return r.text(); })
+    .then(function(csv) {
+      athletes = parseWorkoutCSV(csv);
+      if (!athletes.length) throw new Error('No athlete data found');
+      var now = new Date();
+      document.getElementById('week-label').textContent = 'Week of ' + now.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+      status.className = 'ok';
+      status.textContent = '✓ Updated — ' + athletes.length + ' athletes · ' + now.toLocaleTimeString();
+      buildAthleteTabs();
+      showAthlete(currentAthlete && athletes.find(function(a){return a.name===currentAthlete;}) ? currentAthlete : athletes[0].name);
+    })
+    .catch(function(e) {
+      status.className = 'error';
+      status.textContent = '✗ Workout data: ' + e.message;
+    });
 }
 
 function parseWorkoutCSV(csv) {
   csv = csv.replace(/^\uFEFF/, '');
-  const sep = csv.indexOf('\t') !== -1 ? '\t' : ',';
-  const lines = csv.trim().split('\n').map(l => l.split(sep));
-  const headers = lines[0].map(h => h.trim());
-  const rows = lines.slice(1)
-    .map(l => { const o={}; headers.forEach((h,i)=>o[h]=(l[i]||'').trim()); return o; })
-    .filter(r => r.athlete && r.activity);
-  const byAthlete = {};
-  rows.forEach(r => { if(!byAthlete[r.athlete]) byAthlete[r.athlete]=[]; byAthlete[r.athlete].push(r); });
-  const days = ['mon','tue','wed','thu','fri','sat','sun'];
-  return Object.entries(byAthlete).map(([name, rows]) => {
-    const activities = rows.map(r => ({ name: r.activity, minutes: days.map(d=>parseInt(r[d])||0) }));
-    const intensity  = days.map(d => parseInt(rows[0]['intensity_'+d])||0);
-    const loading    = days.map(d => parseInt(rows[0]['loading_'+d])||0);
-    const totalByDay = days.map((_,i) => activities.reduce((s,a)=>s+a.minutes[i],0));
-    const activeDays = totalByDay.filter(t=>t>0).length;
-    const totalVol   = totalByDay.reduce((s,v)=>s+v,0);
-    const avgDur     = activeDays ? Math.round(totalVol/activeDays) : 0;
-    const avgInt     = activeDays ? Math.round((intensity.filter(v=>v>0).reduce((s,v)=>s+v,0)/activeDays)*10)/10 : 0;
-    const peakIdx    = totalByDay.indexOf(Math.max(...totalByDay));
-    const dayLabels  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    return { name, activities, intensity, loading, totalByDay, totalVol, avgDur, avgInt, activeDays, peakDay: dayLabels[peakIdx] };
+  var sep = csv.indexOf('\t') !== -1 ? '\t' : ',';
+  var lines = csv.trim().split('\n').map(function(l){return l.replace(/\r$/,'').split(sep);});
+  var headers = lines[0].map(function(h){return h.trim();});
+  var rows = lines.slice(1).map(function(l){
+    var o = {};
+    headers.forEach(function(h,i){o[h]=(l[i]||'').trim();});
+    return o;
+  }).filter(function(r){return r.athlete && r.activity;});
+  var byAthlete = {};
+  rows.forEach(function(r){if(!byAthlete[r.athlete])byAthlete[r.athlete]=[];byAthlete[r.athlete].push(r);});
+  var days = ['mon','tue','wed','thu','fri','sat','sun'];
+  return Object.keys(byAthlete).map(function(name){
+    var rs = byAthlete[name];
+    var activities = rs.map(function(r){return {name:r.activity, minutes:days.map(function(d){return parseInt(r[d])||0;})};});
+    var intensity  = days.map(function(d){return parseInt(rs[0]['intensity_'+d])||0;});
+    var loading    = days.map(function(d){return parseInt(rs[0]['loading_'+d])||0;});
+    var totalByDay = days.map(function(_,i){return activities.reduce(function(s,a){return s+a.minutes[i];},0);});
+    var activeDays = totalByDay.filter(function(t){return t>0;}).length;
+    var totalVol   = totalByDay.reduce(function(s,v){return s+v;},0);
+    var avgDur     = activeDays ? Math.round(totalVol/activeDays) : 0;
+    var posInt     = intensity.filter(function(v){return v>0;});
+    var avgInt     = activeDays && posInt.length ? Math.round(posInt.reduce(function(s,v){return s+v;},0)/posInt.length*10)/10 : 0;
+    var peakIdx    = totalByDay.indexOf(Math.max.apply(null,totalByDay));
+    return {name:name, activities:activities, intensity:intensity, loading:loading, totalByDay:totalByDay, totalVol:totalVol, avgDur:avgDur, avgInt:avgInt, activeDays:activeDays, peakDay:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][peakIdx]};
   });
 }
 
 function buildAthleteTabs() {
-  const row = document.getElementById('tabs-row');
-  row.innerHTML = athletes.map(a =>
-    `<div class="tab" data-name="${a.name}" onclick="showAthlete('${a.name}')">${a.name}</div>`
-  ).join('');
+  document.getElementById('tabs-row').innerHTML = athletes.map(function(a){
+    return '<div class="tab" data-name="'+a.name+'" onclick="showAthlete(\''+a.name+'\')">'+a.name+'</div>';
+  }).join('');
 }
 
 function showAthlete(name) {
   currentAthlete = name;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.name===name));
-  const a = athletes.find(x=>x.name===name);
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.dataset.name===name);});
+  var a = athletes.find(function(x){return x.name===name;});
   if (!a) return;
-  Object.values(chartReg).forEach(c=>c.destroy());
-  Object.keys(chartReg).forEach(k=>delete chartReg[k]);
-  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-
-  function badgeStyle(z) {
-    if (z===0) return 'background:#eaf0f9;color:#8ca0bc';
-    if (z<=2)  return 'background:#ddeaff;color:#1a56c4';
-    if (z<=5)  return 'background:#fff3e0;color:#cc6600';
-    return 'background:#ffe8e0;color:#c0400a';
-  }
-  function actRow(actName) {
-    const act = a.activities.find(x=>x.name===actName);
-    const mins = act ? act.minutes : [0,0,0,0,0,0,0];
-    return `<tr><td>${actName}</td>${mins.map(v=>`<td>${v||'—'}</td>`).join('')}</tr>`;
-  }
-
-  document.getElementById('panel-container').innerHTML = `
-    <div class="metrics-row">
-      <div class="metric"><div class="metric-label">Avg duration (active days)</div><div class="metric-value">${a.avgDur}<span>min</span></div><div class="metric-sub">per day</div></div>
-      <div class="metric"><div class="metric-label">Avg intensity (active days)</div><div class="metric-value">${a.avgInt}<span>/ 10</span></div><div class="metric-sub">weekly average</div></div>
-      <div class="metric"><div class="metric-label">Total volume</div><div class="metric-value">${a.totalVol}<span>min</span></div><div class="metric-sub">${a.activeDays} active days</div></div>
-      <div class="metric"><div class="metric-label">Peak load day</div><div class="metric-value">${a.peakDay}</div><div class="metric-sub">${Math.max(...a.totalByDay)} min</div></div>
-    </div>
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="chart-card-title">Daily volume (min)</div>
-        <div class="legend">
-          <span class="leg"><span class="leg-sq" style="background:#1a56c4"></span>Str &amp; Power</span>
-          <span class="leg"><span class="leg-sq" style="background:#e8630a"></span>Basketball Skills</span>
-          <span class="leg"><span class="leg-sq" style="background:#8ca0bc"></span>Gen phys. prep</span>
-          <span class="leg"><span class="leg-sq" style="background:#f0a84a"></span>Conditioning</span>
-        </div>
-        <div class="chart-wrap"><canvas id="vol-chart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Intensity &amp; loading zone</div>
-        <div class="legend">
-          <span class="leg"><span class="leg-sq" style="background:#e8630a"></span>Intensity (1–10)</span>
-          <span class="leg"><span class="leg-sq" style="background:#1a56c4"></span>Loading zone (1–5)</span>
-        </div>
-        <div class="chart-wrap"><canvas id="int-chart"></canvas></div>
-      </div>
-    </div>
-    <div class="section-label">Weekly schedule breakdown</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Activity</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead>
-        <tbody>
-          ${actRow('Game')}${actRow('General phys. prep')}${actRow('Conditioning')}${actRow('Str & Power')}${actRow('Basketball Skills')}
-          <tr class="total-row"><td>Total (min)</td>${a.totalByDay.map(v=>`<td>${v}</td>`).join('')}</tr>
-          <tr><td>Intensity zone</td>${a.intensity.map(v=>`<td><span class="badge" style="${badgeStyle(v)}">${v}</span></td>`).join('')}</tr>
-          <tr><td>Loading zone</td>${a.loading.map(v=>`<td>${v}</td>`).join('')}</tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="section-label" style="margin-top:32px;">Intensity scale reference</div>
-    <div class="intensity-scale">
-      <div class="is-header"><div class="is-score-h">Score</div><div class="is-label-h">Level</div><div class="is-def-h">Definition</div><div class="is-example-h">Example</div></div>
-      <div class="is-row" style="--c:#f0f0f0;--t:#888888"><div class="is-score">0</div><div class="is-label">Day off</div><div class="is-def">No activity — complete rest</div><div class="is-example">Complete rest</div></div>
-      <div class="is-row" style="--c:#e8f5e9;--t:#2e7d32"><div class="is-score">1</div><div class="is-label">Very low</div><div class="is-def">Minimal movement, no effort</div><div class="is-example">Stationary shooting</div></div>
-      <div class="is-row" style="--c:#dcedc8;--t:#388e3c"><div class="is-score">2</div><div class="is-label">Low</div><div class="is-def">No max effort — no sprinting, no jumping</div><div class="is-example">Stationary shooting, easy jogging + shooting</div></div>
-      <div class="is-row" style="--c:#c8e6c9;--t:#43a047"><div class="is-score">3</div><div class="is-label">Low–moderate</div><div class="is-def">Light movement, controlled pace</div><div class="is-example">Easy dribbling, light footwork</div></div>
-      <div class="is-row" style="--c:#fff9c4;--t:#c49000"><div class="is-score">4</div><div class="is-label">Moderate</div><div class="is-def">No max effort, short rest times</div><div class="is-example">Movement shooting / skill work, running + shooting</div></div>
-      <div class="is-row" style="--c:#fff3cd;--t:#e65100"><div class="is-score">5</div><div class="is-label">Moderate–high</div><div class="is-def">Max effort drills, low reps, long rest time</div><div class="is-example">Intensive movement skill work</div></div>
-      <div class="is-row" style="--c:#ffe0b2;--t:#e65100"><div class="is-score">6</div><div class="is-label">High</div><div class="is-def">Max effort, short distance sprint, long rest</div><div class="is-example">Sprint drills, explosive movements</div></div>
-      <div class="is-row" style="--c:#ffccbc;--t:#bf360c"><div class="is-score">7</div><div class="is-label">High–intensive</div><div class="is-def">Max effort drills, high reps, short rest, bigger court</div><div class="is-example">Race against clock, 2v2, 3v3</div></div>
-      <div class="is-row" style="--c:#ffcdd2;--t:#c62828"><div class="is-score">8</div><div class="is-label">Intensive</div><div class="is-def">Full court drills, short rest</div><div class="is-example">Full court running/sprinting, minimal rest</div></div>
-      <div class="is-row" style="--c:#ffb3b3;--t:#b71c1c"><div class="is-score">9</div><div class="is-label">Very intensive</div><div class="is-def">Near maximum sustained effort</div><div class="is-example">Extended high-intensity sequences</div></div>
-      <div class="is-row" style="--c:#ff8a80;--t:#7f0000"><div class="is-score">10</div><div class="is-label">Max</div><div class="is-def">High intensity "live" — no subs, long stretches</div><div class="is-example">5v5 full court</div></div>
-    </div>
-  `;
-
-  requestAnimationFrame(() => {
-    const sp   = (a.activities.find(x=>x.name==='Str & Power')       ||{minutes:[0,0,0,0,0,0,0]}).minutes;
-    const bs   = (a.activities.find(x=>x.name==='Basketball Skills')  ||{minutes:[0,0,0,0,0,0,0]}).minutes;
-    const gpp  = (a.activities.find(x=>x.name==='General phys. prep') ||{minutes:[0,0,0,0,0,0,0]}).minutes;
-    const cond = (a.activities.find(x=>x.name==='Conditioning')       ||{minutes:[0,0,0,0,0,0,0]}).minutes;
-
-    chartReg['vol'] = new Chart(document.getElementById('vol-chart'), {
-      type:'bar', data:{ labels:days, datasets:[
-        { label:'Str & Power',       data:sp,   backgroundColor:'#1a56c4', stack:'a' },
-        { label:'Basketball Skills', data:bs,   backgroundColor:'#e8630a', stack:'a' },
-        { label:'Gen phys. prep',    data:gpp,  backgroundColor:'#8ca0bc', stack:'a' },
-        { label:'Conditioning',      data:cond, backgroundColor:'#f0a84a', stack:'a' }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-        scales:{ x:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}, y:{stacked:true,min:0,ticks:{color:tickC,font:{size:11},stepSize:60},grid:{color:gridC},border:{display:false}} }
-      }
-    });
-
-    chartReg['int'] = new Chart(document.getElementById('int-chart'), {
-      type:'line', data:{ labels:days, datasets:[
-        { label:'Intensity', data:a.intensity, borderColor:'#e8630a', backgroundColor:'rgba(232,99,10,0.08)', tension:0.35, pointRadius:4, pointBackgroundColor:'#e8630a', fill:true },
-        { label:'Loading',   data:a.loading,   borderColor:'#1a56c4', borderDash:[4,3], backgroundColor:'transparent', tension:0.35, pointRadius:4, pointBackgroundColor:'#1a56c4' }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-        scales:{ x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}, y:{min:0,max:10,ticks:{color:tickC,font:{size:11},stepSize:2},grid:{color:gridC},border:{display:false}} }
-      }
-    });
+  Object.values(chartReg).forEach(function(c){c.destroy();});
+  Object.keys(chartReg).forEach(function(k){delete chartReg[k];});
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  function bs(z){if(z===0)return'background:#eaf0f9;color:#8ca0bc';if(z<=2)return'background:#ddeaff;color:#1a56c4';if(z<=5)return'background:#fff3e0;color:#cc6600';return'background:#ffe8e0;color:#c0400a';}
+  function ar(n){var act=a.activities.find(function(x){return x.name===n;});var m=act?act.minutes:[0,0,0,0,0,0,0];return'<tr><td>'+n+'</td>'+m.map(function(v){return'<td>'+(v||'—')+'</td>';}).join('')+'</tr>';}
+  document.getElementById('panel-container').innerHTML = '<div class="metrics-row"><div class="metric"><div class="metric-label">Avg duration (active days)</div><div class="metric-value">'+a.avgDur+'<span>min</span></div><div class="metric-sub">per day</div></div><div class="metric"><div class="metric-label">Avg intensity (active days)</div><div class="metric-value">'+a.avgInt+'<span>/ 10</span></div><div class="metric-sub">weekly average</div></div><div class="metric"><div class="metric-label">Total volume</div><div class="metric-value">'+a.totalVol+'<span>min</span></div><div class="metric-sub">'+a.activeDays+' active days</div></div><div class="metric"><div class="metric-label">Peak load day</div><div class="metric-value">'+a.peakDay+'</div><div class="metric-sub">'+Math.max.apply(null,a.totalByDay)+' min</div></div></div>'
+  +'<div class="charts-row"><div class="chart-card"><div class="chart-card-title">Daily volume (min)</div><div class="legend"><span class="leg"><span class="leg-sq" style="background:#1a56c4"></span>Str &amp; Power</span><span class="leg"><span class="leg-sq" style="background:#e8630a"></span>Basketball Skills</span><span class="leg"><span class="leg-sq" style="background:#8ca0bc"></span>Gen phys. prep</span><span class="leg"><span class="leg-sq" style="background:#f0a84a"></span>Conditioning</span></div><div class="chart-wrap"><canvas id="vol-chart"></canvas></div></div><div class="chart-card"><div class="chart-card-title">Intensity &amp; loading zone</div><div class="legend"><span class="leg"><span class="leg-sq" style="background:#e8630a"></span>Intensity (1–10)</span><span class="leg"><span class="leg-sq" style="background:#1a56c4"></span>Loading zone (1–5)</span></div><div class="chart-wrap"><canvas id="int-chart"></canvas></div></div></div>'
+  +'<div class="section-label">Weekly schedule breakdown</div><div class="table-wrap"><table><thead><tr><th>Activity</th>'+days.map(function(d){return'<th>'+d+'</th>';}).join('')+'</tr></thead><tbody>'+ar('Game')+ar('General phys. prep')+ar('Conditioning')+ar('Str & Power')+ar('Basketball Skills')+'<tr class="total-row"><td>Total (min)</td>'+a.totalByDay.map(function(v){return'<td>'+v+'</td>';}).join('')+'</tr><tr><td>Intensity zone</td>'+a.intensity.map(function(v){return'<td><span class="badge" style="'+bs(v)+'">'+v+'</span></td>';}).join('')+'</tr><tr><td>Loading zone</td>'+a.loading.map(function(v){return'<td>'+v+'</td>';}).join('')+'</tr></tbody></table></div>'
+  +'<div class="section-label" style="margin-top:32px">Intensity scale reference</div><div class="intensity-scale"><div class="is-header"><div class="is-score-h">Score</div><div class="is-label-h">Level</div><div class="is-def-h">Definition</div><div class="is-example-h">Example</div></div><div class="is-row" style="--c:#f0f0f0;--t:#888"><div class="is-score">0</div><div class="is-label">Day off</div><div class="is-def">No activity</div><div class="is-example">Complete rest</div></div><div class="is-row" style="--c:#e8f5e9;--t:#2e7d32"><div class="is-score">1</div><div class="is-label">Very low</div><div class="is-def">Minimal movement</div><div class="is-example">Stationary shooting</div></div><div class="is-row" style="--c:#dcedc8;--t:#388e3c"><div class="is-score">2</div><div class="is-label">Low</div><div class="is-def">No max effort</div><div class="is-example">Easy jogging + shooting</div></div><div class="is-row" style="--c:#c8e6c9;--t:#43a047"><div class="is-score">3</div><div class="is-label">Low–moderate</div><div class="is-def">Light movement, controlled pace</div><div class="is-example">Easy dribbling, light footwork</div></div><div class="is-row" style="--c:#fff9c4;--t:#c49000"><div class="is-score">4</div><div class="is-label">Moderate</div><div class="is-def">No max effort, short rest</div><div class="is-example">Movement shooting</div></div><div class="is-row" style="--c:#fff3cd;--t:#e65100"><div class="is-score">5</div><div class="is-label">Moderate–high</div><div class="is-def">Max effort, low reps, long rest</div><div class="is-example">Intensive skill work</div></div><div class="is-row" style="--c:#ffe0b2;--t:#e65100"><div class="is-score">6</div><div class="is-label">High</div><div class="is-def">Max effort, short sprints</div><div class="is-example">Sprint drills</div></div><div class="is-row" style="--c:#ffccbc;--t:#bf360c"><div class="is-score">7</div><div class="is-label">High–intensive</div><div class="is-def">Max effort, high reps, short rest</div><div class="is-example">2v2, 3v3</div></div><div class="is-row" style="--c:#ffcdd2;--t:#c62828"><div class="is-score">8</div><div class="is-label">Intensive</div><div class="is-def">Full court, short rest</div><div class="is-example">Full court running</div></div><div class="is-row" style="--c:#ffb3b3;--t:#b71c1c"><div class="is-score">9</div><div class="is-label">Very intensive</div><div class="is-def">Near max sustained effort</div><div class="is-example">Extended high-intensity</div></div><div class="is-row" style="--c:#ff8a80;--t:#7f0000"><div class="is-score">10</div><div class="is-label">Max</div><div class="is-def">Live — no subs, long stretches</div><div class="is-example">5v5 full court</div></div></div>';
+  requestAnimationFrame(function(){
+    var sp   = (a.activities.find(function(x){return x.name==='Str & Power';})       ||{minutes:[0,0,0,0,0,0,0]}).minutes;
+    var bs2  = (a.activities.find(function(x){return x.name==='Basketball Skills';})  ||{minutes:[0,0,0,0,0,0,0]}).minutes;
+    var gpp  = (a.activities.find(function(x){return x.name==='General phys. prep';}) ||{minutes:[0,0,0,0,0,0,0]}).minutes;
+    var cond = (a.activities.find(function(x){return x.name==='Conditioning';})       ||{minutes:[0,0,0,0,0,0,0]}).minutes;
+    chartReg['vol'] = new Chart(document.getElementById('vol-chart'),{type:'bar',data:{labels:days,datasets:[{label:'Str & Power',data:sp,backgroundColor:'#1a56c4',stack:'a'},{label:'Basketball Skills',data:bs2,backgroundColor:'#e8630a',stack:'a'},{label:'Gen phys. prep',data:gpp,backgroundColor:'#8ca0bc',stack:'a'},{label:'Conditioning',data:cond,backgroundColor:'#f0a84a',stack:'a'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{stacked:true,min:0,ticks:{color:tickC,font:{size:11},stepSize:60},grid:{color:gridC},border:{display:false}}}}});
+    chartReg['int'] = new Chart(document.getElementById('int-chart'),{type:'line',data:{labels:days,datasets:[{label:'Intensity',data:a.intensity,borderColor:'#e8630a',backgroundColor:'rgba(232,99,10,0.08)',tension:0.35,pointRadius:4,pointBackgroundColor:'#e8630a',fill:true},{label:'Loading',data:a.loading,borderColor:'#1a56c4',borderDash:[4,3],backgroundColor:'transparent',tension:0.35,pointRadius:4,pointBackgroundColor:'#1a56c4'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{min:0,max:10,ticks:{color:tickC,font:{size:11},stepSize:2},grid:{color:gridC},border:{display:false}}}}});
   });
 }
 
-// ── WELLNESS ──────────────────────────────────────────────────────────────────
-async function loadWellness() {
-  const status = document.getElementById('wellness-status');
-  status.className = 'wellness-status';
-  status.textContent = 'Loading wellness data…';
-  try {
-    const res = await fetch(WELLNESS_CSV + '&t=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    wellnessRows = parseWellnessCSV(text);
-    renderWellness();
-  } catch(e) {
-    status.className = 'wellness-status error';
-    status.textContent = '✗ Could not load wellness data. ' + e.message;
-  }
+// ── WELLNESS ─────────────────────────────────────────────────────────────────
+function loadWellness() {
+  return fetch(WELLNESS_CSV + '&t=' + Date.now())
+    .then(function(r){return r.text();})
+    .then(function(text){
+      wellnessRows = parseWellnessCSV(text);
+      renderWellness();
+    })
+    .catch(function(e){
+      document.getElementById('wellness-status').textContent = '✗ ' + e.message;
+      document.getElementById('wellness-status').className = 'w-status error';
+    });
 }
 
 function parseWellnessCSV(text) {
   text = text.replace(/^\uFEFF/, '');
-  const sep = text.indexOf('\t') !== -1 ? '\t' : ',';
-  const lines = text.trim().split(/\r?\n/);
-  const headers = lines[0].split(sep).map(h => h.trim());
-  return lines.slice(1).map(l => {
-    const cols = l.split(sep);
-    const o = {};
-    headers.forEach((h,i) => o[h] = (cols[i]||'').trim());
+  var sep = text.indexOf('\t') !== -1 ? '\t' : ',';
+  var lines = text.trim().split('\n');
+  var headers = lines[0].replace(/\r$/,'').split(sep).map(function(h){return h.trim();});
+  return lines.slice(1).map(function(l){
+    var cols = l.replace(/\r$/,'').split(sep);
+    var o = {};
+    headers.forEach(function(h,i){o[h]=(cols[i]||'').trim();});
     return o;
-  }).filter(r => r['Timestamp']);
+  }).filter(function(r){return r['Timestamp'];});
 }
 
 function extractScore(val) {
-  if (!val) return null;
-  const m = (val||'').match(/^(\d)/);
+  var m = (val||'').match(/^(\d)/);
   return m ? parseInt(m[1]) : null;
 }
 
-function formatDateKey(date) {
-  return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()}`;
-}
-
-function getTargetDate() {
-  const d = new Date();
-  d.setDate(d.getDate() + dayOffset);
-  return d;
-}
+function dateKey(d) { return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear(); }
 
 function shiftDay(delta) {
   dayOffset += delta;
@@ -722,303 +421,255 @@ function shiftDay(delta) {
   renderWellness();
 }
 
-function buildPie(canvasId, categoryKey, categoryLabel, dayRows) {
-  const existing = Chart.getChart(canvasId);
-  if (existing) existing.destroy();
-
-  // Build score → players map
-  const scoreMap = {1:[],2:[],3:[],4:[],5:[]};
-  dayRows.forEach(row => {
-    const score = extractScore(row[categoryKey]);
-    const name  = (row['Name']||'').trim();
-    if (score >= 1 && score <= 5 && name) scoreMap[score].push(name);
-  });
-
-  const labels=[], data=[], colors=[], scoreNums=[];
-  [1,2,3,4,5].forEach(n => {
-    if (scoreMap[n].length > 0) {
-      labels.push(`${n}`); data.push(scoreMap[n].length);
-      colors.push(SCORE_COLORS[n-1]); scoreNums.push(n);
-    }
-  });
-  if (!data.length) return;
-
-  const chart = new Chart(document.getElementById(canvasId), {
-    type:'doughnut',
-    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:2, borderColor:'transparent', hoverOffset:8 }] },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{ display:true, position:'bottom', labels:{ color:tickC, font:{size:11}, boxWidth:12, padding:8 } },
-        tooltip:{ callbacks:{ label: ctx => ` Score ${ctx.label}: ${ctx.raw} player${ctx.raw>1?'s':''}` } }
-      },
-      onClick(evt, elements) {
-        if (!elements.length) return;
-        const idx   = elements[0].index;
-        const score = scoreNums[idx];
-        const color = SCORE_COLORS[score-1];
-        const players = scoreMap[score];
-        showDrilldown(categoryLabel, score, color, players);
-      }
-    }
-  });
-}
-
-function showDrilldown(category, score, color, players) {
-  const panel = document.getElementById('pie-drilldown');
-  document.getElementById('drilldown-dot').style.background = color;
-  document.getElementById('drilldown-title-text').textContent =
-    `${category} — Score ${score} · ${players.length} player${players.length>1?'s':''}`;
-  document.getElementById('drilldown-players').innerHTML =
-    players.map(p => `<span class="drilldown-player">${p}</span>`).join('');
-  panel.classList.add('visible');
-}
-
-function buildMoodChart() {
-  // Group all rows by date, average MOOD score
-  const byDate = {};
-  wellnessRows.forEach(row => {
-    const ts = row['Timestamp']; if (!ts) return;
-    const date = ts.split(' ')[0];
-    const score = extractScore(row['MOOD']);
-    if (score === null) return;
-    if (!byDate[date]) byDate[date] = [];
-    byDate[date].push(score);
-  });
-  const sorted = Object.keys(byDate).sort((a,b)=>new Date(a)-new Date(b)).slice(-7);
-  const labels = sorted.map(d => { const dt=new Date(d); return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`; });
-  const avgs   = sorted.map(d => parseFloat((byDate[d].reduce((s,v)=>s+v,0)/byDate[d].length).toFixed(2)));
-  if (moodChart) moodChart.destroy();
-  moodChart = new Chart(document.getElementById('mood-chart'), {
-    type:'line',
-    data:{ labels, datasets:[{ label:'Avg Mood', data:avgs, borderColor:'#1a56c4', backgroundColor:'rgba(26,86,196,0.08)', borderWidth:2, pointRadius:5, pointBackgroundColor:'#1a56c4', tension:0.3, fill:true }] },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` Avg mood: ${ctx.raw}`}} },
-      scales:{
-        x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
-        y:{min:1,max:5,ticks:{color:tickC,font:{size:11},stepSize:1},grid:{color:gridC},border:{display:false}}
-      }
-    }
-  });
-}
-
 function renderWellness() {
-  const target    = getTargetDate();
-  const targetKey = formatDateKey(target);
-  const todayKey  = formatDateKey(new Date());
-  const isToday   = targetKey === todayKey;
-  const dateStr   = target.toLocaleDateString('en-GB', {day:'2-digit',month:'2-digit',year:'numeric'});
-  document.getElementById('day-nav-label').textContent = isToday ? `Today — ${dateStr}` : `Previous day — ${dateStr}`;
+  var target = new Date();
+  target.setDate(target.getDate() + dayOffset);
+  var tKey = dateKey(target);
+  var isToday = tKey === dateKey(new Date());
+  var dStr = target.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('day-nav-label').textContent = (isToday ? 'Today' : 'Previous day') + ' — ' + dStr;
   document.getElementById('next-day-btn').disabled = isToday;
 
-  const dayRows = wellnessRows.filter(r => (r['Timestamp']||'').split(' ')[0] === targetKey);
-  const status  = document.getElementById('wellness-status');
+  var dayRows = wellnessRows.filter(function(r){ return (r['Timestamp']||'').split(' ')[0] === tKey; });
+  var ws = document.getElementById('wellness-status');
 
   if (!dayRows.length) {
-    status.className = 'wellness-status error';
-    status.textContent = `No wellness responses for ${dateStr}`;
-    ['pie-fatigue','pie-soreness','pie-sleep'].forEach(id => { const c=Chart.getChart(id); if(c) c.destroy(); });
-    document.getElementById('comment-body').innerHTML = `<tr><td colspan="3" class="no-data">No responses for this day</td></tr>`;
+    ws.className = 'w-status error';
+    ws.textContent = 'No wellness responses for ' + dStr;
+    ['pie-fatigue','pie-soreness','pie-sleep'].forEach(function(id){var c=Chart.getChart(id);if(c)c.destroy();});
+    document.getElementById('comment-body').innerHTML = '<tr><td colspan="3" class="no-data">No responses for this day</td></tr>';
+    document.getElementById('drilldown').classList.remove('show');
     buildMoodChart();
     return;
   }
 
-  status.className = 'wellness-status ok';
-  status.textContent = `✓ ${dayRows.length} response${dayRows.length>1?'s':''} for ${dateStr}`;
-
-  // Hide previous drilldown when day changes
-  document.getElementById('pie-drilldown').classList.remove('visible');
+  ws.className = 'w-status ok';
+  ws.textContent = '✓ ' + dayRows.length + ' response' + (dayRows.length>1?'s':'') + ' for ' + dStr;
+  document.getElementById('drilldown').classList.remove('show');
 
   buildPie('pie-fatigue',  'FATIGUE',         'Fatigue',         dayRows);
   buildPie('pie-soreness', 'MUSCLE SORENESS', 'Muscle Soreness', dayRows);
   buildPie('pie-sleep',    'SLEEP QUALITY',   'Sleep Quality',   dayRows);
-
   buildMoodChart();
 
-  // Comments
-  const tbody = document.getElementById('comment-body');
+  var tbody = document.getElementById('comment-body');
   tbody.innerHTML = '';
-  let hasComments = false;
-  dayRows.forEach(row => {
-    const comment = (row['[Optional] Comments or anything that concern you']||'').trim();
+  var hasC = false;
+  dayRows.forEach(function(row){
+    var comment = (row['[Optional] Comments or anything that concern you']||'').trim();
     if (!comment) return;
-    hasComments = true;
-    const ts = (row['Timestamp']||'').split(' ')[0];
-    const dt = new Date(ts);
-    const d  = `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
-    const name = (row['Name']||'').trim();
-    tbody.innerHTML += `<tr><td style="color:var(--dim);white-space:nowrap;">${d}</td><td style="font-weight:500;white-space:nowrap;">${name}</td><td>${comment}</td></tr>`;
+    hasC = true;
+    var ts = (row['Timestamp']||'').split(' ')[0];
+    var dt = new Date(ts);
+    var d = String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
+    tbody.innerHTML += '<tr><td style="color:var(--dim);white-space:nowrap">'+d+'</td><td style="font-weight:500;white-space:nowrap">'+(row['Name']||'')+'</td><td>'+comment+'</td></tr>';
   });
-  if (!hasComments) tbody.innerHTML = `<tr><td colspan="3" class="no-data">No comments for this day</td></tr>`;
+  if (!hasC) tbody.innerHTML = '<tr><td colspan="3" class="no-data">No comments for this day</td></tr>';
 }
 
-// ── AVAILABILITY ─────────────────────────────────────────────────────────────
-async function loadAvailability() {
-  var availEl = document.getElementById('avail-status');
-  if (!availEl) return; // element not in DOM yet, skip
-  availEl.className = 'avail-status';
-  availEl.textContent = 'Loading availability…';
-  try {
-    var res = await fetch(AVAILABILITY_CSV + '&t=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var text = await res.text();
-    renderAvailability(text);
-  } catch(e) {
-    var el = document.getElementById('avail-status');
-    if (el) { el.className = 'avail-status error'; el.textContent = '✗ ' + e.message; }
-  }
+function buildPie(canvasId, colKey, label, dayRows) {
+  var existing = Chart.getChart(canvasId);
+  if (existing) existing.destroy();
+  var scoreMap = {1:[],2:[],3:[],4:[],5:[]};
+  dayRows.forEach(function(row){
+    var s = extractScore(row[colKey]);
+    var n = (row['Name']||'').trim();
+    if (s >= 1 && s <= 5 && n) scoreMap[s].push(n);
+  });
+  var labels=[], data=[], colors=[], nums=[];
+  [1,2,3,4,5].forEach(function(n){
+    if(scoreMap[n].length){labels.push(''+n);data.push(scoreMap[n].length);colors.push(SCORE_COLORS[n-1]);nums.push(n);}
+  });
+  if (!data.length) return;
+  new Chart(document.getElementById(canvasId),{
+    type:'doughnut',
+    data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderWidth:0,hoverOffset:6}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{color:tickC,font:{size:11},boxWidth:12,padding:8}},
+        tooltip:{callbacks:{label:function(ctx){return ' Score '+ctx.label+': '+ctx.raw+' player'+(ctx.raw>1?'s':'');}}}
+      },
+      onClick:function(evt,els){
+        if(!els.length) return;
+        var idx = els[0].index;
+        var score = nums[idx];
+        var color = SCORE_COLORS[score-1];
+        var players = scoreMap[score];
+        var dd = document.getElementById('drilldown');
+        document.getElementById('drilldown-dot').style.background = color;
+        document.getElementById('drilldown-text').textContent = label+' — Score '+score+' · '+players.length+' player'+(players.length>1?'s':'');
+        document.getElementById('drilldown-players').innerHTML = players.map(function(p){return '<span class="drilldown-player">'+p+'</span>';}).join('');
+        dd.classList.add('show');
+      }
+    }
+  });
 }
 
-function statusBadge(val) {
-  const v = (val||'').trim();
-  if (!v) return '<span style="color:var(--dim)">—</span>';
-  const vl = v.toLowerCase();
-  if (vl === 'ready')     return '<span class="avail-badge avail-ready">' + v + '</span>';
-  if (vl === 'limited')   return '<span class="avail-badge avail-limited">' + v + '</span>';
-  if (vl === 'not ready') return '<span class="avail-badge avail-not">' + v + '</span>';
-  return '<span style="color:var(--muted);font-size:11px;">' + v + '</span>';
+function buildMoodChart() {
+  var byDate = {};
+  wellnessRows.forEach(function(row){
+    var ts = row['Timestamp']; if(!ts) return;
+    var date = ts.split(' ')[0];
+    var score = extractScore(row['MOOD']);
+    if(score===null) return;
+    if(!byDate[date]) byDate[date]=[];
+    byDate[date].push(score);
+  });
+  var sorted = Object.keys(byDate).sort(function(a,b){return new Date(a)-new Date(b);}).slice(-7);
+  var labels = sorted.map(function(d){var dt=new Date(d);return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');});
+  var avgs   = sorted.map(function(d){var arr=byDate[d];return parseFloat((arr.reduce(function(s,v){return s+v;},0)/arr.length).toFixed(2));});
+  if (moodChartObj) moodChartObj.destroy();
+  moodChartObj = new Chart(document.getElementById('mood-chart'),{
+    type:'line',
+    data:{labels:labels,datasets:[{label:'Avg Mood',data:avgs,borderColor:'#1a56c4',backgroundColor:'rgba(26,86,196,0.08)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#1a56c4',tension:0.3,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{min:1,max:5,ticks:{color:tickC,font:{size:11},stepSize:1},grid:{color:gridC},border:{display:false}}}}
+  });
 }
 
-function g(id) { return document.getElementById(id); }
-function setText(id, val) { const e = g(id); if (e) e.textContent = val; }
-function setHtml(id, val) { const e = g(id); if (e) e.innerHTML = val; }
+// ── AVAILABILITY ──────────────────────────────────────────────────────────────
+function loadAvailability() {
+  return fetch(AVAIL_CSV + '&t=' + Date.now())
+    .then(function(r){return r.text();})
+    .then(function(text){renderAvailability(text);})
+    .catch(function(e){
+      var el = document.getElementById('avail-status');
+      if(el){el.className='w-status error';el.textContent='✗ '+e.message;}
+    });
+}
+
+function aBadge(val) {
+  var v = (val||'').trim();
+  if(!v) return '<span style="color:var(--dim)">—</span>';
+  var vl = v.toLowerCase();
+  if(vl==='ready')     return '<span class="ab ab-ready">'+v+'</span>';
+  if(vl==='limited')   return '<span class="ab ab-limited">'+v+'</span>';
+  if(vl==='not ready') return '<span class="ab ab-not">'+v+'</span>';
+  return '<span style="color:var(--muted);font-size:11px">'+v+'</span>';
+}
 
 function renderAvailability(csvText) {
+  var el = document.getElementById('avail-status');
   csvText = csvText.replace(/^\uFEFF/, '');
-  // Detect separator
-  const sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
-  const allLines = csvText.split(/\r?\n/).map(l =>
-    l.split(sep).map(c => (c||'').replace(/^"+|"+$/g,'').trim())
-  );
+  var sep = csvText.indexOf('\t') !== -1 ? '\t' : ',';
+  var allLines = csvText.split('\n').map(function(l){
+    return l.replace(/\r$/,'').split(sep).map(function(c){return (c||'').replace(/^"+|"+$/g,'').trim();});
+  });
 
-  // Find the header row: contains "TODAY" in any cell
-  let headerRowIdx = -1;
-  for (let i = 0; i < allLines.length; i++) {
-    if (allLines[i].some(c => c.toUpperCase() === 'TODAY')) {
-      headerRowIdx = i; break;
+  // Find header row (contains "TODAY")
+  var hIdx = -1;
+  for(var i=0;i<allLines.length;i++){
+    for(var j=0;j<allLines[i].length;j++){
+      if(allLines[i][j].toUpperCase()==='TODAY'){hIdx=i;break;}
     }
+    if(hIdx!==-1) break;
   }
-  if (headerRowIdx < 0) {
-    const se = g('avail-status');
-    if (se) { se.textContent = '✗ Could not find TODAY column in sheet'; se.className = 'avail-status error'; }
+  if(hIdx<0){
+    if(el){el.className='w-status error';el.textContent='✗ Could not find TODAY column in sheet';}
     return;
   }
+  var hRow = allLines[hIdx];
 
-  const headerRow = allLines[headerRowIdx];
+  // Find date row (contains "DATE")
+  var dateRow = [];
+  for(var i=0;i<allLines.length;i++){
+    for(var j=0;j<allLines[i].length;j++){
+      if(allLines[i][j].toUpperCase().indexOf('DATE')!==-1){dateRow=allLines[i];break;}
+    }
+    if(dateRow.length) break;
+  }
 
-  // Find date row: contains "DATE" in any cell
-  let dateRow = [];
-  for (let i = 0; i < allLines.length; i++) {
-    if (allLines[i].some(c => c.toUpperCase().includes('DATE'))) {
-      dateRow = allLines[i]; break;
+  // Column positions
+  var iIssue=-1, iLimit=-1, iToday=-1;
+  for(var i=0;i<hRow.length;i++){
+    var cu=hRow[i].toUpperCase();
+    if(cu.indexOf('CURRENT ISSUE')!==-1) iIssue=i;
+    if(cu.indexOf('LIMITATION')!==-1)    iLimit=i;
+    if(cu==='TODAY')                     iToday=i;
+  }
+
+  // Status columns (TODAY through +5 DAYS)
+  var sCols=[];
+  for(var i=iToday;i<Math.min(iToday+6,hRow.length);i++){sCols.push({idx:i,label:hRow[i]});}
+
+  // Date values aligned to status cols
+  var dVals=sCols.map(function(sc){
+    var v=(dateRow[sc.idx]||'').trim();
+    return(v&&v.toUpperCase().indexOf('DATE')===-1)?v:'';
+  });
+  var filled=dVals.filter(Boolean);
+  var period=filled.length?filled[0]+' — '+filled[filled.length-1]:'';
+  var pel=document.getElementById('avail-period');
+  if(pel) pel.textContent=period;
+
+  // Player rows
+  var pRows=[];
+  for(var i=hIdx+1;i<allLines.length;i++){
+    var r=allLines[i];
+    var name=(r[0]||'').trim();
+    if(name&&name.toUpperCase().indexOf('COMMENT')===-1&&name.toUpperCase().indexOf('DATE')===-1){
+      pRows.push(r);
     }
   }
 
-  // Detect column indices
-  let iIssue = -1, iLimit = -1, iTodayCol = -1;
-  headerRow.forEach((c, i) => {
-    const cu = c.toUpperCase();
-    if (cu.includes('CURRENT ISSUE')) iIssue = i;
-    if (cu.includes('LIMITATION'))    iLimit  = i;
-    if (cu === 'TODAY')               iTodayCol = i;
-  });
-
-  // 6 status columns from TODAY
-  const statusCols = [];
-  for (let i = iTodayCol; i < Math.min(iTodayCol + 6, headerRow.length); i++) {
-    if (headerRow[i]) statusCols.push({ idx: i, label: headerRow[i] });
-  }
-
-  // Date values aligned with status cols (from dateRow)
-  const dateValues = statusCols.map(sc => {
-    const v = (dateRow[sc.idx]||'').trim();
-    return (v && !v.toUpperCase().includes('DATE')) ? v : '';
-  });
-
-  const filled  = dateValues.filter(Boolean);
-  const period  = filled.length ? filled[0] + ' — ' + filled[filled.length-1] : '';
-  setText('avail-date-range', period || '—');
-
-  // Player rows: after header row, col0 non-empty, not comment/date/empty
-  const playerRows = [];
-  for (let i = headerRowIdx + 1; i < allLines.length; i++) {
-    const r    = allLines[i];
-    const name = (r[0]||'').trim();
-    if (name && !name.toUpperCase().includes('COMMENT') && !name.toUpperCase().includes('DATE') && name !== 'I') {
-      playerRows.push(r);
-    }
-  }
-
-  // Comment text: row where iIssue col says "COMMENTS"
-  let commentText = '';
-  for (let i = 0; i < allLines.length; i++) {
-    const checkCol = iIssue >= 0 ? iIssue : 2;
-    if ((allLines[i][checkCol]||'').toUpperCase().includes('COMMENT')) {
-      commentText = (allLines[i][(iLimit >= 0 ? iLimit : 3)]||'').trim();
+  // Comments
+  var commentText='';
+  for(var i=0;i<allLines.length;i++){
+    var r=allLines[i];
+    var chk=iIssue>=0?iIssue:2;
+    if((r[chk]||'').toUpperCase().indexOf('COMMENT')!==-1){
+      commentText=(r[iLimit>=0?iLimit:3]||'').trim();
       break;
     }
   }
 
-  // Summary counts: Today = statusCols[0], Tomorrow = statusCols[1]
-  let todayR=0, todayL=0, todayN=0, tmrR=0, tmrL=0, tmrN=0;
-  const c0 = statusCols[0] ? statusCols[0].idx : iTodayCol;
-  const c1 = statusCols[1] ? statusCols[1].idx : iTodayCol + 1;
-  playerRows.forEach(r => {
-    const t = (r[c0]||'').toLowerCase();
-    const m = (r[c1]||'').toLowerCase();
-    if (t==='ready') todayR++; else if (t==='limited') todayL++; else if (t==='not ready') todayN++;
-    if (m==='ready') tmrR++;   else if (m==='limited') tmrL++;   else if (m==='not ready') tmrN++;
+  // Summary counts
+  var tR=0,tL=0,tN=0,mR=0,mL=0,mN=0;
+  var c0=sCols[0]?sCols[0].idx:iToday;
+  var c1=sCols[1]?sCols[1].idx:iToday+1;
+  pRows.forEach(function(r){
+    var t=(r[c0]||'').toLowerCase();
+    var m=(r[c1]||'').toLowerCase();
+    if(t==='ready')tR++;else if(t==='limited')tL++;else if(t==='not ready')tN++;
+    if(m==='ready')mR++;else if(m==='limited')mL++;else if(m==='not ready')mN++;
   });
-  setText('avail-ready-count',    todayR);
-  setText('avail-limited-count',  todayL);
-  setText('avail-notready-count', todayN);
-  setText('avail-tmr-ready',      tmrR);
-  setText('avail-tmr-limited',    tmrL);
-  setText('avail-tmr-not',        tmrN);
+  function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  set('t-ready',tR); set('t-limited',tL); set('t-not',tN);
+  set('m-ready',mR); set('m-limited',mL); set('m-not',mN);
 
   // Table header
-  let thead = '<tr><th class="name-col">Player</th>';
-  if (iIssue >= 0) thead += '<th class="issue-col">Current Issue</th>';
-  if (iLimit >= 0) thead += '<th class="limit-col">Limitations</th>';
-  statusCols.forEach((sc, i) => {
-    const sub = dateValues[i]
-      ? '<div style="font-size:8px;color:var(--blue);margin-top:2px;font-weight:400;">' + dateValues[i] + '</div>'
-      : '';
-    thead += '<th>' + sc.label + sub + '</th>';
+  var thead='<tr><th>Player</th>';
+  if(iIssue>=0) thead+='<th class="issue-h">Current Issue</th>';
+  if(iLimit>=0) thead+='<th class="limit-h">Limitations</th>';
+  sCols.forEach(function(sc,i){
+    var sub=dVals[i]?'<div style="font-size:8px;color:var(--blue);margin-top:2px;font-weight:400">'+dVals[i]+'</div>':'';
+    thead+='<th>'+sc.label+sub+'</th>';
   });
-  thead += '</tr>';
-  setHtml('avail-thead', thead);
+  thead+='</tr>';
+  document.getElementById('avail-thead').innerHTML=thead;
 
   // Table body
-  const tbody = playerRows.map(r => {
-    const name  = (r[0]||'').trim();
-    const issue = iIssue >= 0 ? (r[iIssue]||'').trim() : '';
-    const limit = iLimit >= 0 ? (r[iLimit]||'').trim() : '';
-    let row = '<tr><td class="name-col">' + name + '</td>';
-    if (iIssue >= 0) row += '<td class="issue-col">' + (issue || '<span style="color:var(--dim)">—</span>') + '</td>';
-    if (iLimit >= 0) row += '<td class="limit-col">' + (limit || '<span style="color:var(--dim)">—</span>') + '</td>';
-    statusCols.forEach(sc => { row += '<td>' + statusBadge(r[sc.idx]||'') + '</td>'; });
-    row += '</tr>';
+  var tbody=pRows.map(function(r){
+    var name=(r[0]||'').trim();
+    var issue=iIssue>=0?(r[iIssue]||'').trim():'';
+    var limit=iLimit>=0?(r[iLimit]||'').trim():'';
+    var row='<tr><td>'+name+'</td>';
+    if(iIssue>=0) row+='<td class="issue-td">'+(issue||'<span style="color:var(--dim)">—</span>')+'</td>';
+    if(iLimit>=0) row+='<td class="limit-td">'+(limit||'<span style="color:var(--dim)">—</span>')+'</td>';
+    sCols.forEach(function(sc){row+='<td>'+aBadge(r[sc.idx]||'')+'</td>';});
+    row+='</tr>';
     return row;
   }).join('');
-  setHtml('avail-tbody', tbody);
+  document.getElementById('avail-tbody').innerHTML=tbody;
 
-  // Comments
-  const commentCard = g('avail-comment-card');
-  if (commentText && commentCard) {
-    setText('avail-comment-text', commentText);
-    commentCard.style.display = '';
-  } else if (commentCard) {
-    commentCard.style.display = 'none';
+  // Comment
+  var cc=document.getElementById('avail-comment-card');
+  if(cc){
+    if(commentText){document.getElementById('avail-comment-text').textContent=commentText;cc.style.display='';}
+    else{cc.style.display='none';}
   }
 
-  // Status
-  const s = g('avail-status');
-  if (s) {
-    s.className = 'avail-status ok';
-    s.textContent = '✓ ' + playerRows.length + ' players · ' + (period || '—');
-  }
+  if(el){el.className='w-status ok';el.textContent='✓ '+pRows.length+' players · '+(period||'—');}
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
