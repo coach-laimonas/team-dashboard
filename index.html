@@ -229,11 +229,11 @@
     <div class="section-label">Past 7 days — team overview</div>
     <div class="charts-row" style="margin-bottom:24px">
       <div class="chart-card">
-        <div class="chart-card-title">Total team load (PC) per day</div>
+        <div class="chart-card-title">Avg load per player (PC) — stacked by activity</div>
         <div class="chart-wrap"><canvas id="act-load-chart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Total team minutes per day</div>
+        <div class="chart-card-title">Avg minutes per player per day</div>
         <div class="chart-wrap"><canvas id="act-min-chart"></canvas></div>
       </div>
     </div>
@@ -948,18 +948,115 @@ function renderActivity(){
   var loadData    = days7.map(function(d){return dayLoadMap[actDateKey(d)];});
   var minData     = days7.map(function(d){return dayMinMap[actDateKey(d)];});
 
+  // ── Build per-day averages + secondary stacked data for charts ──
+  var ACT_COLORS = {'main':'#1a56c4','highlighted':'#e8630a','sec0':'#9c27b0','sec1':'#00897b','sec2':'#c62828','sec3':'#f57c00','sec4':'#1565c0'};
+  var secColorList = [ACT_COLORS.sec0,ACT_COLORS.sec1,ACT_COLORS.sec2,ACT_COLORS.sec3,ACT_COLORS.sec4];
+
+  // For each day compute: main avg PC, avg min, and secondary type avg PCs (threshold 7+)
+  var dayChartData = days7.map(function(d){
+    var k = actDateKey(d);
+    var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k; });
+    if(!dayR.length) return {avgPC:0,avgMin:0,sec:{},n:0,isSelected:actDateKey(d)===tKey};
+    // Group by player
+    var byP={};
+    dayR.forEach(function(r){
+      var name=r['Athlete']||''; if(!name) return;
+      if(!byP[name]){byP[name]={pc:0,min:0,byType:{}};}
+      byP[name].pc  +=(parseInt(r['PC'])||0);
+      byP[name].min +=(parseInt(r['Duration (min)'])||0);
+      var t=(r['Training Type']||'').trim();
+      if(t){
+        if(!byP[name].byType[t]) byP[name].byType[t]=0;
+        byP[name].byType[t]+=(parseInt(r['PC'])||0);
+      }
+    });
+    var pNames=Object.keys(byP); var n=pNames.length;
+    var avgPC  = n?Math.round(pNames.reduce(function(s,p){return s+byP[p].pc; },0)/n):0;
+    var avgMin = n?Math.round(pNames.reduce(function(s,p){return s+byP[p].min;},0)/n):0;
+    // Secondary types with 7+ players
+    var typePlayerCount={};
+    pNames.forEach(function(p){Object.keys(byP[p].byType).forEach(function(t){typePlayerCount[t]=(typePlayerCount[t]||0)+1;});});
+    var sec={};
+    Object.keys(typePlayerCount).forEach(function(t){
+      if(typePlayerCount[t]>=7){
+        var pts=pNames.filter(function(p){return byP[p].byType[t]>0;});
+        sec[t]=pts.length?Math.round(pts.reduce(function(s,p){return s+(byP[p].byType[t]||0);},0)/pts.length):0;
+      }
+    });
+    return {avgPC:avgPC,avgMin:avgMin,sec:sec,n:n,isSelected:actDateKey(d)===tKey};
+  });
+
+  // Collect all secondary types across all days
+  var allSecTypesChart={};
+  dayChartData.forEach(function(dd){Object.keys(dd.sec).forEach(function(t){allSecTypesChart[t]=true;});});
+  var secTypesList=Object.keys(allSecTypesChart);
+
+  // ── Load chart (stacked avg PC) ──
+  var loadDatasets=[];
+  // Main dataset — avg PC total minus secondary PCs (so stacking shows breakdown)
+  loadDatasets.push({
+    label:'Avg PC (main)',
+    data:dayChartData.map(function(dd){
+      var secSum=secTypesList.reduce(function(s,t){return s+(dd.sec[t]||0);},0);
+      return Math.max(0,dd.avgPC-secSum);
+    }),
+    backgroundColor:dayChartData.map(function(dd){return dd.isSelected?'#e8630a':'#1a56c4';}),
+    borderRadius:0,
+    stack:'pc'
+  });
+  secTypesList.forEach(function(t,i){
+    loadDatasets.push({
+      label:t+' avg PC',
+      data:dayChartData.map(function(dd){return dd.sec[t]||0;}),
+      backgroundColor:secColorList[i%secColorList.length],
+      borderRadius:0,
+      stack:'pc'
+    });
+  });
+
+  // ── Min chart (avg minutes, stacked by same secondary types) ──
+  var minDatasets=[{
+    label:'Avg minutes',
+    data:dayChartData.map(function(dd){return dd.avgMin;}),
+    backgroundColor:dayChartData.map(function(dd){return dd.isSelected?'#e8630a':'#1a56c4';}),
+    borderRadius:4,
+    stack:'min'
+  }];
+
+  var showLegend = secTypesList.length > 0;
+
   if(actLoadChart) actLoadChart.destroy();
   actLoadChart = new Chart(document.getElementById('act-load-chart'),{
     type:'bar',
-    data:{labels:chartLabels,datasets:[{label:'Total Load (PC)',data:loadData,backgroundColor:days7.map(function(d){return actDateKey(d)===tKey?'#e8630a':'#1a56c4';}),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' PC: '+ctx.raw.toLocaleString();}}}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}}}
+    data:{labels:chartLabels,datasets:loadDatasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:showLegend,position:'bottom',labels:{color:tickC,font:{size:10},boxWidth:10,padding:8}},
+        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+ctx.raw.toLocaleString()+' PC';}}}
+      },
+      scales:{
+        x:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
+        y:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}
+      }
+    }
   });
 
   if(actMinChart) actMinChart.destroy();
   actMinChart = new Chart(document.getElementById('act-min-chart'),{
     type:'bar',
-    data:{labels:chartLabels,datasets:[{label:'Total Minutes',data:minData,backgroundColor:days7.map(function(d){return actDateKey(d)===tKey?'#e8630a':'#1a56c4';}),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' '+ctx.raw+' min';}}}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}}}
+    data:{labels:chartLabels,datasets:minDatasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){return ' Avg: '+ctx.raw+' min';}}}
+      },
+      scales:{
+        x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
+        y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}
+      }
+    }
   });
 
   // ── 7-day per-player table ──
