@@ -215,7 +215,7 @@
       <div class="drilldown-players" id="drilldown-players"></div>
     </div>
     <div class="mood-card">
-      <div class="chart-card-title">Mood — weekly average</div>
+      <div class="chart-card-title">Average wellness score — last 10 days</div>
       <div class="mood-wrap"><canvas id="mood-chart"></canvas></div>
     </div>
     <div class="comment-card">
@@ -507,23 +507,55 @@ function buildPie(canvasId, colKey, label, dayRows) {
 }
 
 function buildMoodChart() {
+  var SCORE_KEYS = ['FATIGUE','MUSCLE SORENESS','SLEEP QUALITY','STRESS LEVEL','MOOD'];
   var byDate = {};
   wellnessRows.forEach(function(row){
     var ts = row['Timestamp']; if(!ts) return;
     var date = ts.split(' ')[0];
-    var score = extractScore(row['MOOD']);
-    if(score===null) return;
+    var scores = [];
+    SCORE_KEYS.forEach(function(k){
+      var s = extractScore(row[k]);
+      if(s !== null) scores.push(s);
+    });
+    if(!scores.length) return;
+    var avg = scores.reduce(function(a,b){return a+b;},0) / scores.length;
     if(!byDate[date]) byDate[date]=[];
-    byDate[date].push(score);
+    byDate[date].push(avg);
   });
-  var sorted = Object.keys(byDate).sort(function(a,b){return new Date(a)-new Date(b);}).slice(-7);
-  var labels = sorted.map(function(d){var dt=new Date(d);return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');});
-  var avgs   = sorted.map(function(d){var arr=byDate[d];return parseFloat((arr.reduce(function(s,v){return s+v;},0)/arr.length).toFixed(2));});
+  var sorted = Object.keys(byDate).sort(function(a,b){return new Date(a)-new Date(b);}).slice(-10);
+  var labels = sorted.map(function(d){
+    var dt=new Date(d);
+    return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+  });
+  var avgs = sorted.map(function(d){
+    var arr=byDate[d];
+    return parseFloat((arr.reduce(function(s,v){return s+v;},0)/arr.length).toFixed(2));
+  });
   if (moodChartObj) moodChartObj.destroy();
   moodChartObj = new Chart(document.getElementById('mood-chart'),{
     type:'line',
-    data:{labels:labels,datasets:[{label:'Avg Mood',data:avgs,borderColor:'#1a56c4',backgroundColor:'rgba(26,86,196,0.08)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#1a56c4',tension:0.3,fill:true}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},y:{min:1,max:5,ticks:{color:tickC,font:{size:11},stepSize:1},grid:{color:gridC},border:{display:false}}}}
+    data:{labels:labels,datasets:[{
+      label:'Avg Wellness',
+      data:avgs,
+      borderColor:'#1a56c4',
+      backgroundColor:'rgba(26,86,196,0.08)',
+      borderWidth:2,
+      pointRadius:5,
+      pointBackgroundColor:'#1a56c4',
+      tension:0.3,
+      fill:true
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){return ' Avg wellness: '+ctx.raw;}}}
+      },
+      scales:{
+        x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
+        y:{min:1,max:5,ticks:{color:tickC,font:{size:11},stepSize:1},grid:{color:gridC},border:{display:false}}
+      }
+    }
   });
 }
 
