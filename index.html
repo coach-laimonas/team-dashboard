@@ -142,6 +142,53 @@
   .act-type-conditioning { background:#f3e5f5; color:#6a1b9a; }
   .act-num { font-family:var(--mono); font-weight:600; }
   .act-dim { color:var(--dim); font-size:11px; }
+
+  /* PROFILES */
+  .prof-btn { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; background:none; border:1px solid rgba(30,80,180,0.2); color:#4a6080; padding:6px 16px; border-radius:4px; cursor:pointer; transition:all 0.15s; }
+  .prof-btn:hover { border-color:#1a56c4; color:#1a56c4; }
+  .prof-btn.active { background:#1a56c4; color:#fff; border-color:#1a56c4; }
+  .prof-header { display:flex; align-items:center; gap:16px; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(30,80,180,0.1); }
+  .prof-avatar { width:52px; height:52px; border-radius:50%; background:#e8f0fe; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:500; color:#1a56c4; flex-shrink:0; }
+  .prof-name { font-size:18px; font-weight:500; color:#0d1b3e; margin:0 0 2px; }
+  .prof-sub { font-size:13px; color:#4a6080; margin:0; }
+  .prof-status { margin-left:auto; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:500; }
+  .prof-status-ok { background:#e8f5e9; color:#2e7d32; }
+  .prof-status-cond { background:#fff3e0; color:#cc6600; }
+  .info-grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.25rem; }
+  .info-c { background:#f4f7fb; border-radius:8px; padding:12px 14px; }
+  .info-lbl { font-size:11px; color:#8ca0bc; margin:0 0 4px; text-transform:uppercase; letter-spacing:0.06em; }
+  .info-v { font-size:15px; font-weight:500; color:#0d1b3e; margin:0; }
+  .prof-sec-title { font-size:10px; font-weight:500; color:#8ca0bc; text-transform:uppercase; letter-spacing:0.1em; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .prof-sec-title::after { content:''; flex:1; height:0.5px; background:rgba(30,80,180,0.12); }
+  .prof-section { margin-bottom:1.25rem; }
+  .hist-card { background:#f4f7fb; border-radius:8px; padding:12px 14px; border-left:3px solid #1a56c4; }
+  .hist-item { font-size:13px; color:#0d1b3e; line-height:1.5; margin:0 0 6px; }
+  .hist-item:last-child { margin:0; }
+  .hist-date { font-size:11px; font-weight:500; color:#1a56c4; margin-right:6px; }
+  .prof-2col { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .acard { background:#f4f7fb; border-radius:8px; padding:12px 14px; }
+  .acard-title { font-size:12px; font-weight:500; color:#4a6080; margin:0 0 8px; }
+  .aitem { display:flex; align-items:flex-start; gap:6px; font-size:12px; color:#0d1b3e; line-height:1.4; margin-bottom:5px; }
+  .aitem:last-child { margin-bottom:0; }
+  .adot { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .adot-w { background:#f57c00; }
+  .adot-ok { background:#43a047; }
+  .test-r { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:0.5px solid rgba(30,80,180,0.1); font-size:12px; }
+  .test-r:last-child { border-bottom:none; }
+  .t-ok { background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:10px; font-size:11px; }
+  .t-flag { background:#fff3e0; color:#cc6600; padding:2px 8px; border-radius:10px; font-size:11px; }
+  .t-warn { background:#fff0f0; color:#c0300a; padding:2px 8px; border-radius:10px; font-size:11px; }
+  .df-wrap { padding:14px 16px; background:#f4f7fb; border-radius:8px; }
+  .df-row { display:flex; align-items:center; gap:10px; font-size:12px; margin-bottom:8px; }
+  .df-row:last-of-type { margin-bottom:0; }
+  .df-lbl { width:40px; color:#4a6080; flex-shrink:0; }
+  .df-track { flex:1; background:rgba(30,80,180,0.1); border-radius:4px; height:8px; overflow:hidden; }
+  .df-fill { height:100%; border-radius:4px; }
+  .df-val { width:52px; font-weight:500; color:#0d1b3e; text-align:right; flex-shrink:0; font-size:12px; }
+  .areas-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .area-c { background:#fff7e0; border-radius:8px; padding:10px 12px; font-size:12px; color:#cc6600; font-weight:500; line-height:1.4; }
+  .complaint-c { background:#fff0f0; border:1px solid rgba(192,48,10,0.2); border-radius:8px; padding:10px 14px; font-size:13px; color:#c0300a; margin-bottom:1.25rem; }
+
   /* AVAILABILITY */
   .avail-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
@@ -209,6 +256,7 @@
     <div class="page-tab active" onclick="showPage('activity')">Player Activity &amp; Practice Load</div>
     <div class="page-tab" onclick="showPage('wellness')">Team Wellness</div>
     <div class="page-tab" onclick="showPage('workouts')">Individual Practices</div>
+    <div class="page-tab" onclick="showPage('profiles')">Player Profiles</div>
   </div>
 
 
@@ -380,6 +428,164 @@
     </div>
 
   </div>
+
+  <!-- PROFILES PAGE -->
+  <div id="page-profiles" style="display:none">
+
+    <!-- Player selector -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#8ca0bc;margin-right:4px;">Player</div>
+      <button class="prof-btn active" onclick="showProfile(0,this)">Benaya Sror</button>
+      <button class="prof-btn" onclick="showProfile(1,this)">Vincent Amsalem</button>
+    </div>
+
+    <!-- Profile panels -->
+    <div style="max-width:580px;">
+    <div id="profile-0"><div class="prof-header">
+  <div class="prof-avatar">BS</div>
+  <div>
+    <p class="prof-name">Benaya Sror</p>
+    <p class="prof-sub">Examined by Gal Ouralevich &middot; Head Physiotherapist</p>
+  </div>
+  <div class="prof-status prof-status-ok">&#10003; Cleared &mdash; full participation</div>
+</div>
+<div class="info-grid4">
+  <div class="info-c"><p class="info-lbl">Age</p><p class="info-v">26</p></div>
+  <div class="info-c"><p class="info-lbl">Height</p><p class="info-v">2.08 m</p></div>
+  <div class="info-c"><p class="info-lbl">Dominant hand</p><p class="info-v">Right</p></div>
+  <div class="info-c"><p class="info-lbl">Jump leg</p><p class="info-v">Right</p></div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Medical history</div>
+  <div class="hist-card">
+    <p class="hist-item"><span class="hist-date">Apr 2025</span>Left ACL reconstruction (Dr. Lindner) &mdash; ~10 months rehab. Resumed contact training 6 months post-op.</p>
+    <p class="hist-item" style="color:#8ca0bc">No other significant injury history.</p>
+  </div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Dorsiflexion lunge test</div>
+  <div class="df-wrap">
+    <div class="df-row"><span class="df-lbl">Right</span><div class="df-track"><div class="df-fill" style="width:93%;background:#43a047"></div></div><span class="df-val">14 cm</span></div>
+    <div class="df-row"><span class="df-lbl">Left</span><div class="df-track"><div class="df-fill" style="width:56%;background:#f57c00"></div></div><span class="df-val">9 cm</span></div>
+    <p style="font-size:11px;color:#8ca0bc;margin:10px 0 0">Left side deficit of 5 cm &mdash; joint-related restriction in ROM</p>
+  </div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Orthopedic assessment</div>
+  <div class="prof-2col">
+    <div class="acard">
+      <p class="acard-title">Lower extremity</p>
+      <div class="aitem"><span class="adot adot-w"></span><span>Landing tendency &mdash; extended/stiff left knee, reduced dynamic control</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Limited right hip external rotation ROM</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Bilateral hamstring tightness (more right), bilateral TFL tightness</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Right gastrocnemius tightness</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Bilateral hip extension limitation (more left) &mdash; Thomas Test positive</span></div>
+      <div class="aitem"><span class="adot adot-ok"></span><span>FABER test within normal limits</span></div>
+      <div class="aitem"><span class="adot adot-ok"></span><span>Mild bilateral knee varus &mdash; normal foot arch</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="acard">
+        <p class="acard-title">Upper extremity / cervical</p>
+        <div class="aitem"><span class="adot adot-w"></span><span>Right upper trapezius and levator scapulae tightness</span></div>
+        <div class="aitem"><span class="adot adot-w"></span><span>Limited cervical side flexion left</span></div>
+        <div class="aitem"><span class="adot adot-w"></span><span>Left shoulder flexion limited to 170&deg;</span></div>
+      </div>
+      <div class="acard">
+        <p class="acard-title">Functional tests</p>
+        <div class="test-r"><span style="color:#4a6080">Hop test</span><span class="t-ok">Normal</span></div>
+        <div class="test-r"><span style="color:#4a6080">Y-Balance</span><span class="t-ok">Normal</span></div>
+        <div class="test-r"><span style="color:#4a6080">Biodex isokinetic</span><span class="t-ok">Normal</span></div>
+        <div class="test-r"><span style="color:#4a6080">FABER</span><span class="t-ok">Normal</span></div>
+        <div class="test-r"><span style="color:#4a6080">Orthotics</span><span class="t-flag">New pair recommended</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Key areas to address</div>
+  <div class="areas-3">
+    <div class="area-c">Left ankle dorsiflexion ROM</div>
+    <div class="area-c">Bilateral hamstring &amp; right gastrocnemius flexibility</div>
+    <div class="area-c">Hip mobility &mdash; quadriceps flexibility and length</div>
+  </div>
+</div></div>
+    <div id="profile-1" style="display:none"><div class="prof-header">
+  <div class="prof-avatar">VA</div>
+  <div>
+    <p class="prof-name">Vincent Amsalem</p>
+    <p class="prof-sub">Examined by Gal Ouralevich &middot; Head Physiotherapist</p>
+  </div>
+  <div class="prof-status prof-status-cond">&#9888; Cleared &mdash; pending echo results</div>
+</div>
+<div class="complaint-c">&#9888; Current complaint: Occasional right shoulder pain under load &mdash; requires massage to relieve.</div>
+<div class="info-grid4">
+  <div class="info-c"><p class="info-lbl">Age</p><p class="info-v">24</p></div>
+  <div class="info-c"><p class="info-lbl">Height</p><p class="info-v">1.93 m</p></div>
+  <div class="info-c"><p class="info-lbl">Dominant hand</p><p class="info-v">Right</p></div>
+  <div class="info-c"><p class="info-lbl">Jump leg</p><p class="info-v">Left</p></div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Medical history</div>
+  <div class="hist-card">
+    <p class="hist-item"><span class="hist-date">Age 14</span>Right distal radius fracture &mdash; 2 months rehab. No residual pain.</p>
+    <p class="hist-item"><span class="hist-date">Age 18</span>Right shoulder dislocation (reduced at hospital) &mdash; 6 weeks rehab, full return.</p>
+    <p class="hist-item"><span class="hist-date">Oct 2025</span>Complete left PCL tear (direct trauma) &mdash; conservative management, 4-month rehab. Returned to play, completed the season.</p>
+  </div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Dorsiflexion lunge test</div>
+  <div class="df-wrap">
+    <div class="df-row"><span class="df-lbl">Left</span><div class="df-track"><div class="df-fill" style="width:33%;background:#e53935"></div></div><span class="df-val">5 cm</span></div>
+    <div class="df-row"><span class="df-lbl">Right</span><div class="df-track"><div class="df-fill" style="width:70%;background:#43a047"></div></div><span class="df-val">10.5 cm</span></div>
+    <p style="font-size:11px;color:#8ca0bc;margin:10px 0 0">Left side deficit of 5.5 cm &mdash; significant restriction, particularly post-PCL</p>
+  </div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Orthopedic assessment</div>
+  <div class="prof-2col">
+    <div class="acard">
+      <p class="acard-title">Lower extremity</p>
+      <div class="aitem"><span class="adot adot-w"></span><span>Generalized joint hypermobility &mdash; positive</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Knee recurvatum on Adams testing</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Flattening of foot arches (more right)</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>PCL provocative test: positive left, negative right</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>ACL testing: positive bilaterally (hyper-laxity)</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>SLR: bilateral hamstring tightness</span></div>
+      <div class="aitem"><span class="adot adot-w"></span><span>Weight shift to right during deep squat</span></div>
+      <div class="aitem"><span class="adot adot-ok"></span><span>Thomas Test normal &mdash; mild right iliopsoas tightness only</span></div>
+      <div class="aitem"><span class="adot adot-ok"></span><span>Single-leg stance stability normal</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="acard">
+        <p class="acard-title">Upper extremity / cervical</p>
+        <div class="aitem"><span class="adot adot-w"></span><span>Right shoulder subluxations &mdash; stability to be addressed</span></div>
+        <div class="aitem"><span class="adot adot-ok"></span><span>Apprehension test negative</span></div>
+        <div class="aitem"><span class="adot adot-ok"></span><span>Cervical and upper-extremity strength normal</span></div>
+        <div class="aitem"><span class="adot adot-ok"></span><span>Full cervical and upper-extremity ROM</span></div>
+      </div>
+      <div class="acard">
+        <p class="acard-title">Functional tests (left knee)</p>
+        <div class="test-r"><span style="color:#4a6080">Hop test</span><span class="t-ok">Normal</span></div>
+        <div class="test-r"><span style="color:#4a6080">Y-Balance</span><span class="t-ok">Normal</span></div>
+        <div class="test-r"><span style="color:#4a6080">Biodex isokinetic</span><span class="t-flag">Left quad strengthen</span></div>
+        <div class="test-r"><span style="color:#4a6080">Orthotics</span><span class="t-ok">New pair (France)</span></div>
+        <div class="test-r"><span style="color:#4a6080">Ankle taping</span><span class="t-flag">R practice / bilateral game</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="prof-section">
+  <div class="prof-sec-title">Key areas to address</div>
+  <div class="areas-3">
+    <div class="area-c">Intensive left quadriceps strengthening</div>
+    <div class="area-c">Right shoulder stabilizer strengthening</div>
+    <div class="area-c">Left ankle dorsiflexion ROM</div>
+    <div class="area-c">Pain-free loading of left lower extremity (knee flexion)</div>
+    <div class="area-c">Bilateral hamstring flexibility</div>
+  </div>
+</div></div>
+
+  </div>
 </div>
 
 <script>
@@ -415,14 +621,15 @@ var moodChartObj = null;
 
 // ── PAGE TABS ────────────────────────────────────────────────────────────────
 function showPage(page) {
-  var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices'};
+  var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices', profiles:'Player Profiles'};
   document.querySelectorAll('.page-tab').forEach(function(t,i) {
-    var pages = ['activity','wellness','workouts'];
+    var pages = ['activity','wellness','workouts','profiles'];
     t.classList.toggle('active', pages[i] === page);
   });
-  document.getElementById('page-activity').style.display = page === 'activity' ? '' : 'none';
+  document.getElementById('page-activity').style.display  = page === 'activity'  ? '' : 'none';
   document.getElementById('page-workouts').style.display = page === 'workouts' ? '' : 'none';
-  document.getElementById('page-wellness').style.display = page === 'wellness'  ? '' : 'none';
+  document.getElementById('page-wellness').style.display  = page === 'wellness'  ? '' : 'none';
+  document.getElementById('page-profiles').style.display  = page === 'profiles'  ? '' : 'none';
   document.getElementById('header-sub').textContent = labels[page] || '';
 }
 
@@ -1546,6 +1753,13 @@ function renderActivity(){
   }).join('');
 }
 
+
+function showProfile(idx, btn) {
+  document.querySelectorAll('.prof-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('profile-0').style.display = idx===0?'':'none';
+  document.getElementById('profile-1').style.display = idx===1?'':'none';
+}
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 showPage('activity');
 loadAll();
