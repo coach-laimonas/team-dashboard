@@ -699,7 +699,7 @@ function parseWorkoutCSV(csv) {
 
 function buildAthleteTabs() {
   document.getElementById('tabs-row').innerHTML = athletes.map(function(a){
-    return '<div class="tab" data-name="'+a.name+'" onclick="showAthlete(\''+a.name+'\')">'+a.name+'</div>';
+    return '<div class="tab" data-name="'+a.name+'" onclick="showAthlete(this.dataset.name)">'+a.name+'</div>';
   }).join('');
 }
 
@@ -1088,12 +1088,31 @@ function parseActivityCSV(text) {
   }).filter(function(r){return r['Athlete']||r['athlete'];});
 }
 
-function actDateKey(d){ return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear(); }
+function actDateKey(d){
+  if(!d||isNaN(d.getTime())) return '';
+  return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
+}
+function normDateStr(s) {
+  // Normalize a date string from the sheet to match actDateKey format
+  s = (s||'').trim();
+  if(!s) return '';
+  var parts = s.split('/');
+  if(parts.length === 3) {
+    return parseInt(parts[0])+'/'+parseInt(parts[1])+'/'+parseInt(parts[2]);
+  }
+  return actDateKey(parseDateStr(s));
+}
 
 function parseDateStr(s) {
-  // Handles M/D/YYYY
+  s = (s||'').trim();
+  if(!s) return new Date('invalid');
   var parts = s.split('/');
-  if(parts.length===3) return new Date(parseInt(parts[2]),parseInt(parts[0])-1,parseInt(parts[1]));
+  if(parts.length===3) {
+    var m=parseInt(parts[0]),d=parseInt(parts[1]),y=parseInt(parts[2]);
+    if(!isNaN(m)&&!isNaN(d)&&!isNaN(y)) return new Date(y,m-1,d);
+  }
+  var dparts = s.split('-');
+  if(dparts.length===3&&dparts[0].length===4) return new Date(parseInt(dparts[0]),parseInt(dparts[1])-1,parseInt(dparts[2]));
   return new Date(s);
 }
 
@@ -1204,8 +1223,7 @@ function buildDrillPies(tKey) {
   // Filter drill rows for selected day
   var dayDrills = drillRows.filter(function(r){
     if(!r['Date']) return false;
-    var d = parseDrillDate(r['Date']);
-    return actDateKey(d) === tKey;
+    return normDateStr(r['Date']) === tKey;
   });
 
   // Aggregate time by category
@@ -1395,8 +1413,8 @@ function renderActivity(){
 
   // Filter rows for selected day
   var dayRows = activityRows.filter(function(r){
-    var d = parseDateStr(r['Date']||'');
-    return actDateKey(d) === tKey;
+    var rd = (r['Date']||'').trim();
+    return normDateStr(rd) === tKey;
   });
 
   var statusEl = document.getElementById('act-status');
@@ -1405,20 +1423,23 @@ function renderActivity(){
   buildDrillPies(tKey);
 
   // ── Day summary cards ──
-  var totalMin = 0, totalPC = 0, players = {}, types = {};
+  var types = {};
+  var byPlayerSum = {};
   dayRows.forEach(function(r){
-    var min = parseInt(r['Duration (min)'])||0;
-    var pc  = parseInt(r['PC'])||0;
     var name = r['Athlete']||r['athlete']||'';
     var type = r['Training Type']||'';
-    totalMin += min; totalPC += pc;
-    if(name) players[name]=true;
+    if(!name) return;
+    if(!byPlayerSum[name]) byPlayerSum[name]={min:0,pc:0};
+    byPlayerSum[name].min += (parseInt(r['Duration (min)'])||0);
+    byPlayerSum[name].pc  += (parseInt(r['PC'])||0);
     if(type) types[type]=(types[type]||0)+1;
   });
-  var playerCount = Object.keys(players).length;
-
-  var avgMin = playerCount ? Math.round(totalMin/playerCount) : 0;
-  var avgPC  = playerCount ? Math.round(totalPC/playerCount)  : 0;
+  var pNames = Object.keys(byPlayerSum);
+  var playerCount = pNames.length;
+  var sumMin = pNames.reduce(function(s,p){return s+byPlayerSum[p].min;},0);
+  var sumPC  = pNames.reduce(function(s,p){return s+byPlayerSum[p].pc; },0);
+  var avgMin = playerCount ? Math.round(sumMin/playerCount) : 0;
+  var avgPC  = playerCount ? Math.round(sumPC/playerCount)  : 0;
   document.getElementById('act-day-cards').innerHTML =
     '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+dStr.split(',')[0]+'</div></div>'
     +'<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">team average</div></div>'
@@ -1511,7 +1532,7 @@ function renderActivity(){
   // For each day compute: main avg PS, avg min, and secondary type avg PSs (threshold 7+)
   var dayChartData = days7.map(function(d){
     var k = actDateKey(d);
-    var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k; });
+    var dayR = activityRows.filter(function(r){ return normDateStr(r['Date'])===k; });
     if(!dayR.length) return {avgPC:0,avgMin:0,sec:{},n:0,isSelected:actDateKey(d)===tKey};
     // Group by player
     var byP={};
@@ -1564,7 +1585,7 @@ function renderActivity(){
   var allMainTypes = {};
   dayChartData.forEach(function(dd,i){
     var k = actDateKey(days7[i]);
-    var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k; });
+    var dayR = activityRows.filter(function(r){ return normDateStr(r['Date'])===k; });
     var typeCount = {};
     dayR.forEach(function(r){
       var t=(r['Training Type']||'').trim();
@@ -1595,7 +1616,7 @@ function renderActivity(){
       data: dayChartData.map(function(dd,i){
         // avg PS for players who did this activity on this day
         var k = actDateKey(days7[i]);
-        var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k&&(r['Training Type']||'').trim()===t; });
+        var dayR = activityRows.filter(function(r){ return normDateStr(r['Date'])===k&&(r['Training Type']||'').trim()===t; });
         if(!dayR.length) return 0;
         var byP={};
         dayR.forEach(function(r){var n=r['Athlete']||'';if(n){if(!byP[n])byP[n]=0;byP[n]+=(parseInt(r['PC'])||0);}});
@@ -1659,7 +1680,7 @@ function renderActivity(){
   var playerData={};
   days7.forEach(function(d){
     var k=actDateKey(d);
-    activityRows.filter(function(r){return actDateKey(parseDateStr(r['Date']||''))===k;}).forEach(function(r){
+    activityRows.filter(function(r){return normDateStr(r['Date'])===k;}).forEach(function(r){
       var name=r['Athlete']||'';
       if(!name) return;
       if(!playerData[name]) playerData[name]={mins:Array(7).fill(0),loads:Array(7).fill(0),types:{}};
@@ -1677,7 +1698,7 @@ function renderActivity(){
   var SECONDARY_THRESHOLD = 7;
   var dayStats = days7.map(function(d){
     var k = actDateKey(d);
-    var dayR = activityRows.filter(function(r){ return actDateKey(parseDateStr(r['Date']||''))===k; });
+    var dayR = activityRows.filter(function(r){ return normDateStr(r['Date'])===k; });
     // Group by player, sum PC and min per player
     var byP = {};
     dayR.forEach(function(r){
