@@ -143,6 +143,42 @@
   .act-num { font-family:var(--mono); font-weight:600; }
   .act-dim { color:var(--dim); font-size:11px; }
 
+
+  /* ACWR */
+  .acwr-zone-sweet { color:#43a047; }
+  .acwr-zone-under { color:#1a56c4; }
+  .acwr-zone-over  { color:#e53935; }
+  .acwr-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500; font-family:'DM Mono',monospace; }
+  .acwr-sweet { background:#e8f5e9; color:#2e7d32; }
+  .acwr-under { background:#e8f0fe; color:#1a56c4; }
+  .acwr-over  { background:#fff0f0; color:#c0300a; }
+  .acwr-warn  { background:#fff3e0; color:#cc6600; }
+
+  /* WELLNESS FLAGS */
+  .flag-row { display:flex; align-items:center; justify-content:space-between; padding:8px 14px; border-bottom:0.5px solid rgba(30,80,180,0.08); font-size:13px; }
+  .flag-row:last-child { border-bottom:none; }
+  .flag-row:hover { background:var(--surface2); }
+  .flag-name { font-weight:500; color:#0d1b3e; min-width:120px; }
+  .flag-cats { display:flex; gap:6px; flex-wrap:wrap; }
+  .flag-cat { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500; background:#fff0f0; color:#c0300a; }
+
+  /* WELLNESS TREND */
+  .w-player-select { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; letter-spacing:0.06em; background:var(--surface); border:1px solid rgba(30,80,180,0.2); color:#0d1b3e; padding:6px 12px; border-radius:4px; cursor:pointer; }
+
+  /* AVAILABILITY TREND */
+  .avail-trend-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px 20px; margin-bottom:24px; }
+
+  /* GAME ANALYSIS */
+  .game-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:24px; }
+  .game-card-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:#4a6080; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface2); }
+  .game-table { width:100%; border-collapse:collapse; font-size:12px; overflow-x:auto; }
+  .game-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#8ca0bc; padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); background:var(--surface2); white-space:nowrap; }
+  .game-table td { padding:8px 12px; border-bottom:0.5px solid rgba(30,80,180,0.08); color:#0d1b3e; white-space:nowrap; }
+  .game-table tr:last-child td { border-bottom:none; }
+  .game-table tr:hover td { background:var(--surface2); }
+  .pir-pos { color:#2e7d32; font-weight:500; }
+  .pir-neg { color:#c0300a; font-weight:500; }
+  .mins-high { color:#1a56c4; font-weight:500; }
   /* PROFILES */
   .prof-btn { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; background:none; border:1px solid rgba(30,80,180,0.2); color:#4a6080; padding:6px 16px; border-radius:4px; cursor:pointer; transition:all 0.15s; }
   .prof-btn:hover { border-color:#1a56c4; color:#1a56c4; }
@@ -342,6 +378,42 @@
       </div>
     </div>
 
+
+    <!-- ACWR -->
+    <div class="section-label" style="margin-top:8px">Acute:Chronic Workload Ratio (ACWR)</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:8px;">
+      <div class="chart-card-title">ACWR per player — rolling 7d acute / 28d chronic</div>
+      <div style="position:relative;height:220px;margin-bottom:12px;"><canvas id="acwr-chart"></canvas></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:28px;display:flex;gap:24px;flex-wrap:wrap;font-size:12px;">
+      <span><span class="acwr-badge acwr-under">&#60; 0.8</span> <span style="color:#4a6080">Undertraining</span></span>
+      <span><span class="acwr-badge acwr-sweet">0.8 – 1.3</span> <span style="color:#4a6080">Sweet spot — optimal load</span></span>
+      <span><span class="acwr-badge acwr-warn">1.3 – 1.5</span> <span style="color:#4a6080">Caution — monitor</span></span>
+      <span><span class="acwr-badge acwr-over">&#62; 1.5</span> <span style="color:#4a6080">Danger — injury risk</span></span>
+      <span id="acwr-data-note" style="color:#8ca0bc;font-family:'DM Mono',monospace;font-size:10px;margin-left:auto;align-self:center"></span>
+    </div>
+
+    <!-- Game Analysis -->
+    <div class="section-label">Game analysis</div>
+<div id="game-log-card" style="display:none"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <select class="w-player-select" id="game-player-select" onchange="buildGameTrend()">
+        <option value="">Select player…</option>
+      </select>
+      <span style="font-family:monospace;font-size:10px;color:#8ca0bc;">Select a player to see their minutes &amp; PIR across all games</span>
+    </div>
+    <div id="game-trend-wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+      <div class="chart-card">
+        <div class="chart-card-title">Minutes per player — season trend</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="game-mins-chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">PIR per player — season trend</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="game-pir-chart"></canvas></div>
+      </div>
+    </div>
+    </div><!-- /game-trend-wrap -->
     <!-- 7-day per-player table -->
     <div class="section-label">Past 7 days — per player summary</div>
     <div class="table-wrap" style="overflow-x:auto">
@@ -387,6 +459,25 @@
         <thead><tr><th>Date</th><th>Player</th><th>Comment</th></tr></thead>
         <tbody id="comment-body"></tbody>
       </table>
+    </div>
+
+
+    <!-- Wellness flags -->
+    <div class="w-section-title">Player flags — today's low scores</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px;" id="flag-panel">
+      <div id="flag-body"><div style="padding:16px;color:#8ca0bc;font-family:'DM Mono',monospace;font-size:11px;">No flags for this day</div></div>
+    </div>
+
+    <!-- Wellness trend per player -->
+    <div class="w-section-title">Wellness trend — by player</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <select class="w-player-select" id="wellness-player-select" onchange="buildWellnessTrend()">
+        <option value="">Select player…</option>
+      </select>
+    </div>
+    <div class="mood-card" id="wellness-trend-card" style="display:none">
+      <div class="chart-card-title" id="wellness-trend-title">Wellness trend</div>
+      <div style="position:relative;height:220px;"><canvas id="wellness-trend-chart"></canvas></div>
     </div>
 
     <!-- Availability -->
@@ -611,6 +702,18 @@ var AVAIL_CSV    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDPC79mBEw2
 var ACTIVITY_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFzeR7REdLwy71kz-dtLhexw59cyENKgjNhRvYVsQLnptLs6pCkKJtYLYACdqluA/pub?output=csv';
 var DRILL_CSV    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRyp4qnXKoZjG0-mi3a_ciY3sIaJ_y5oTNrGKQ44wpdWJ6FCAZMn96n8bUEclaE0g/pub?output=csv';
 
+// Cross-browser fetch helper that works in both Chrome and Firefox
+function fetchCSV(url) {
+  return fetch(url + '&t=' + Date.now(), {
+    method: 'GET',
+    mode: 'cors',
+    cache: 'no-store'
+  }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  });
+}
+
 var SCORE_COLORS = ['#d63031','#e17055','#fdcb6e','#81b214','#00b894'];
 var gridC = 'rgba(30,80,180,0.08)';
 var tickC = '#4a6080';
@@ -636,13 +739,25 @@ function showPage(page) {
 // ── REFRESH ──────────────────────────────────────────────────────────────────
 function loadAll() {
   var btn = document.getElementById('refresh-btn');
-  btn.classList.add('loading');
-  var p1 = loadWorkouts();
-  var p2 = loadWellness();
-  var p3 = loadAvailability();
-  var p4 = loadActivity();
-  var p5 = loadDrills();
-  Promise.all([p1, p2, p3, p4, p5]).then(function() { btn.classList.remove('loading'); });
+  if(btn) btn.classList.add('loading');
+  var done = function(){ if(btn) btn.classList.remove('loading'); };
+  var safe = function(p){ return (p||Promise.resolve()).catch(function(e){ console.warn('fetch error:',e.message); }); };
+  // Load drills first so drillRows is ready when renderActivity runs
+  safe(loadDrills()).then(function(){
+    Promise.all([
+      safe(loadWorkouts()),
+      safe(loadWellness()),
+      safe(loadAvailability()),
+      safe(loadActivity())
+    ]).then(done).catch(done);
+  }).catch(function(){
+    Promise.all([
+      safe(loadWorkouts()),
+      safe(loadWellness()),
+      safe(loadAvailability()),
+      safe(loadActivity())
+    ]).then(done).catch(done);
+  });
 }
 
 // ── WORKOUTS ─────────────────────────────────────────────────────────────────
@@ -650,8 +765,7 @@ function loadWorkouts() {
   var status = document.getElementById('status-bar');
   status.className = '';
   status.textContent = 'Fetching data…';
-  return fetch(WORKOUT_CSV + '&t=' + Date.now())
-    .then(function(r) { return r.text(); })
+  return fetchCSV(WORKOUT_CSV)
     .then(function(csv) {
       athletes = parseWorkoutCSV(csv);
       if (!athletes.length) throw new Error('No athlete data found');
@@ -729,11 +843,11 @@ function showAthlete(name) {
 
 // ── WELLNESS ─────────────────────────────────────────────────────────────────
 function loadWellness() {
-  return fetch(WELLNESS_CSV + '&t=' + Date.now())
-    .then(function(r){return r.text();})
+  return fetchCSV(WELLNESS_CSV)
     .then(function(text){
       wellnessRows = parseWellnessCSV(text);
       renderWellness();
+      try{buildAvailTrend();}catch(e2){console.error("AvailTrend error:",e2);}
     })
     .catch(function(e){
       document.getElementById('wellness-status').textContent = '✗ ' + e.message;
@@ -785,6 +899,8 @@ function renderWellness() {
     ['pie-fatigue','pie-soreness','pie-sleep'].forEach(function(id){var c=Chart.getChart(id);if(c)c.destroy();});
     document.getElementById('comment-body').innerHTML = '<tr><td colspan="3" class="no-data">No responses for this day</td></tr>';
     document.getElementById('drilldown').classList.remove('show');
+  try{buildWellnessFlags(tKey);}catch(e){console.error("Flags error:",e);}
+  try{populateWellnessPlayerSelect();}catch(e){console.error("Select error:",e);}
     buildMoodChart();
     return;
   }
@@ -792,6 +908,8 @@ function renderWellness() {
   ws.className = 'w-status ok';
   ws.textContent = '✓ ' + dayRows.length + ' response' + (dayRows.length>1?'s':'') + ' for ' + dStr;
   document.getElementById('drilldown').classList.remove('show');
+  try{buildWellnessFlags(tKey);}catch(e){console.error("Flags error:",e);}
+  try{populateWellnessPlayerSelect();}catch(e){console.error("Select error:",e);}
 
   buildPie('pie-fatigue',  'FATIGUE',         'Fatigue',         dayRows);
   buildPie('pie-soreness', 'MUSCLE SORENESS', 'Muscle Soreness', dayRows);
@@ -907,8 +1025,7 @@ function buildMoodChart() {
 
 // ── AVAILABILITY ──────────────────────────────────────────────────────────────
 function loadAvailability() {
-  return fetch(AVAIL_CSV + '&t=' + Date.now())
-    .then(function(r){return r.text();})
+  return fetchCSV(AVAIL_CSV)
     .then(function(text){renderAvailability(text);})
     .catch(function(e){
       var el = document.getElementById('avail-status');
@@ -1058,11 +1175,11 @@ var drillTypeChart = null, drillSpaceChart = null, drillSizeChart = null;
 var monotonyChart = null;
 
 function loadActivity() {
-  return fetch(ACTIVITY_CSV + '&t=' + Date.now())
-    .then(function(r){return r.text();})
+  return fetchCSV(ACTIVITY_CSV)
     .then(function(text){
       activityRows = parseActivityCSV(text);
       renderActivity();
+      try{buildAvailTrend();}catch(e2){console.error("AvailTrend2 error:",e2);}
     })
     .catch(function(e){
       var el = document.getElementById('act-status');
@@ -1152,8 +1269,7 @@ function typeBadge(t){
 
 
 function loadDrills() {
-  return fetch(DRILL_CSV + '&t=' + Date.now())
-    .then(function(r){ return r.text(); })
+  return fetchCSV(DRILL_CSV)
     .then(function(text){ drillRows = parseDrillCSV(text); })
     .catch(function(e){ console.warn('Drill CSV failed:', e.message); });
 }
@@ -1220,6 +1336,7 @@ function buildDrillPie(canvasId, data, existing) {
 }
 
 function buildDrillPies(tKey) {
+  if(!drillRows || !drillRows.length) return;
   // Filter drill rows for selected day
   var dayDrills = drillRows.filter(function(r){
     if(!r['Date']) return false;
@@ -1527,6 +1644,8 @@ function renderActivity(){
 
   // ── Monotony chart (uses all activity data) ──
   buildMonotonyChart();
+  try{buildACWR();}catch(e){console.error("ACWR error:",e);}
+  try{buildGameAnalysis();}catch(e){console.error("Game error:",e);}
 
   // ── Build per-day averages + secondary stacked data for charts ──
   // For each day compute: main avg PS, avg min, and secondary type avg PSs (threshold 7+)
@@ -1781,6 +1900,435 @@ function showProfile(idx, btn) {
   document.getElementById('profile-0').style.display = idx===0?'':'none';
   document.getElementById('profile-1').style.display = idx===1?'':'none';
 }
+
+// ── ACWR ──────────────────────────────────────────────────────────────────────
+var acwrChart = null;
+
+function buildACWR() {
+  // Get all unique players
+  var players = {};
+  activityRows.forEach(function(r){ var n=r['Athlete']||''; if(n) players[n]=true; });
+  var playerList = Object.keys(players).sort();
+
+  // Get all unique dates sorted
+  var dateSet = {};
+  activityRows.forEach(function(r){
+    var rd=(r['Date']||'').trim();
+    if(rd) dateSet[normDateStr(rd)]=true;
+  });
+  var allDates = Object.keys(dateSet).sort(function(a,b){ return new Date(a)-new Date(b); });
+
+  if(allDates.length < 2){ return; }
+
+  // Compute daily avg PS per player per date
+  var playerDayPS = {}; // playerDayPS[name][dateKey] = avgPS
+  playerList.forEach(function(name){
+    playerDayPS[name] = {};
+    allDates.forEach(function(k){ playerDayPS[name][k]=0; });
+  });
+  // Group by player+date
+  var grouped = {};
+  activityRows.forEach(function(r){
+    var name=r['Athlete']||''; if(!name) return;
+    var dk=normDateStr((r['Date']||'').trim()); if(!dk) return;
+    if(!grouped[name]) grouped[name]={};
+    if(!grouped[name][dk]) grouped[name][dk]=0;
+    grouped[name][dk]+=(parseInt(r['PC'])||0);
+  });
+  playerList.forEach(function(name){
+    Object.keys(grouped[name]||{}).forEach(function(dk){
+      playerDayPS[name][dk]=grouped[name][dk];
+    });
+  });
+
+  // For the most recent date, compute ACWR per player
+  var lastDate = allDates[allDates.length-1];
+  var lastIdx  = allDates.indexOf(lastDate);
+
+  // Data note
+  var note = allDates.length < 28
+    ? 'Note: only '+allDates.length+' days of data (28 needed for full chronic baseline)'
+    : '';
+  var noteEl = document.getElementById('acwr-data-note');
+  if(noteEl) noteEl.textContent = note;
+
+  var acwrValues = [], colors = [], bgColors = [];
+  playerList.forEach(function(name){
+    // Acute = avg PS over last 7 days
+    var acuteDays = allDates.slice(Math.max(0,lastIdx-6), lastIdx+1);
+    var acuteVals = acuteDays.map(function(d){ return playerDayPS[name][d]||0; });
+    var acuteAvg  = acuteVals.reduce(function(s,v){return s+v;},0)/Math.max(acuteDays.length,1);
+
+    // Chronic = avg PS over last 28 days
+    var chronicDays = allDates.slice(Math.max(0,lastIdx-27), lastIdx+1);
+    var chronicVals = chronicDays.map(function(d){ return playerDayPS[name][d]||0; });
+    var chronicAvg  = chronicVals.reduce(function(s,v){return s+v;},0)/Math.max(chronicDays.length,1);
+
+    var acwr = chronicAvg > 0 ? parseFloat((acuteAvg/chronicAvg).toFixed(2)) : 0;
+    acwrValues.push(acwr);
+
+    var color = acwr < 0.8 ? '#1a56c4'
+      : acwr <= 1.3 ? '#43a047'
+      : acwr <= 1.5 ? '#f57c00'
+      : '#e53935';
+    colors.push(color);
+    bgColors.push(color+'33');
+  });
+
+  if(acwrChart) acwrChart.destroy();
+  acwrChart = new Chart(document.getElementById('acwr-chart'),{
+    type:'bar',
+    data:{
+      labels: playerList,
+      datasets:[{
+        label:'ACWR',
+        data: acwrValues,
+        backgroundColor: bgColors,
+        borderColor: colors,
+        borderWidth: 2,
+        borderRadius: 4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){
+          var v=ctx.raw;
+          var zone = v<0.8?'Undertraining':v<=1.3?'Sweet spot':v<=1.5?'Caution':'Danger';
+          return ' ACWR: '+v+' — '+zone;
+        }}}
+      },
+      scales:{
+        x:{ticks:{color:tickC,font:{size:10}},grid:{color:gridC},border:{display:false}},
+        y:{
+          min:0, max:2.5,
+          ticks:{color:tickC,font:{size:11}},
+          grid:{color:gridC},
+          border:{display:false},
+          title:{display:true,text:'ACWR',color:tickC,font:{size:10}},
+          // Zone lines via ticks
+        }
+      },
+      // Draw reference lines
+      animation:{onComplete:function(anim){
+        var chart=anim.chart;
+        var ctx2=chart.ctx;
+        var yAxis=chart.scales.y;
+        function hLine(val,color,label){
+          var y=yAxis.getPixelForValue(val);
+          ctx2.save();
+          ctx2.strokeStyle=color;
+          ctx2.lineWidth=1;
+          ctx2.setLineDash([4,3]);
+          ctx2.beginPath();
+          ctx2.moveTo(chart.chartArea.left,y);
+          ctx2.lineTo(chart.chartArea.right,y);
+          ctx2.stroke();
+          ctx2.fillStyle=color;
+          ctx2.font='10px DM Mono,monospace';
+          ctx2.fillText(label,chart.chartArea.right+4,y+4);
+          ctx2.restore();
+        }
+        hLine(0.8,'#1a56c4','0.8');
+        hLine(1.3,'#43a047','1.3');
+        hLine(1.5,'#f57c00','1.5');
+      }}
+    }
+  });
+}
+
+// ── WELLNESS FLAGS ────────────────────────────────────────────────────────────
+var FLAG_THRESHOLD = 2; // score <= this triggers a flag
+
+function buildWellnessFlags(tKey) {
+  var CATS = ['FATIGUE','MUSCLE SORENESS','SLEEP QUALITY','STRESS LEVEL','MOOD'];
+  var CAT_LABELS = {
+    'FATIGUE':'Fatigue','MUSCLE SORENESS':'Muscle soreness',
+    'SLEEP QUALITY':'Sleep quality','STRESS LEVEL':'Stress level','MOOD':'Mood'
+  };
+  var dayRows = wellnessRows.filter(function(r){
+    return (r['Timestamp']||'').split(' ')[0] === tKey;
+  });
+
+  var flags = []; // {name, cats:[]}
+  dayRows.forEach(function(r){
+    var name=(r['Name']||'').trim();
+    if(!name) return;
+    var flaggedCats = [];
+    CATS.forEach(function(cat){
+      var s=extractScore(r[cat]);
+      if(s!==null && s<=FLAG_THRESHOLD) flaggedCats.push(CAT_LABELS[cat]+' ('+s+')');
+    });
+    if(flaggedCats.length) flags.push({name:name, cats:flaggedCats});
+  });
+
+  var body = document.getElementById('flag-body');
+  if(!body) return;
+  if(!flags.length){
+    body.innerHTML='<div style="padding:16px;color:#8ca0bc;font-family:monospace;font-size:11px;">No flags for this day — all players scored above threshold</div>';
+    return;
+  }
+  body.innerHTML = flags.map(function(f){
+    return '<div class="flag-row">'
+      +'<span class="flag-name">'+f.name+'</span>'
+      +'<span class="flag-cats">'+f.cats.map(function(c){return '<span class="flag-cat">'+c+'</span>';}).join('')+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+// ── WELLNESS TREND PER PLAYER ─────────────────────────────────────────────────
+var wellnessTrendChart = null;
+var WELLNESS_KEYS = ['FATIGUE','MUSCLE SORENESS','SLEEP QUALITY','STRESS LEVEL','MOOD'];
+var WELLNESS_COLORS = ['#e53935','#f57c00','#1a56c4','#8e24aa','#43a047'];
+
+function populateWellnessPlayerSelect(){
+  var players = {};
+  wellnessRows.forEach(function(r){ var n=(r['Name']||'').trim(); if(n) players[n]=true; });
+  var sel = document.getElementById('wellness-player-select');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Select player…</option>'
+    + Object.keys(players).sort().map(function(n){
+        return '<option value="'+n+'">'+n+'</option>';
+      }).join('');
+}
+
+function buildWellnessTrend(){
+  var sel = document.getElementById('wellness-player-select');
+  var name = sel ? sel.value : '';
+  var card = document.getElementById('wellness-trend-card');
+  if(!name){ if(card) card.style.display='none'; return; }
+  if(card) card.style.display='';
+
+  var playerRows = wellnessRows.filter(function(r){ return (r['Name']||'').trim()===name; });
+
+  // Group by date, average scores per category
+  var byDate = {};
+  playerRows.forEach(function(r){
+    var d=(r['Timestamp']||'').split(' ')[0];
+    if(!byDate[d]) byDate[d]={};
+    WELLNESS_KEYS.forEach(function(k){
+      var s=extractScore(r[k]);
+      if(s!==null){
+        if(!byDate[d][k]) byDate[d][k]=[];
+        byDate[d][k].push(s);
+      }
+    });
+  });
+
+  var dates = Object.keys(byDate).sort(function(a,b){return new Date(a)-new Date(b);}).slice(-14);
+  var labels = dates.map(function(d){
+    var dt=new Date(d);
+    return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+  });
+
+  var datasets = WELLNESS_KEYS.map(function(k,i){
+    return {
+      label:k.charAt(0)+k.slice(1).toLowerCase(),
+      data:dates.map(function(d){
+        var arr=byDate[d][k];
+        return arr?parseFloat((arr.reduce(function(s,v){return s+v;},0)/arr.length).toFixed(1)):null;
+      }),
+      borderColor:WELLNESS_COLORS[i],
+      backgroundColor:'transparent',
+      borderWidth:2,
+      pointRadius:4,
+      pointBackgroundColor:WELLNESS_COLORS[i],
+      tension:0.3,
+      spanGaps:false
+    };
+  });
+
+  var titleEl = document.getElementById('wellness-trend-title');
+  if(titleEl) titleEl.textContent = name+' — wellness trend (last 14 days)';
+
+  if(wellnessTrendChart) wellnessTrendChart.destroy();
+  wellnessTrendChart = new Chart(document.getElementById('wellness-trend-chart'),{
+    type:'line',
+    data:{labels:labels, datasets:datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:tickC,font:{size:10},boxWidth:10,padding:8}}},
+      scales:{
+        x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
+        y:{min:1,max:5,ticks:{color:tickC,font:{size:11},stepSize:1},grid:{color:gridC},border:{display:false}}
+      }
+    }
+  });
+}
+
+// ── AVAILABILITY TREND ────────────────────────────────────────────────────────
+var availTrendChart = null;
+
+function buildAvailTrend(){
+  if(!wellnessRows.length && typeof availabilityHistory === 'undefined') return;
+  // We derive "available" from availability CSV
+  // Count players with status "Ready" in TODAY col per day from the history
+  // Since we only have one snapshot, we'll build from wellness response counts as proxy
+  // Actually - use the activity sheet: count distinct players per day = available players
+  var dayCount = {};
+  activityRows.forEach(function(r){
+    var dk=normDateStr((r['Date']||'').trim());
+    if(!dk) return;
+    if(!dayCount[dk]) dayCount[dk]={};
+    var name=r['Athlete']||''; if(name) dayCount[dk][name]=true;
+  });
+
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate()-30);
+
+  var sortedDates = Object.keys(dayCount)
+    .filter(function(dk){ return new Date(dk)>=cutoff; })
+    .sort(function(a,b){return new Date(a)-new Date(b);});
+
+  var labels = sortedDates.map(function(dk){
+    var dt=new Date(dk);
+    return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+  });
+  var data = sortedDates.map(function(dk){ return Object.keys(dayCount[dk]).length; });
+
+  if(availTrendChart) availTrendChart.destroy();
+  availTrendChart = new Chart(document.getElementById('avail-trend-chart'),{
+    type:'line',
+    data:{labels:labels,datasets:[{
+      label:'Players active',
+      data:data,
+      borderColor:'#1a56c4',
+      backgroundColor:'rgba(26,86,196,0.08)',
+      borderWidth:2,
+      pointRadius:4,
+      pointBackgroundColor:data.map(function(v){
+        return v>=12?'#43a047':v>=8?'#f57c00':'#e53935';
+      }),
+      tension:0.3,
+      fill:true
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' '+ctx.raw+' players active';}}}},
+      scales:{
+        x:{ticks:{color:tickC,font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:15},grid:{color:gridC},border:{display:false}},
+        y:{min:0,ticks:{color:tickC,font:{size:11},stepSize:2},grid:{color:gridC},border:{display:false},
+          title:{display:true,text:'Players',color:tickC,font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ── GAME ANALYSIS ─────────────────────────────────────────────────────────────
+var gameMinsChart = null, gamePirChart = null;
+
+function buildGameAnalysis(){
+  var gameRows = activityRows.filter(function(r){
+    return parseInt(r['Game minutes']||0)>0 || (r['PIR']&&r['PIR'].trim()!==''&&r['PIR'].trim()!=='0');
+  });
+
+  if(!gameRows.length){ return; }
+
+  // Group by date
+  var byGame = {};
+  gameRows.forEach(function(r){
+    var dk=normDateStr((r['Date']||'').trim());
+    if(!dk) return;
+    if(!byGame[dk]) byGame[dk]={date:dk,day:r['Day']||'',players:[]};
+    byGame[dk].players.push({
+      name:r['Athlete']||'',
+      mins:parseInt(r['Game minutes'])||0,
+      pir:r['PIR']&&r['PIR'].trim()!==''?parseInt(r['PIR']):null
+    });
+  });
+
+  var gameDates = Object.keys(byGame).sort(function(a,b){return new Date(a)-new Date(b);});
+
+  // Populate player selector
+  var allPlayers={};
+  gameRows.forEach(function(r){var n=r['Athlete']||'';if(n)allPlayers[n]=true;});
+  var playerNames=Object.keys(allPlayers).sort();
+  var sel=document.getElementById('game-player-select');
+  if(sel){
+    sel.innerHTML='<option value="">Select player…</option>'
+      +playerNames.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+  }
+
+  // Store for use in buildGameTrend
+  window._byGame=byGame;
+  window._gameDates=gameDates;
+
+  // Auto-select first player and show trends
+  if(sel && playerNames.length) {
+    sel.value = playerNames[0];
+    buildGameTrend();
+  }
+}
+
+var gameMinsChart=null, gamePirChart=null;
+
+function buildGameTrend(){
+  var sel=document.getElementById('game-player-select');
+  var name=sel?sel.value:'';
+  var wrap=document.getElementById('game-trend-wrap');
+  if(!name){if(wrap)wrap.style.display='none';return;}
+  if(wrap)wrap.style.display='';
+
+  var byGame=window._byGame||{};
+  var gameDates=window._gameDates||[];
+  if(!gameDates.length) return;
+
+  var gameLabels=gameDates.map(function(dk){
+    var dt=new Date(dk);
+    return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+  });
+
+  var minsData=gameDates.map(function(dk){
+    var g=byGame[dk];
+    var p=g.players.find(function(x){return x.name===name;});
+    return p?p.mins:null;
+  });
+  var pirData=gameDates.map(function(dk){
+    var g=byGame[dk];
+    var p=g.players.find(function(x){return x.name===name;});
+    return p&&p.pir!==null?p.pir:null;
+  });
+
+  var sharedOpts=function(yLabel,color){return{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(ctx){return ' '+ctx.raw+(yLabel==='Minutes'?' min':'');}}}
+    },
+    scales:{
+      x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
+      y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false},
+        title:{display:true,text:yLabel,color:tickC,font:{size:10}}}
+    }
+  };};
+
+  if(gameMinsChart) gameMinsChart.destroy();
+  gameMinsChart=new Chart(document.getElementById('game-mins-chart'),{
+    type:'line',
+    data:{labels:gameLabels,datasets:[{
+      label:'Minutes',data:minsData,
+      borderColor:'#1a56c4',backgroundColor:'rgba(26,86,196,0.08)',
+      borderWidth:2,pointRadius:5,pointBackgroundColor:'#1a56c4',
+      tension:0.3,fill:true,spanGaps:false
+    }]},
+    options:sharedOpts('Minutes','#1a56c4')
+  });
+
+  if(gamePirChart) gamePirChart.destroy();
+  gamePirChart=new Chart(document.getElementById('game-pir-chart'),{
+    type:'bar',
+    data:{labels:gameLabels,datasets:[{
+      label:'PIR',data:pirData,
+      backgroundColor:pirData.map(function(v){return v>=0?'rgba(26,86,196,0.7)':'rgba(229,57,53,0.7)';}),
+      borderColor:pirData.map(function(v){return v>=0?'#1a56c4':'#e53935';}),
+      borderWidth:1,borderRadius:4
+    }]},
+    options:sharedOpts('PIR','#1a56c4')
+  });
+}
+
+
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 showPage('activity');
 loadAll();
