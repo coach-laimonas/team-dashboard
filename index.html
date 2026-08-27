@@ -317,10 +317,7 @@
         <div class="pie-card-title">Drill type × time</div>
         <div class="pie-wrap"><canvas id="drill-type-chart"></canvas></div>
       </div>
-      <div class="pie-card">
-        <div class="pie-card-title">Players in space × time</div>
-        <div class="pie-wrap"><canvas id="drill-space-chart"></canvas></div>
-      </div>
+
       <div class="pie-card">
         <div class="pie-card-title">Drill size × time</div>
         <div class="pie-wrap"><canvas id="drill-size-chart"></canvas></div>
@@ -1171,7 +1168,7 @@ function renderAvailability(csvText) {
 var activityRows = [];
 var actDayOffset = 0;
 var actLoadChart = null, actMinChart = null;
-var drillTypeChart = null, drillSpaceChart = null, drillSizeChart = null;
+var drillTypeChart = null, drillSizeChart = null;
 var monotonyChart = null;
 
 function loadActivity() {
@@ -1356,7 +1353,6 @@ function buildDrillPies(tKey) {
   });
 
   drillTypeChart  = buildDrillPie('drill-type-chart',  byType,  drillTypeChart);
-  drillSpaceChart = buildDrillPie('drill-space-chart', bySpace, drillSpaceChart);
   drillSizeChart  = buildDrillPie('drill-size-chart',  bySize,  drillSizeChart);
 }
 
