@@ -292,7 +292,6 @@
     <div class="page-tab active" onclick="showPage('activity')">Player Activity &amp; Practice Load</div>
     <div class="page-tab" onclick="showPage('wellness')">Team Wellness</div>
     <div class="page-tab" onclick="showPage('workouts')">Individual Practices</div>
-    <div class="page-tab" onclick="showPage('profiles')">Player Profiles</div>
   </div>
 
 
@@ -307,19 +306,29 @@
       <div class="w-status" id="act-status">Loading…</div>
     </div>
 
+    <!-- Period selector -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#8ca0bc;">Period</div>
+      <select id="drill-period-select" class="w-player-select" onchange="onPeriodChange()">
+        <option value="day" selected>Today</option>
+        <option value="7">Past 7 days</option>
+        <option value="30">Past 30 days</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+
     <!-- Day summary cards -->
     <div class="metrics-row" id="act-day-cards" style="margin-bottom:24px"></div>
 
     <!-- Drill pie charts -->
-    <div class="section-label">Practice structure — selected day</div>
-    <div class="pie-grid" style="margin-bottom:28px;">
+    <div class="section-label">Practice structure</div>
+    <div class="pie-grid" style="margin-bottom:28px;grid-template-columns:1fr 1fr;">
       <div class="pie-card">
-        <div class="pie-card-title">Drill type × time</div>
+        <div class="pie-card-title" id="drill-type-title">Drill type × time</div>
         <div class="pie-wrap"><canvas id="drill-type-chart"></canvas></div>
       </div>
-
       <div class="pie-card">
-        <div class="pie-card-title">Drill size × time</div>
+        <div class="pie-card-title" id="drill-size-title">Drill size × time</div>
         <div class="pie-wrap"><canvas id="drill-size-chart"></canvas></div>
       </div>
     </div>
@@ -517,163 +526,6 @@
 
   </div>
 
-  <!-- PROFILES PAGE -->
-  <div id="page-profiles" style="display:none">
-
-    <!-- Player selector -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
-      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#8ca0bc;margin-right:4px;">Player</div>
-      <button class="prof-btn active" onclick="showProfile(0,this)">Benaya Sror</button>
-      <button class="prof-btn" onclick="showProfile(1,this)">Vincent Amsalem</button>
-    </div>
-
-    <!-- Profile panels -->
-    <div style="max-width:580px;">
-    <div id="profile-0"><div class="prof-header">
-  <div class="prof-avatar">BS</div>
-  <div>
-    <p class="prof-name">Benaya Sror</p>
-    <p class="prof-sub">Examined by Gal Ouralevich &middot; Head Physiotherapist</p>
-  </div>
-  <div class="prof-status prof-status-ok">&#10003; Cleared &mdash; full participation</div>
-</div>
-<div class="info-grid4">
-  <div class="info-c"><p class="info-lbl">Age</p><p class="info-v">26</p></div>
-  <div class="info-c"><p class="info-lbl">Height</p><p class="info-v">2.08 m</p></div>
-  <div class="info-c"><p class="info-lbl">Dominant hand</p><p class="info-v">Right</p></div>
-  <div class="info-c"><p class="info-lbl">Jump leg</p><p class="info-v">Right</p></div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Medical history</div>
-  <div class="hist-card">
-    <p class="hist-item"><span class="hist-date">Apr 2025</span>Left ACL reconstruction (Dr. Lindner) &mdash; ~10 months rehab. Resumed contact training 6 months post-op.</p>
-    <p class="hist-item" style="color:#8ca0bc">No other significant injury history.</p>
-  </div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Dorsiflexion lunge test</div>
-  <div class="df-wrap">
-    <div class="df-row"><span class="df-lbl">Right</span><div class="df-track"><div class="df-fill" style="width:93%;background:#43a047"></div></div><span class="df-val">14 cm</span></div>
-    <div class="df-row"><span class="df-lbl">Left</span><div class="df-track"><div class="df-fill" style="width:56%;background:#f57c00"></div></div><span class="df-val">9 cm</span></div>
-    <p style="font-size:11px;color:#8ca0bc;margin:10px 0 0">Left side deficit of 5 cm &mdash; joint-related restriction in ROM</p>
-  </div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Orthopedic assessment</div>
-  <div class="prof-2col">
-    <div class="acard">
-      <p class="acard-title">Lower extremity</p>
-      <div class="aitem"><span class="adot adot-w"></span><span>Landing tendency &mdash; extended/stiff left knee, reduced dynamic control</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Limited right hip external rotation ROM</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Bilateral hamstring tightness (more right), bilateral TFL tightness</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Right gastrocnemius tightness</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Bilateral hip extension limitation (more left) &mdash; Thomas Test positive</span></div>
-      <div class="aitem"><span class="adot adot-ok"></span><span>FABER test within normal limits</span></div>
-      <div class="aitem"><span class="adot adot-ok"></span><span>Mild bilateral knee varus &mdash; normal foot arch</span></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <div class="acard">
-        <p class="acard-title">Upper extremity / cervical</p>
-        <div class="aitem"><span class="adot adot-w"></span><span>Right upper trapezius and levator scapulae tightness</span></div>
-        <div class="aitem"><span class="adot adot-w"></span><span>Limited cervical side flexion left</span></div>
-        <div class="aitem"><span class="adot adot-w"></span><span>Left shoulder flexion limited to 170&deg;</span></div>
-      </div>
-      <div class="acard">
-        <p class="acard-title">Functional tests</p>
-        <div class="test-r"><span style="color:#4a6080">Hop test</span><span class="t-ok">Normal</span></div>
-        <div class="test-r"><span style="color:#4a6080">Y-Balance</span><span class="t-ok">Normal</span></div>
-        <div class="test-r"><span style="color:#4a6080">Biodex isokinetic</span><span class="t-ok">Normal</span></div>
-        <div class="test-r"><span style="color:#4a6080">FABER</span><span class="t-ok">Normal</span></div>
-        <div class="test-r"><span style="color:#4a6080">Orthotics</span><span class="t-flag">New pair recommended</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Key areas to address</div>
-  <div class="areas-3">
-    <div class="area-c">Left ankle dorsiflexion ROM</div>
-    <div class="area-c">Bilateral hamstring &amp; right gastrocnemius flexibility</div>
-    <div class="area-c">Hip mobility &mdash; quadriceps flexibility and length</div>
-  </div>
-</div></div>
-    <div id="profile-1" style="display:none"><div class="prof-header">
-  <div class="prof-avatar">VA</div>
-  <div>
-    <p class="prof-name">Vincent Amsalem</p>
-    <p class="prof-sub">Examined by Gal Ouralevich &middot; Head Physiotherapist</p>
-  </div>
-  <div class="prof-status prof-status-cond">&#9888; Cleared &mdash; pending echo results</div>
-</div>
-<div class="complaint-c">&#9888; Current complaint: Occasional right shoulder pain under load &mdash; requires massage to relieve.</div>
-<div class="info-grid4">
-  <div class="info-c"><p class="info-lbl">Age</p><p class="info-v">24</p></div>
-  <div class="info-c"><p class="info-lbl">Height</p><p class="info-v">1.93 m</p></div>
-  <div class="info-c"><p class="info-lbl">Dominant hand</p><p class="info-v">Right</p></div>
-  <div class="info-c"><p class="info-lbl">Jump leg</p><p class="info-v">Left</p></div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Medical history</div>
-  <div class="hist-card">
-    <p class="hist-item"><span class="hist-date">Age 14</span>Right distal radius fracture &mdash; 2 months rehab. No residual pain.</p>
-    <p class="hist-item"><span class="hist-date">Age 18</span>Right shoulder dislocation (reduced at hospital) &mdash; 6 weeks rehab, full return.</p>
-    <p class="hist-item"><span class="hist-date">Oct 2025</span>Complete left PCL tear (direct trauma) &mdash; conservative management, 4-month rehab. Returned to play, completed the season.</p>
-  </div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Dorsiflexion lunge test</div>
-  <div class="df-wrap">
-    <div class="df-row"><span class="df-lbl">Left</span><div class="df-track"><div class="df-fill" style="width:33%;background:#e53935"></div></div><span class="df-val">5 cm</span></div>
-    <div class="df-row"><span class="df-lbl">Right</span><div class="df-track"><div class="df-fill" style="width:70%;background:#43a047"></div></div><span class="df-val">10.5 cm</span></div>
-    <p style="font-size:11px;color:#8ca0bc;margin:10px 0 0">Left side deficit of 5.5 cm &mdash; significant restriction, particularly post-PCL</p>
-  </div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Orthopedic assessment</div>
-  <div class="prof-2col">
-    <div class="acard">
-      <p class="acard-title">Lower extremity</p>
-      <div class="aitem"><span class="adot adot-w"></span><span>Generalized joint hypermobility &mdash; positive</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Knee recurvatum on Adams testing</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Flattening of foot arches (more right)</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>PCL provocative test: positive left, negative right</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>ACL testing: positive bilaterally (hyper-laxity)</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>SLR: bilateral hamstring tightness</span></div>
-      <div class="aitem"><span class="adot adot-w"></span><span>Weight shift to right during deep squat</span></div>
-      <div class="aitem"><span class="adot adot-ok"></span><span>Thomas Test normal &mdash; mild right iliopsoas tightness only</span></div>
-      <div class="aitem"><span class="adot adot-ok"></span><span>Single-leg stance stability normal</span></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <div class="acard">
-        <p class="acard-title">Upper extremity / cervical</p>
-        <div class="aitem"><span class="adot adot-w"></span><span>Right shoulder subluxations &mdash; stability to be addressed</span></div>
-        <div class="aitem"><span class="adot adot-ok"></span><span>Apprehension test negative</span></div>
-        <div class="aitem"><span class="adot adot-ok"></span><span>Cervical and upper-extremity strength normal</span></div>
-        <div class="aitem"><span class="adot adot-ok"></span><span>Full cervical and upper-extremity ROM</span></div>
-      </div>
-      <div class="acard">
-        <p class="acard-title">Functional tests (left knee)</p>
-        <div class="test-r"><span style="color:#4a6080">Hop test</span><span class="t-ok">Normal</span></div>
-        <div class="test-r"><span style="color:#4a6080">Y-Balance</span><span class="t-ok">Normal</span></div>
-        <div class="test-r"><span style="color:#4a6080">Biodex isokinetic</span><span class="t-flag">Left quad strengthen</span></div>
-        <div class="test-r"><span style="color:#4a6080">Orthotics</span><span class="t-ok">New pair (France)</span></div>
-        <div class="test-r"><span style="color:#4a6080">Ankle taping</span><span class="t-flag">R practice / bilateral game</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="prof-section">
-  <div class="prof-sec-title">Key areas to address</div>
-  <div class="areas-3">
-    <div class="area-c">Intensive left quadriceps strengthening</div>
-    <div class="area-c">Right shoulder stabilizer strengthening</div>
-    <div class="area-c">Left ankle dorsiflexion ROM</div>
-    <div class="area-c">Pain-free loading of left lower extremity (knee flexion)</div>
-    <div class="area-c">Bilateral hamstring flexibility</div>
-  </div>
-</div></div>
-
-  </div>
 </div>
 
 <script>
@@ -721,15 +573,14 @@ var moodChartObj = null;
 
 // ── PAGE TABS ────────────────────────────────────────────────────────────────
 function showPage(page) {
-  var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices', profiles:'Player Profiles'};
+  var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices'};
   document.querySelectorAll('.page-tab').forEach(function(t,i) {
-    var pages = ['activity','wellness','workouts','profiles'];
+    var pages = ['activity','wellness','workouts'];
     t.classList.toggle('active', pages[i] === page);
   });
   document.getElementById('page-activity').style.display  = page === 'activity'  ? '' : 'none';
   document.getElementById('page-workouts').style.display = page === 'workouts' ? '' : 'none';
   document.getElementById('page-wellness').style.display  = page === 'wellness'  ? '' : 'none';
-  document.getElementById('page-profiles').style.display  = page === 'profiles'  ? '' : 'none';
   document.getElementById('header-sub').textContent = labels[page] || '';
 }
 
@@ -1333,27 +1184,117 @@ function buildDrillPie(canvasId, data, existing) {
 }
 
 function buildDrillPies(tKey) {
-  if(!drillRows || !drillRows.length) return;
-  // Filter drill rows for selected day
-  var dayDrills = drillRows.filter(function(r){
-    if(!r['Date']) return false;
-    return normDateStr(r['Date']) === tKey;
-  });
+  // Store current day key for "selected day" option
+  window._drillCurrentDayKey = tKey;
+  renderDrillPies();
+}
 
-  // Aggregate time by category
-  var byType = {}, bySpace = {}, bySize = {};
-  dayDrills.forEach(function(r) {
-    var t   = (r['Drill Type'] || '').trim();
-    var sp  = (r['Players in Space'] || '').trim();
-    var sz  = (r['Drill Size'] || '').trim();
+function onPeriodChange() {
+  // Re-render cards, table, and pies based on selected period
+  var tKey = window._drillCurrentDayKey || '';
+  updateActivitySummary(tKey);
+  renderDrillPies();
+}
+
+function getFilteredActivityRows() {
+  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var tKey = window._drillCurrentDayKey || '';
+  var now = new Date();
+  if(period === 'day') {
+    return activityRows.filter(function(r){ return normDateStr((r['Date']||'').trim()) === tKey; });
+  } else if(period === '7') {
+    var c7 = new Date(now); c7.setDate(now.getDate()-6);
+    return activityRows.filter(function(r){ var d=parseDateStr((r['Date']||'').trim()); return !isNaN(d)&&d>=c7&&d<=now; });
+  } else if(period === '30') {
+    var c30 = new Date(now); c30.setDate(now.getDate()-29);
+    return activityRows.filter(function(r){ var d=parseDateStr((r['Date']||'').trim()); return !isNaN(d)&&d>=c30&&d<=now; });
+  } else {
+    return activityRows.slice();
+  }
+}
+
+function getPeriodLabel() {
+  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  return period==='day'?'Today':period==='7'?'Past 7 days':period==='30'?'Past 30 days':'All time';
+}
+
+function updateActivitySummary(tKey) {
+  var rows = getFilteredActivityRows();
+  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var label = getPeriodLabel();
+
+  // Group by player, then compute averages
+  var byPlayer = {};
+  rows.forEach(function(r){
+    var name = r['Athlete']||r['athlete']||''; if(!name) return;
+    if(!byPlayer[name]) byPlayer[name]={min:0,pc:0};
+    byPlayer[name].min += (parseInt(r['Duration (min)'])||0);
+    byPlayer[name].pc  += (parseInt(r['PC'])||0);
+  });
+  var pNames = Object.keys(byPlayer);
+  var playerCount = pNames.length;
+  var sumMin = pNames.reduce(function(s,p){return s+byPlayer[p].min;},0);
+  var sumPC  = pNames.reduce(function(s,p){return s+byPlayer[p].pc; },0);
+
+  // For multi-day periods, average per player per day
+  var uniqueDates = {};
+  rows.forEach(function(r){ var dk=normDateStr((r['Date']||'').trim()); if(dk) uniqueDates[dk]=true; });
+  var dayCount = Object.keys(uniqueDates).length || 1;
+
+  var avgMin, avgPC;
+  if(period === 'day') {
+    avgMin = playerCount ? Math.round(sumMin/playerCount) : 0;
+    avgPC  = playerCount ? Math.round(sumPC/playerCount)  : 0;
+  } else {
+    // Average per player per day
+    avgMin = playerCount ? Math.round(sumMin/playerCount/dayCount) : 0;
+    avgPC  = playerCount ? Math.round(sumPC/playerCount/dayCount)  : 0;
+  }
+
+  var subLabel = period==='day' ? 'team average' : 'per player per day avg';
+
+  document.getElementById('act-day-cards').innerHTML =
+    '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+label+'</div></div>'
+    +'<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">'+subLabel+'</div></div>'
+    +'<div class="metric"><div class="metric-label">Avg load (PS) / player</div><div class="metric-value">'+avgPC.toLocaleString()+'</div><div class="metric-sub">'+subLabel+'</div></div>';
+}
+
+function renderDrillPies() {
+  if(!drillRows || !drillRows.length) return;
+  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var tKey = window._drillCurrentDayKey || '';
+
+  var filtered;
+  var now = new Date();
+  if(period === 'day') {
+    filtered = drillRows.filter(function(r){ return normDateStr((r['Date']||'').trim()) === tKey; });
+  } else if(period === '7') {
+    var cutoff7 = new Date(now); cutoff7.setDate(now.getDate()-6);
+    filtered = drillRows.filter(function(r){ var d=parseDateStr((r['Date']||'').trim()); return !isNaN(d)&&d>=cutoff7&&d<=now; });
+  } else if(period === '30') {
+    var cutoff30 = new Date(now); cutoff30.setDate(now.getDate()-29);
+    filtered = drillRows.filter(function(r){ var d=parseDateStr((r['Date']||'').trim()); return !isNaN(d)&&d>=cutoff30&&d<=now; });
+  } else {
+    filtered = drillRows.slice();
+  }
+
+  var byType = {}, bySize = {};
+  filtered.forEach(function(r) {
+    var t  = (r['Drill Type'] || '').trim();
+    var sz = (r['Drill Size'] || '').trim();
     var min = parseInt(r['Time']) || 0;
     if(t)  byType[t]  = (byType[t]  || 0) + min;
-    if(sp) bySpace[sp]= (bySpace[sp] || 0) + min;
     if(sz) bySize[sz] = (bySize[sz]  || 0) + min;
   });
 
-  drillTypeChart  = buildDrillPie('drill-type-chart',  byType,  drillTypeChart);
-  drillSizeChart  = buildDrillPie('drill-size-chart',  bySize,  drillSizeChart);
+  var label = getPeriodLabel();
+  var t1 = document.getElementById('drill-type-title');
+  var t2 = document.getElementById('drill-size-title');
+  if(t1) t1.textContent = 'Drill type × time — ' + label;
+  if(t2) t2.textContent = 'Drill size × time — ' + label;
+
+  drillTypeChart = buildDrillPie('drill-type-chart', byType, drillTypeChart);
+  drillSizeChart = buildDrillPie('drill-size-chart', bySize, drillSizeChart);
 }
 
 
@@ -1551,13 +1492,8 @@ function renderActivity(){
   var playerCount = pNames.length;
   var sumMin = pNames.reduce(function(s,p){return s+byPlayerSum[p].min;},0);
   var sumPC  = pNames.reduce(function(s,p){return s+byPlayerSum[p].pc; },0);
-  var avgMin = playerCount ? Math.round(sumMin/playerCount) : 0;
-  var avgPC  = playerCount ? Math.round(sumPC/playerCount)  : 0;
-  document.getElementById('act-day-cards').innerHTML =
-    '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+dStr.split(',')[0]+'</div></div>'
-    +'<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">team average</div></div>'
-    +'<div class="metric"><div class="metric-label">Avg load (PS) / player</div><div class="metric-value">'+avgPC.toLocaleString()+'</div><div class="metric-sub">team average</div></div>'
-;
+  // Summary cards handled by updateActivitySummary
+  updateActivitySummary(tKey);
 
   // ── Day table ──
   var thead = '<tr>'
@@ -1890,12 +1826,6 @@ function renderActivity(){
 }
 
 
-function showProfile(idx, btn) {
-  document.querySelectorAll('.prof-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('profile-0').style.display = idx===0?'':'none';
-  document.getElementById('profile-1').style.display = idx===1?'':'none';
-}
 
 // ── ACWR ──────────────────────────────────────────────────────────────────────
 var acwrChart = null;
