@@ -225,6 +225,10 @@
   .area-c { background:#fff7e0; border-radius:8px; padding:10px 12px; font-size:12px; color:#cc6600; font-weight:500; line-height:1.4; }
   .complaint-c { background:#fff0f0; border:1px solid rgba(192,48,10,0.2); border-radius:8px; padding:10px 14px; font-size:13px; color:#c0300a; margin-bottom:1.25rem; }
 
+
+  /* Page tab visibility */
+  #page-activity, #page-workouts, #page-wellness { display: none; }
+  #page-activity.page-active, #page-workouts.page-active, #page-wellness.page-active { display: block; }
   /* AVAILABILITY */
   .avail-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
@@ -319,10 +323,6 @@
     <!-- Day summary cards -->
     <div class="metrics-row" id="act-day-cards" style="margin-bottom:24px"></div>
 
-    <!-- Drill pie charts -->
-    
-    </div>
-
     <!-- Day table -->
     <div class="section-label">Player breakdown — selected day</div>
     <div class="table-wrap" style="margin-bottom:32px;overflow-x:auto">
@@ -391,7 +391,7 @@
 
     <!-- Game Analysis -->
     <div class="section-label">Game analysis</div>
-<div id="game-log-card" style="display:none"></div>
+<div id="game-log-card"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
       <select class="w-player-select" id="game-player-select" onchange="buildGameTrend()">
         <option value="">Select player…</option>
@@ -421,13 +421,13 @@
   </div>
 
   <!-- WORKOUTS PAGE -->
-  <div id="page-workouts" style="display:none">
+  <div id="page-workouts">
     <div class="tabs-row" id="tabs-row"></div>
     <div id="panel-container"><div class="empty-state skeleton">Fetching athlete data…</div></div>
   </div>
 
   <!-- WELLNESS PAGE -->
-  <div id="page-wellness" style="display:none">
+  <div id="page-wellness">
 
     <!-- Wellness -->
     <div class="w-section-title" style="border-top:none;margin-top:0;padding-top:0;">Player Wellness</div>
@@ -564,13 +564,16 @@ var moodChartObj = null;
 // ── PAGE TABS ────────────────────────────────────────────────────────────────
 function showPage(page) {
   var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices'};
+  ['page-activity','page-workouts','page-wellness'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.classList.remove('page-active');
+  });
+  var target = document.getElementById('page-' + page);
+  if(target) target.classList.add('page-active');
   document.querySelectorAll('.page-tab').forEach(function(t,i) {
     var pages = ['activity','wellness','workouts'];
     t.classList.toggle('active', pages[i] === page);
   });
-  document.getElementById('page-activity').style.display  = page === 'activity'  ? '' : 'none';
-  document.getElementById('page-workouts').style.display = page === 'workouts' ? '' : 'none';
-  document.getElementById('page-wellness').style.display  = page === 'wellness'  ? '' : 'none';
   document.getElementById('header-sub').textContent = labels[page] || '';
 }
 
