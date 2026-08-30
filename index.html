@@ -310,8 +310,8 @@
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
       <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#8ca0bc;">Period</div>
       <select id="drill-period-select" class="w-player-select" onchange="onPeriodChange()">
-        <option value="day" selected>Today</option>
-        <option value="7">Past 7 days</option>
+        <option value="day">Today</option>
+        <option value="7" selected>Past 7 days</option>
         <option value="30">Past 30 days</option>
         <option value="all">All time</option>
       </select>
@@ -1155,6 +1155,8 @@ var DRILL_COLORS = [
 ];
 
 function buildDrillPie(canvasId, data, existing) {
+  var canvas = document.getElementById(canvasId);
+  if(!canvas) return null;
   if(existing) existing.destroy();
   if(!data || !Object.keys(data).length) return null;
   var labels = Object.keys(data);
@@ -1174,9 +1176,11 @@ function buildDrillPie(canvasId, data, existing) {
 }
 
 function buildDrillPies(tKey) {
-  // Store current day key for "selected day" option
   window._drillCurrentDayKey = tKey;
-  renderDrillPies();
+  // Only render if pie canvases exist in DOM
+  if(document.getElementById('drill-type-chart') || document.getElementById('drill-size-chart')) {
+    renderDrillPies();
+  }
 }
 
 function onPeriodChange() {
@@ -1187,7 +1191,7 @@ function onPeriodChange() {
 }
 
 function getFilteredActivityRows() {
-  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var period = (document.getElementById('drill-period-select') || {value:'7'}).value || '7';
   var tKey = window._drillCurrentDayKey || '';
   var now = new Date();
   if(period === 'day') {
@@ -1204,44 +1208,50 @@ function getFilteredActivityRows() {
 }
 
 function getPeriodLabel() {
-  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var period = (document.getElementById('drill-period-select') || {value:'7'}).value || '7';
   return period==='day'?'Today':period==='7'?'Past 7 days':period==='30'?'Past 30 days':'All time';
 }
 
 function updateActivitySummary(tKey) {
   var rows = getFilteredActivityRows();
-  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var period = (document.getElementById('drill-period-select') || {value:'7'}).value || '7';
   var label = getPeriodLabel();
 
   // Group by player, then compute averages
-  var byPlayer = {};
+  // Group by player+date, sum PC and min per player per day
+  // Only count days where a player actually has load (PC > 0)
+  var byPlayerDay = {}; // byPlayerDay[name][date] = {min, pc}
   rows.forEach(function(r){
     var name = r['Athlete']||r['athlete']||''; if(!name) return;
-    if(!byPlayer[name]) byPlayer[name]={min:0,pc:0};
-    byPlayer[name].min += (parseInt(r['Duration (min)'])||0);
-    byPlayer[name].pc  += (parseInt(r['PC'])||0);
+    var dk = normDateStr((r['Date']||'').trim()); if(!dk) return;
+    var pc  = parseInt(r['PC'])||0;
+    var min = parseInt(r['Duration (min)'])||0;
+    if(!byPlayerDay[name]) byPlayerDay[name]={};
+    if(!byPlayerDay[name][dk]) byPlayerDay[name][dk]={min:0,pc:0};
+    byPlayerDay[name][dk].min += min;
+    byPlayerDay[name][dk].pc  += pc;
   });
-  var pNames = Object.keys(byPlayer);
-  var playerCount = pNames.length;
-  var sumMin = pNames.reduce(function(s,p){return s+byPlayer[p].min;},0);
-  var sumPC  = pNames.reduce(function(s,p){return s+byPlayer[p].pc; },0);
 
-  // For multi-day periods, average per player per day
-  var uniqueDates = {};
-  rows.forEach(function(r){ var dk=normDateStr((r['Date']||'').trim()); if(dk) uniqueDates[dk]=true; });
-  var dayCount = Object.keys(uniqueDates).length || 1;
+  // For each player, only count days where PC > 0 (actual training days)
+  var playerNames = Object.keys(byPlayerDay);
+  var playerCount = playerNames.length;
+  var sumMin = 0, sumPC = 0, totalTrainingDays = 0;
+  playerNames.forEach(function(name){
+    var days = Object.keys(byPlayerDay[name]);
+    days.forEach(function(dk){
+      var d = byPlayerDay[name][dk];
+      if(d.pc > 0) { // only training days with load
+        sumMin += d.min;
+        sumPC  += d.pc;
+        totalTrainingDays++;
+      }
+    });
+  });
 
-  var avgMin, avgPC;
-  if(period === 'day') {
-    avgMin = playerCount ? Math.round(sumMin/playerCount) : 0;
-    avgPC  = playerCount ? Math.round(sumPC/playerCount)  : 0;
-  } else {
-    // Average per player per day
-    avgMin = playerCount ? Math.round(sumMin/playerCount/dayCount) : 0;
-    avgPC  = playerCount ? Math.round(sumPC/playerCount/dayCount)  : 0;
-  }
+  var avgMin = totalTrainingDays ? Math.round(sumMin/totalTrainingDays) : 0;
+  var avgPC  = totalTrainingDays ? Math.round(sumPC/totalTrainingDays)  : 0;
 
-  var subLabel = period==='day' ? 'team average' : 'per player per day avg';
+  var subLabel = period==='day' ? 'team average (training days)' : 'avg per player per training day';
 
   document.getElementById('act-day-cards').innerHTML =
     '<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">'+subLabel+'</div></div>'
@@ -1249,8 +1259,9 @@ function updateActivitySummary(tKey) {
 }
 
 function renderDrillPies() {
+  if(!document.getElementById('drill-type-chart') && !document.getElementById('drill-size-chart')) return;
   if(!drillRows || !drillRows.length) return;
-  var period = (document.getElementById('drill-period-select') || {value:'day'}).value || 'day';
+  var period = (document.getElementById('drill-period-select') || {value:'7'}).value || '7';
   var tKey = window._drillCurrentDayKey || '';
 
   var filtered;
