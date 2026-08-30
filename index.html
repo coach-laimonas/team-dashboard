@@ -316,21 +316,11 @@
         <option value="all">All time</option>
       </select>
     </div>
-
     <!-- Day summary cards -->
     <div class="metrics-row" id="act-day-cards" style="margin-bottom:24px"></div>
 
     <!-- Drill pie charts -->
-    <div class="section-label">Practice structure</div>
-    <div class="pie-grid" style="margin-bottom:28px;grid-template-columns:1fr 1fr;">
-      <div class="pie-card">
-        <div class="pie-card-title" id="drill-type-title">Drill type × time</div>
-        <div class="pie-wrap"><canvas id="drill-type-chart"></canvas></div>
-      </div>
-      <div class="pie-card">
-        <div class="pie-card-title" id="drill-size-title">Drill size × time</div>
-        <div class="pie-wrap"><canvas id="drill-size-chart"></canvas></div>
-      </div>
+    
     </div>
 
     <!-- Day table -->
@@ -1254,8 +1244,7 @@ function updateActivitySummary(tKey) {
   var subLabel = period==='day' ? 'team average' : 'per player per day avg';
 
   document.getElementById('act-day-cards').innerHTML =
-    '<div class="metric"><div class="metric-label">Players training</div><div class="metric-value">'+playerCount+'</div><div class="metric-sub">'+label+'</div></div>'
-    +'<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">'+subLabel+'</div></div>'
+    '<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">'+subLabel+'</div></div>'
     +'<div class="metric"><div class="metric-label">Avg load (PS) / player</div><div class="metric-value">'+avgPC.toLocaleString()+'</div><div class="metric-sub">'+subLabel+'</div></div>';
 }
 
