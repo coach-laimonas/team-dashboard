@@ -1221,40 +1221,45 @@ function updateActivitySummary(tKey) {
   var label = getPeriodLabel();
 
   // Group by player, then compute averages
-  // Group by player+date, sum PC and min per player per day
-  // Only count days where a player actually has load (PC > 0)
-  var byPlayerDay = {}; // byPlayerDay[name][date] = {min, pc}
+  // Group by date → player, only include players who did basketball practice
+  // Their totals include ALL activities they did that day
+  var dayPlayerData = {}; // dayPlayerData[dk][name] = {min, pc, didBasketball}
   rows.forEach(function(r){
     var name = r['Athlete']||r['athlete']||''; if(!name) return;
-    var dk = normDateStr((r['Date']||'').trim()); if(!dk) return;
-    var pc  = parseInt(r['PC'])||0;
-    var min = parseInt(r['Duration (min)'])||0;
-    if(!byPlayerDay[name]) byPlayerDay[name]={};
-    if(!byPlayerDay[name][dk]) byPlayerDay[name][dk]={min:0,pc:0};
-    byPlayerDay[name][dk].min += min;
-    byPlayerDay[name][dk].pc  += pc;
+    var dk   = normDateStr((r['Date']||'').trim()); if(!dk) return;
+    var pc   = parseInt(r['PC'])||0;
+    var min  = parseInt(r['Duration (min)'])||0;
+    var type = (r['Training Type']||'').toLowerCase();
+    if(!dayPlayerData[dk]) dayPlayerData[dk]={};
+    if(!dayPlayerData[dk][name]) dayPlayerData[dk][name]={min:0,pc:0,didBasketball:false};
+    dayPlayerData[dk][name].min += min;
+    dayPlayerData[dk][name].pc  += pc;
+    if(type.indexOf('basketball')!==-1||type.indexOf('practice')!==-1||type.indexOf('skill')!==-1){
+      dayPlayerData[dk][name].didBasketball = true;
+    }
   });
 
-  // For each player, only count days where PC > 0 (actual training days)
-  var playerNames = Object.keys(byPlayerDay);
-  var playerCount = playerNames.length;
+  // For each day, average only basketball participants; sum their full load
   var sumMin = 0, sumPC = 0, totalTrainingDays = 0;
-  playerNames.forEach(function(name){
-    var days = Object.keys(byPlayerDay[name]);
-    days.forEach(function(dk){
-      var d = byPlayerDay[name][dk];
-      if(d.pc > 0) { // only training days with load
-        sumMin += d.min;
-        sumPC  += d.pc;
-        totalTrainingDays++;
-      }
+  var playerSet = {};
+  Object.keys(dayPlayerData).forEach(function(dk){
+    var active = Object.keys(dayPlayerData[dk]).filter(function(p){
+      return dayPlayerData[dk][p].didBasketball && dayPlayerData[dk][p].pc > 0;
+    });
+    if(!active.length) return;
+    active.forEach(function(p){
+      sumMin += dayPlayerData[dk][p].min;
+      sumPC  += dayPlayerData[dk][p].pc;
+      playerSet[p] = true;
+      totalTrainingDays++;
     });
   });
 
+  var playerCount = Object.keys(playerSet).length;
   var avgMin = totalTrainingDays ? Math.round(sumMin/totalTrainingDays) : 0;
   var avgPC  = totalTrainingDays ? Math.round(sumPC/totalTrainingDays)  : 0;
 
-  var subLabel = period==='day' ? 'team average (training days)' : 'avg per player per training day';
+  var subLabel = period==='day' ? 'basketball players avg' : 'avg per basketball player per day';
 
   document.getElementById('act-day-cards').innerHTML =
     '<div class="metric"><div class="metric-label">Avg minutes / player</div><div class="metric-value">'+avgMin+'<span>min</span></div><div class="metric-sub">'+subLabel+'</div></div>'
