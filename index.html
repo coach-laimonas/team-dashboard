@@ -1685,27 +1685,29 @@ function renderActivity(){
 
   // Min chart — green normally, red if above 28d chronic average
   // Compute chronic avg minutes (all available data up to 28 days)
-  var allDayMins = [];
-  activityRows.forEach(function(r){
-    var dk = normDateStr((r['Date']||'').trim());
-    if(!dk) return;
-    if(!window._dayMinTmp) window._dayMinTmp = {};
-    if(!window._dayMinTmp[dk]) window._dayMinTmp[dk] = {sum:0,n:0};
-    window._dayMinTmp[dk].sum += (parseInt(r['Duration (min)'])||0);
-    window._dayMinTmp[dk].n  += 1;
-  });
-  // Avg min per player per day across all history
-  var allDayMinAvgs = [];
-  if(window._dayMinTmp) {
-    Object.keys(window._dayMinTmp).forEach(function(dk){
-      var entry = window._dayMinTmp[dk];
-      if(entry.n > 0) allDayMinAvgs.push(entry.sum / entry.n);
+  // Compute chronic avg minutes per player per day — only active players with PC>0
+  var chronicMinAvg = (function(){
+    var dayData = {};
+    activityRows.forEach(function(r){
+      var dk=normDateStr((r['Date']||'').trim()); if(!dk) return;
+      var name=r['Athlete']||''; if(!name) return;
+      var pc=parseInt(r['PC'])||0;
+      var min=parseInt(r['Duration (min)'])||0;
+      if(!dayData[dk]) dayData[dk]={};
+      if(!dayData[dk][name]) dayData[dk][name]={min:0,pc:0};
+      dayData[dk][name].min+=min;
+      dayData[dk][name].pc+=pc;
     });
-  }
-  window._dayMinTmp = null;
-  var chronicMinAvg = allDayMinAvgs.length
-    ? allDayMinAvgs.reduce(function(s,v){return s+v;},0) / allDayMinAvgs.length
-    : 0;
+    var dayAvgs=[];
+    Object.keys(dayData).forEach(function(dk){
+      // Only players with load that day
+      var active=Object.keys(dayData[dk]).filter(function(p){return dayData[dk][p].pc>0;});
+      if(!active.length) return;
+      var tot=active.reduce(function(s,p){return s+dayData[dk][p].min;},0);
+      dayAvgs.push(tot/active.length);
+    });
+    return dayAvgs.length ? dayAvgs.reduce(function(s,v){return s+v;},0)/dayAvgs.length : 0;
+  })();
 
   var minDatasets = [{
     label:'Avg minutes',
@@ -1719,23 +1721,76 @@ function renderActivity(){
 
   var showLegend = typesForChart.length > 1;
 
-  // Compute chronic avg PS per player per day (all available data)
+  // Chronic avg: only players who did Basketball Practice that day
+  // Their total includes ALL activities they did (not just basketball)
+  var chronicCalc = (function(){
+    // Group by date → player → {totalPC, totalMin, didBasketball}
+    var dayData = {};
+    activityRows.forEach(function(r){
+      var dk   = normDateStr((r['Date']||'').trim()); if(!dk) return;
+      var name = r['Athlete']||''; if(!name) return;
+      var pc   = parseInt(r['PC'])||0;
+      var min  = parseInt(r['Duration (min)'])||0;
+      var type = (r['Training Type']||'').toLowerCase();
+      if(!dayData[dk]) dayData[dk]={};
+      if(!dayData[dk][name]) dayData[dk][name]={pc:0,min:0,didBasketball:false};
+      dayData[dk][name].pc  += pc;
+      dayData[dk][name].min += min;
+      if(type.indexOf('basketball')!==-1 || type.indexOf('practice')!==-1 || type.indexOf('skill')!==-1) {
+        dayData[dk][name].didBasketball = true;
+      }
+    });
+    var dayPSAvgs=[], dayMinAvgs=[];
+    Object.keys(dayData).forEach(function(dk){
+      // Only players who participated in basketball practice
+      var active = Object.keys(dayData[dk]).filter(function(p){
+        return dayData[dk][p].didBasketball && dayData[dk][p].pc > 0;
+      });
+      if(!active.length) return;
+      var totPS  = active.reduce(function(s,p){return s+dayData[dk][p].pc; },0);
+      var totMin = active.reduce(function(s,p){return s+dayData[dk][p].min;},0);
+      dayPSAvgs.push(totPS/active.length);
+      dayMinAvgs.push(totMin/active.length);
+    });
+    return {
+      ps:  dayPSAvgs.length  ? dayPSAvgs.reduce(function(s,v){return s+v;},0)/dayPSAvgs.length   : 0,
+      min: dayMinAvgs.length ? dayMinAvgs.reduce(function(s,v){return s+v;},0)/dayMinAvgs.length  : 0
+    };
+  })();
+  var chronicPSAvg  = chronicCalc.ps;
+  var chronicMinAvg = chronicCalc.min;
+
+  var minDatasets = [{
+    label:'Avg minutes',
+    data: dayChartData.map(function(dd){ return dd.avgMin; }),
+    backgroundColor: dayChartData.map(function(dd){
+      if(!dd.avgMin) return 'rgba(67,160,71,0.3)';
+      return dd.avgMin > chronicMinAvg ? '#e53935' : '#43a047';
+    }),
+    borderRadius: 4
+  }];
+
+  var showLegend = typesForChart.length > 1;
+
+  // Compute chronic avg PS per player per day
+  // Method: for each training day, avg PS of players who actually trained (PC>0), then avg those daily values
   var chronicPSAvg = (function(){
     var dayPS = {};
     activityRows.forEach(function(r){
       var dk=normDateStr((r['Date']||'').trim()); if(!dk) return;
       var name=r['Athlete']||''; if(!name) return;
+      var pc=parseInt(r['PC'])||0;
       if(!dayPS[dk]) dayPS[dk]={};
       if(!dayPS[dk][name]) dayPS[dk][name]=0;
-      dayPS[dk][name]+=(parseInt(r['PC'])||0);
+      dayPS[dk][name]+=pc;
     });
     var dayAvgs=[];
     Object.keys(dayPS).forEach(function(dk){
-      var players=Object.keys(dayPS[dk]);
-      if(!players.length) return;
-      var tot=players.reduce(function(s,p){return s+dayPS[dk][p];},0);
-      var hasLoad=players.some(function(p){return dayPS[dk][p]>0;});
-      if(hasLoad) dayAvgs.push(tot/players.length);
+      // Only count players who actually had load that day
+      var activePlayers=Object.keys(dayPS[dk]).filter(function(p){return dayPS[dk][p]>0;});
+      if(!activePlayers.length) return;
+      var tot=activePlayers.reduce(function(s,p){return s+dayPS[dk][p];},0);
+      dayAvgs.push(tot/activePlayers.length);
     });
     return dayAvgs.length ? dayAvgs.reduce(function(s,v){return s+v;},0)/dayAvgs.length : 0;
   })();
