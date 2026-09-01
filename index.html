@@ -1307,38 +1307,33 @@ function renderDrillPies() {
 
 
 function buildMonotonyChart() {
-  // Collect all unique dates from activity data, sorted
-  var dateMap = {};
-  activityRows.forEach(function(r){
-    var d = parseDateStr(r['Date']||'');
-    if(!isNaN(d)) {
-      var k = actDateKey(d);
-      if(!dateMap[k]) dateMap[k] = { sum:0, n:0, ts:d.getTime() };
-      dateMap[k].sum += (parseInt(r['PC'])||0);
-      dateMap[k].count = (dateMap[k].count||0) + 1;
-    }
-  });
-
-  // Compute avg team PC per day
-  // Group by player per day first to get true team average
+  // Group by date → player → {pc, didBasketball}
+  // Only basketball practice participants count; their total includes all activities
   var dayPlayerMap = {};
   activityRows.forEach(function(r){
     var d = parseDateStr(r['Date']||'');
     if(isNaN(d)) return;
-    var k = actDateKey(d);
-    var name = r['Athlete']||'';
-    if(!name) return;
-    if(!dayPlayerMap[k]) dayPlayerMap[k] = {};
-    if(!dayPlayerMap[k][name]) dayPlayerMap[k][name] = 0;
-    dayPlayerMap[k][name] += (parseInt(r['PC'])||0);
+    var k    = actDateKey(d);
+    var name = r['Athlete']||''; if(!name) return;
+    var pc   = parseInt(r['PC'])||0;
+    var type = (r['Training Type']||'').toLowerCase();
+    if(!dayPlayerMap[k]) dayPlayerMap[k]={};
+    if(!dayPlayerMap[k][name]) dayPlayerMap[k][name]={pc:0,didBasketball:false};
+    dayPlayerMap[k][name].pc += pc;
+    if(type.indexOf('basketball')!==-1||type.indexOf('practice')!==-1||type.indexOf('skill')!==-1){
+      dayPlayerMap[k][name].didBasketball = true;
+    }
   });
 
-  // Avg PS per day = mean across players
+  // Avg PS per day = mean across basketball participants only
   var dayAvgPC = {};
   Object.keys(dayPlayerMap).forEach(function(k){
-    var players = Object.keys(dayPlayerMap[k]);
-    var total = players.reduce(function(s,p){ return s + dayPlayerMap[k][p]; }, 0);
-    dayAvgPC[k] = players.length ? total / players.length : 0;
+    var active = Object.keys(dayPlayerMap[k]).filter(function(p){
+      return dayPlayerMap[k][p].didBasketball && dayPlayerMap[k][p].pc > 0;
+    });
+    if(!active.length) return;
+    var total = active.reduce(function(s,p){ return s + dayPlayerMap[k][p].pc; }, 0);
+    dayAvgPC[k] = total / active.length;
   });
 
   // Sort dates
