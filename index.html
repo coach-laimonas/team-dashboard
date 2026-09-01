@@ -369,7 +369,7 @@
           <strong>Daily load</strong> = Avg team PS that day<br>
           <strong>Monotony</strong> = Mean(7d loads) ÷ SD(7d loads)<br>
           <strong>Strain</strong> = Weekly load × Monotony<br>
-          <span style="color:#8ca0bc">Rolling 7-day window, updated daily</span>
+          <span style="color:#8ca0bc">Rolling 7-day window · minimum 7 days required · days off counted as zero load</span>
         </div>
       </div>
     </div>
@@ -1336,10 +1336,21 @@ function buildMonotonyChart() {
     dayAvgPC[k] = total / active.length;
   });
 
-  // Sort dates
-  var sortedKeys = Object.keys(dayAvgPC).sort(function(a,b){
-    return new Date(a) - new Date(b);
-  });
+  // Fill calendar gaps with 0 (days off) between first and last training day
+  var trainingDates = Object.keys(dayAvgPC).sort(function(a,b){ return new Date(a)-new Date(b); });
+  if(trainingDates.length < 2) {
+    if(monotonyChart) { monotonyChart.destroy(); monotonyChart = null; }
+    return;
+  }
+  var firstDate = new Date(trainingDates[0]);
+  var lastDate  = new Date(trainingDates[trainingDates.length-1]);
+  var allDayKeys = [];
+  for(var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate()+1)) {
+    var k = actDateKey(new Date(d));
+    if(!(k in dayAvgPC)) dayAvgPC[k] = 0; // day off = zero load
+    allDayKeys.push(k);
+  }
+  var sortedKeys = allDayKeys;
 
   if(sortedKeys.length < 2) {
     if(monotonyChart) { monotonyChart.destroy(); monotonyChart = null; }
@@ -1358,7 +1369,8 @@ function buildMonotonyChart() {
     var variance = loads.reduce(function(s,v){return s+Math.pow(v-mean,2);},0) / loads.length;
     var sd = Math.sqrt(variance);
 
-    var monotony = sd > 0 ? parseFloat((mean / sd).toFixed(2)) : null;
+    // Require full 7-day window and sd > 0 (Foster formula standard)
+    var monotony = (loads.length === 7 && sd > 0) ? parseFloat((mean / sd).toFixed(2)) : null;
     var weeklyLoad = loads.reduce(function(s,v){return s+v;},0);
     var strain = monotony !== null ? parseFloat((weeklyLoad * monotony).toFixed(0)) : null;
 
