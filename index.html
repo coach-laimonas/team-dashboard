@@ -1683,18 +1683,62 @@ function renderActivity(){
     });
   });
 
-  // Min chart — one bar per day, avg minutes, colored by main activity type
+  // Min chart — green normally, red if above 28d chronic average
+  // Compute chronic avg minutes (all available data up to 28 days)
+  var allDayMins = [];
+  activityRows.forEach(function(r){
+    var dk = normDateStr((r['Date']||'').trim());
+    if(!dk) return;
+    if(!window._dayMinTmp) window._dayMinTmp = {};
+    if(!window._dayMinTmp[dk]) window._dayMinTmp[dk] = {sum:0,n:0};
+    window._dayMinTmp[dk].sum += (parseInt(r['Duration (min)'])||0);
+    window._dayMinTmp[dk].n  += 1;
+  });
+  // Avg min per player per day across all history
+  var allDayMinAvgs = [];
+  if(window._dayMinTmp) {
+    Object.keys(window._dayMinTmp).forEach(function(dk){
+      var entry = window._dayMinTmp[dk];
+      if(entry.n > 0) allDayMinAvgs.push(entry.sum / entry.n);
+    });
+  }
+  window._dayMinTmp = null;
+  var chronicMinAvg = allDayMinAvgs.length
+    ? allDayMinAvgs.reduce(function(s,v){return s+v;},0) / allDayMinAvgs.length
+    : 0;
+
   var minDatasets = [{
     label:'Avg minutes',
     data: dayChartData.map(function(dd){ return dd.avgMin; }),
     backgroundColor: dayChartData.map(function(dd){
-      var c = getActColors(dd.mainType||'');
-      return dd.isSelected ? '#e8630a' : c.chart;
+      if(!dd.avgMin) return 'rgba(67,160,71,0.3)';
+      return dd.avgMin > chronicMinAvg ? '#e53935' : '#43a047';
     }),
     borderRadius: 4
   }];
 
   var showLegend = typesForChart.length > 1;
+
+  // Compute chronic avg PS per player per day (all available data)
+  var chronicPSAvg = (function(){
+    var dayPS = {};
+    activityRows.forEach(function(r){
+      var dk=normDateStr((r['Date']||'').trim()); if(!dk) return;
+      var name=r['Athlete']||''; if(!name) return;
+      if(!dayPS[dk]) dayPS[dk]={};
+      if(!dayPS[dk][name]) dayPS[dk][name]=0;
+      dayPS[dk][name]+=(parseInt(r['PC'])||0);
+    });
+    var dayAvgs=[];
+    Object.keys(dayPS).forEach(function(dk){
+      var players=Object.keys(dayPS[dk]);
+      if(!players.length) return;
+      var tot=players.reduce(function(s,p){return s+dayPS[dk][p];},0);
+      var hasLoad=players.some(function(p){return dayPS[dk][p]>0;});
+      if(hasLoad) dayAvgs.push(tot/players.length);
+    });
+    return dayAvgs.length ? dayAvgs.reduce(function(s,v){return s+v;},0)/dayAvgs.length : 0;
+  })();
 
   if(actLoadChart) actLoadChart.destroy();
   actLoadChart = new Chart(document.getElementById('act-load-chart'),{
@@ -1709,7 +1753,24 @@ function renderActivity(){
       scales:{
         x:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
         y:{stacked:true,ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}
-      }
+      },
+      animation:{onComplete:function(anim){
+        if(!chronicPSAvg) return;
+        var chart=anim.chart, ctx2=chart.ctx, yAxis=chart.scales.y;
+        var y=yAxis.getPixelForValue(chronicPSAvg);
+        ctx2.save();
+        ctx2.strokeStyle='rgba(229,57,53,0.5)';
+        ctx2.lineWidth=1.5;
+        ctx2.setLineDash([5,4]);
+        ctx2.beginPath();
+        ctx2.moveTo(chart.chartArea.left,y);
+        ctx2.lineTo(chart.chartArea.right,y);
+        ctx2.stroke();
+        ctx2.fillStyle='rgba(229,57,53,0.7)';
+        ctx2.font='10px monospace';
+        ctx2.fillText('chronic avg',chart.chartArea.right-72,y-4);
+        ctx2.restore();
+      }}
     }
   });
 
@@ -1721,12 +1782,32 @@ function renderActivity(){
       responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
-        tooltip:{callbacks:{label:function(ctx){return ' Avg: '+ctx.raw+' min';}}}
+        tooltip:{callbacks:{label:function(ctx){
+          var aboveBelow = chronicMinAvg && ctx.raw > chronicMinAvg ? ' ▲ above chronic avg' : '';
+          return ' Avg: '+ctx.raw+' min'+aboveBelow;
+        }}}
       },
       scales:{
         x:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}},
         y:{ticks:{color:tickC,font:{size:11}},grid:{color:gridC},border:{display:false}}
-      }
+      },
+      animation:{onComplete:function(anim){
+        if(!chronicMinAvg) return;
+        var chart=anim.chart, ctx2=chart.ctx, yAxis=chart.scales.y;
+        var y=yAxis.getPixelForValue(chronicMinAvg);
+        ctx2.save();
+        ctx2.strokeStyle='rgba(229,57,53,0.5)';
+        ctx2.lineWidth=1.5;
+        ctx2.setLineDash([5,4]);
+        ctx2.beginPath();
+        ctx2.moveTo(chart.chartArea.left,y);
+        ctx2.lineTo(chart.chartArea.right,y);
+        ctx2.stroke();
+        ctx2.fillStyle='rgba(229,57,53,0.7)';
+        ctx2.font='10px monospace';
+        ctx2.fillText('chronic avg',chart.chartArea.right-72,y-4);
+        ctx2.restore();
+      }}
     }
   });
 
