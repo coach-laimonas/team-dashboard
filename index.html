@@ -226,9 +226,7 @@
   .complaint-c { background:#fff0f0; border:1px solid rgba(192,48,10,0.2); border-radius:8px; padding:10px 14px; font-size:13px; color:#c0300a; margin-bottom:1.25rem; }
 
 
-  /* Page tab visibility */
-  #page-activity, #page-workouts, #page-wellness { display: none; }
-  #page-activity.page-active, #page-workouts.page-active, #page-wellness.page-active { display: block; }
+  /* Page tab visibility handled by JS */
   /* AVAILABILITY */
   .avail-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .avail-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
@@ -300,7 +298,7 @@
 
 
   <!-- ACTIVITY PAGE -->
-  <div id="page-activity">
+  <div id="page-activity" style="display:none">
     <div class="act-topbar">
       <div class="day-nav">
         <button class="day-nav-btn" onclick="actShiftDay(-1)">← Prev day</button>
@@ -333,7 +331,14 @@
     </div>
 
     <!-- 7-day charts -->
-    <div class="section-label">Past 7 days — team overview</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="section-label" style="margin-bottom:0">Team overview</div>
+      <select id="overview-period-select" class="w-player-select" onchange="renderActivity()">
+        <option value="7" selected>Past 7 days</option>
+        <option value="14">Past 14 days</option>
+        <option value="30">Past 30 days</option>
+      </select>
+    </div>
     <div class="charts-row" style="margin-bottom:24px">
       <div class="chart-card">
         <div class="chart-card-title">Avg load per player (PS) — stacked by activity</div>
@@ -421,13 +426,13 @@
   </div>
 
   <!-- WORKOUTS PAGE -->
-  <div id="page-workouts">
+  <div id="page-workouts" style="display:none">
     <div class="tabs-row" id="tabs-row"></div>
     <div id="panel-container"><div class="empty-state skeleton">Fetching athlete data…</div></div>
   </div>
 
   <!-- WELLNESS PAGE -->
-  <div id="page-wellness">
+  <div id="page-wellness" style="display:none">
 
     <!-- Wellness -->
     <div class="w-section-title" style="border-top:none;margin-top:0;padding-top:0;">Player Wellness</div>
@@ -437,10 +442,14 @@
       <button class="day-nav-btn" id="next-day-btn" onclick="shiftDay(1)" disabled>Next day →</button>
     </div>
     <div class="w-status" id="wellness-status">Loading…</div>
-    <div class="pie-grid">
+    <div class="pie-grid" style="grid-template-columns:repeat(3,1fr)">
       <div class="pie-card"><div class="pie-card-title">Fatigue</div><div class="pie-wrap"><canvas id="pie-fatigue"></canvas></div></div>
       <div class="pie-card"><div class="pie-card-title">Muscle Soreness</div><div class="pie-wrap"><canvas id="pie-soreness"></canvas></div></div>
       <div class="pie-card"><div class="pie-card-title">Sleep Quality</div><div class="pie-wrap"><canvas id="pie-sleep"></canvas></div></div>
+    </div>
+    <div class="pie-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:24px;">
+      <div class="pie-card"><div class="pie-card-title">Stress Level</div><div class="pie-wrap"><canvas id="pie-stress"></canvas></div></div>
+      <div class="pie-card"><div class="pie-card-title">Mood</div><div class="pie-wrap"><canvas id="pie-mood"></canvas></div></div>
     </div>
     <div class="drilldown" id="drilldown">
       <div class="drilldown-title"><span class="drilldown-dot" id="drilldown-dot"></span><span id="drilldown-text"></span></div>
@@ -516,7 +525,6 @@
 
   </div>
 
-</div>
 
 <script>
 var DASHBOARD_PASSWORD = 'nessziona';
@@ -564,17 +572,21 @@ var moodChartObj = null;
 // ── PAGE TABS ────────────────────────────────────────────────────────────────
 function showPage(page) {
   var labels = {activity:'Player Activity & Practice Load', wellness:'Team Wellness', workouts:'Individual Practices'};
-  ['page-activity','page-workouts','page-wellness'].forEach(function(id){
+  var allPages = ['page-activity','page-workouts','page-wellness'];
+  allPages.forEach(function(id){
     var el = document.getElementById(id);
-    if(el) el.classList.remove('page-active');
+    if(el) el.style.display = 'none';
   });
   var target = document.getElementById('page-' + page);
-  if(target) target.classList.add('page-active');
+  if(target) {
+    target.style.display = 'block';
+  }
   document.querySelectorAll('.page-tab').forEach(function(t,i) {
     var pages = ['activity','wellness','workouts'];
     t.classList.toggle('active', pages[i] === page);
   });
-  document.getElementById('header-sub').textContent = labels[page] || '';
+  var hsub = document.getElementById('header-sub');
+  if(hsub) hsub.textContent = labels[page] || '';
 }
 
 // ── REFRESH ──────────────────────────────────────────────────────────────────
@@ -687,8 +699,9 @@ function loadWellness() {
   return fetchCSV(WELLNESS_CSV)
     .then(function(text){
       wellnessRows = parseWellnessCSV(text);
+      wellnessRows = parseWellnessCSV(text);
+      dayOffset = getLastWellnessOffset();
       renderWellness();
-      try{buildAvailTrend();}catch(e2){console.error("AvailTrend error:",e2);}
     })
     .catch(function(e){
       document.getElementById('wellness-status').textContent = '✗ ' + e.message;
@@ -715,6 +728,23 @@ function extractScore(val) {
 }
 
 function dateKey(d) { return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear(); }
+
+function getLastWellnessOffset() {
+  // Find the most recent date with wellness data
+  var dates = {};
+  wellnessRows.forEach(function(r){
+    var d = (r['Timestamp']||'').split(' ')[0];
+    if(d) dates[d] = true;
+  });
+  var sorted = Object.keys(dates).sort(function(a,b){return new Date(b)-new Date(a);});
+  if(!sorted.length) return 0;
+  var latest = new Date(sorted[0]);
+  var today  = new Date();
+  today.setHours(0,0,0,0);
+  latest.setHours(0,0,0,0);
+  var diff = Math.round((today - latest) / 86400000);
+  return -diff; // negative offset = days before today
+}
 
 function shiftDay(delta) {
   dayOffset += delta;
@@ -755,6 +785,8 @@ function renderWellness() {
   buildPie('pie-fatigue',  'FATIGUE',         'Fatigue',         dayRows);
   buildPie('pie-soreness', 'MUSCLE SORENESS', 'Muscle Soreness', dayRows);
   buildPie('pie-sleep',    'SLEEP QUALITY',   'Sleep Quality',   dayRows);
+  buildPie('pie-stress',   'STRESS LEVEL',    'Stress Level',    dayRows);
+  buildPie('pie-mood',     'MOOD',            'Mood',            dayRows);
   buildMoodChart();
 
   var tbody = document.getElementById('comment-body');
@@ -1562,10 +1594,11 @@ function renderActivity(){
     }).join('');
   }
 
-  // ── 7-day data ──
+  // ── Bar chart period (7/14/30 days) ──
+  var overviewDays = parseInt((document.getElementById('overview-period-select')||{value:'7'}).value)||7;
   var today = new Date();
   var days7 = [];
-  for(var i=6;i>=0;i--){
+  for(var i=overviewDays-1;i>=0;i--){
     var d=new Date(today);
     d.setDate(today.getDate()-i);
     days7.push(d);
