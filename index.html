@@ -2612,18 +2612,47 @@ function buildGameTrend(){
 
 // ── BODY MEASUREMENTS ────────────────────────────────────────────────────────
 var BM_PLAYERS = [
-  {name:"Justin James",pos:"Guard-Forward",wkg:84.6,fat:5.5,hcm:200,larm:33,rarm:32,chest:94,waist:79,lquad:59,rquad:59,lgastr:38,rgastr:38,goal:"Muscle mass gain"},
-  {name:"Adam Ariel",pos:"Forward",wkg:95.9,fat:11.2,hcm:195,larm:33,rarm:33,chest:101,waist:81,lquad:61,rquad:61,lgastr:40,rgastr:40,goal:"9.5–10% body fat"},
-  {name:"Bnaya Sror",pos:"Center",wkg:119.5,fat:13.8,hcm:208,larm:36,rarm:36,chest:113,waist:101,lquad:62,rquad:65,lgastr:39,rgastr:39,goal:"11% BF + muscle mass"},
-  {name:"Jackson Rowe",pos:"Forward",wkg:98.2,fat:9.6,hcm:200,larm:37,rarm:37,chest:101,waist:81,lquad:61,rquad:61,lgastr:38,rgastr:38,goal:"Maintenance"},
-  {name:"Vincent Amsellem",pos:"Guard",wkg:91.7,fat:11,hcm:192,larm:33,rarm:33,chest:99,waist:84,lquad:60,rquad:59,lgastr:39,rgastr:39,goal:"8–9% body fat"},
-  {name:"Noam Dovrat",pos:"Guard",wkg:103.5,fat:13.8,hcm:194,larm:32,rarm:33,chest:103,waist:91,lquad:62,rquad:63,lgastr:39,rgastr:39,goal:"9–10% body fat"},
-  {name:"Jacob Wiley",pos:"Forward-Center",wkg:102.4,fat:8.5,hcm:201,larm:36,rarm:36,chest:103,waist:80,lquad:59,rquad:60,lgastr:40,rgastr:40,goal:"Maintenance"},
-  {name:"Paris Lee",pos:"Point Guard",wkg:87.9,fat:11.7,hcm:184,larm:32,rarm:32,chest:94,waist:83,lquad:59,rquad:60,lgastr:39,rgastr:40,goal:"8–9% body fat"},
-  {name:"Spencer Weisz",pos:"Guard",wkg:95.6,fat:13,hcm:193,larm:33,rarm:33,chest:103,waist:89,lquad:57,rquad:58,lgastr:39,rgastr:39,goal:"10% body fat"},
-  {name:"Freddie Gillespie",pos:"Center",wkg:114.3,fat:13.2,hcm:205,larm:37,rarm:37,chest:104,waist:91,lquad:66,rquad:66,lgastr:41,rgastr:40,goal:"9% body fat"},
-  {name:"Gal Rahamim",pos:"Guard",wkg:76.3,fat:6.5,hcm:192,larm:29,rarm:29,chest:86,waist:80,lquad:52,rquad:53,lgastr:36,rgastr:36,goal:"Muscle mass gain"},
-  {name:"Josh Christopher",pos:"Guard",wkg:null,fat:null,hcm:null,larm:null,rarm:null,chest:null,waist:null,lquad:null,rquad:null,lgastr:null,rgastr:null,goal:"Pending measurements"}
+  {name:"Justin James",pos:"Guard-Forward",hcm:200,goal:"Muscle mass gain",
+   sep:{wkg:84.6,fat:5.5,larm:33,rarm:32,chest:94,waist:79,lquad:59,rquad:59,lgastr:38,rgastr:38},
+   oct:{wkg:85.0,fat:4.7,larm:33,rarm:32,chest:94,waist:79,lquad:59,rquad:59,lgastr:38,rgastr:38}},
+  {name:"Adam Ariel",pos:"Forward",hcm:195,goal:"9.5–10% body fat",
+   sep:{wkg:95.9,fat:11.3,larm:33,rarm:33,chest:101,waist:81,lquad:61,rquad:61,lgastr:40,rgastr:40},
+   oct:{wkg:95.9,fat:11.2,larm:33,rarm:33,chest:101,waist:81,lquad:61,rquad:61,lgastr:40,rgastr:40}},
+  {name:"Bnaya Sror",pos:"Center",hcm:208,goal:"11% BF + muscle mass",
+   sep:{wkg:119.5,fat:12.4,larm:36,rarm:36,chest:113,waist:101,lquad:62,rquad:65,lgastr:39,rgastr:39},
+   oct:{wkg:119.5,fat:11.8,larm:36,rarm:36,chest:113,waist:101,lquad:62,rquad:65,lgastr:39,rgastr:39}},
+  {name:"Jackson Rowe",pos:"Forward",hcm:200,goal:"Maintenance",
+   sep:{wkg:98.2,fat:9.4,larm:37,rarm:37,chest:101,waist:81,lquad:61,rquad:61,lgastr:38,rgastr:38},
+   oct:{wkg:98.2,fat:9.6,larm:37,rarm:37,chest:101,waist:81,lquad:61,rquad:61,lgastr:38,rgastr:38}},
+  {name:"Vincent Amsellem",pos:"Guard",hcm:192,goal:"8–9% body fat",
+   sep:{wkg:91.7,fat:11.9,larm:33,rarm:33,chest:99,waist:84,lquad:60,rquad:59,lgastr:39,rgastr:39},
+   oct:{wkg:91.7,fat:11.0,larm:33,rarm:33,chest:99,waist:84,lquad:60,rquad:59,lgastr:39,rgastr:39}},
+  {name:"Noam Dovrat",pos:"Guard",hcm:194,goal:"9–10% body fat",
+   sep:{wkg:103.5,fat:12.4,larm:32,rarm:33,chest:103,waist:91,lquad:62,rquad:63,lgastr:39,rgastr:39},
+   oct:{wkg:103.5,fat:11.8,larm:32,rarm:33,chest:103,waist:91,lquad:62,rquad:63,lgastr:39,rgastr:39}},
+  {name:"Jacob Wiley",pos:"Forward-Center",hcm:201,goal:"Maintenance",
+   sep:{wkg:102.4,fat:8.0,larm:36,rarm:36,chest:103,waist:80,lquad:59,rquad:60,lgastr:40,rgastr:40},
+   oct:{wkg:102.4,fat:8.5,larm:36,rarm:36,chest:103,waist:80,lquad:59,rquad:60,lgastr:40,rgastr:40}},
+  {name:"Paris Lee",pos:"Point Guard",hcm:184,goal:"8–9% body fat",
+   sep:{wkg:87.9,fat:12.0,larm:32,rarm:32,chest:94,waist:83,lquad:59,rquad:60,lgastr:39,rgastr:40},
+   oct:{wkg:87.9,fat:11.7,larm:32,rarm:32,chest:94,waist:83,lquad:59,rquad:60,lgastr:39,rgastr:40}},
+  {name:"Spencer Weisz",pos:"Guard",hcm:193,goal:"10% body fat",
+   sep:{wkg:95.6,fat:11.9,larm:33,rarm:33,chest:103,waist:89,lquad:57,rquad:58,lgastr:39,rgastr:39},
+   oct:{wkg:95.7,fat:11.0,larm:33,rarm:33,chest:103,waist:89,lquad:57,rquad:58,lgastr:39,rgastr:39}},
+  {name:"Freddie Gillespie",pos:"Center",hcm:205,goal:"9% body fat",
+   sep:{wkg:114.3,fat:14.0,larm:37,rarm:37,chest:104,waist:91,lquad:66,rquad:66,lgastr:41,rgastr:40},
+   oct:{wkg:114.3,fat:13.0,larm:37,rarm:37,chest:104,waist:91,lquad:66,rquad:66,lgastr:41,rgastr:40}},
+  {name:"Gal Rahamim",pos:"Guard",hcm:192,goal:"Muscle mass gain",
+   sep:{wkg:76.3,fat:6.5,larm:29,rarm:29,chest:86,waist:80,lquad:52,rquad:53,lgastr:36,rgastr:36},
+   oct:{wkg:76.3,fat:6.5,larm:29,rarm:29,chest:86,waist:80,lquad:52,rquad:53,lgastr:36,rgastr:36}},
+  {name:"Max Adelman",pos:"Guard",hcm:191,goal:"10–11% body fat",
+   sep:{wkg:94.0,fat:11.1,larm:33,rarm:33,chest:100,waist:85,lquad:59,rquad:59,lgastr:38,rgastr:38},
+   oct:{wkg:94.0,fat:11.3,larm:33,rarm:33,chest:100,waist:85,lquad:59,rquad:59,lgastr:38,rgastr:38}},
+  {name:"Shalev Lugashi",pos:"Guard-Forward",hcm:192,goal:"Evaluation",
+   sep:{wkg:93.4,fat:13.2,larm:33,rarm:33,chest:100,waist:86,lquad:59,rquad:59,lgastr:38,rgastr:38},
+   oct:{wkg:93.4,fat:13.2,larm:33,rarm:33,chest:100,waist:86,lquad:59,rquad:59,lgastr:38,rgastr:38}},
+  {name:"Josh Christopher",pos:"Guard",hcm:null,goal:"Pending measurements",
+   sep:null, oct:null}
 ];
 
 var BM_CIRC_ZONES = {
@@ -2638,21 +2667,59 @@ function bmFatColor(f){return f<10?'#2e7d32':f<14?'#cc6600':'#c0300a';}
 function bmFatLabel(f){return f<10?'Lean':f<14?'Moderate':'Above target';}
 function bmSymDiff(l,r){var d=Math.abs(l-r);return d>1?'<span class="bm-sym-diff">Δ'+d+'</span>':'';}
 
-function bmZoneBar(val, zone, max20) {
+function bmDeltaBadge(now, prev) {
+  if(prev === null || prev === undefined) return '';
+  var d = Math.round((now - prev)*10)/10;
+  if(d === 0) return '<span style="font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:var(--surface2);color:var(--dim)">0.0</span>';
+  var up = d > 0;
+  var col = up ? '#c0300a' : '#2e7d32'; // fat: up=bad, down=good
+  var bg  = up ? '#fff0ee' : '#edf7ee';
+  return '<span style="font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:'+bg+';color:'+col+'">'+(up?'+':'')+d+'</span>';
+}
+function bmDeltaBadgeWt(now, prev) {
+  if(prev === null || prev === undefined) return '';
+  var d = Math.round((now - prev)*10)/10;
+  if(d === 0) return '<span style="font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:var(--surface2);color:var(--dim)">0.0</span>';
+  var col = '#4a6080'; var bg = 'var(--surface2)';
+  return '<span style="font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:'+bg+';color:'+col+'">'+(d>0?'+':'')+d+'</span>';
+}
+function bmDeltaBadgeLean(now, prev, nowFat, prevFat) {
+  if(prev === null || prev === undefined) return '';
+  var leanNow  = Math.round(now*(1-nowFat/100)*10)/10;
+  var leanPrev = Math.round(prev*(1-prevFat/100)*10)/10;
+  var d = Math.round((leanNow - leanPrev)*10)/10;
+  if(d === 0) return '<span style="font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:var(--surface2);color:var(--dim)">0.0</span>';
+  var up = d > 0;
+  var col = up ? '#2e7d32' : '#c0300a'; // lean: up=good
+  var bg  = up ? '#edf7ee' : '#fff0ee';
+  return '<span style="font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:'+bg+';color:'+col+'">'+(up?'+':'')+d+'</span>';
+}
+
+function bmZoneBar(val, zone, max20, sepVal) {
   if(max20) {
     // Body fat bar: 0-20% scale, zones: 0-10 green(50%), 10-14 yellow(20%), 14-20 red(30%)
     var pct = Math.min(val/20*100, 100);
+    var sepNeedle = '';
+    if(sepVal !== null && sepVal !== undefined && sepVal !== val) {
+      var sepPct = Math.min(sepVal/20*100, 100);
+      sepNeedle = '<div style="position:absolute;top:50%;left:'+Math.round(sepPct)+'%;transform:translate(-50%,-50%);width:2px;height:16px;border-radius:2px;background:#0d1b3e;opacity:0.3;z-index:1"></div>';
+    }
     return '<div class="bm-zone-outer">'
       +'<div class="bm-zone-track">'
       +'<div style="flex:0 0 50%;background:#4ade80"></div>'
       +'<div style="flex:0 0 20%;background:#facc15"></div>'
       +'<div style="flex:0 0 30%;background:#f87171"></div>'
       +'</div>'
+      +sepNeedle
       +'<div class="bm-zone-needle-wrap" style="left:'+Math.round(pct)+'%">'
       +'<div class="bm-needle-line"></div>'
       +'<div class="bm-needle-label" style="color:'+bmFatColor(val)+'">'+val+'%</div>'
       +'</div>'
       +'</div>'
+      +(sepVal !== null && sepVal !== undefined ? '<div style="display:flex;gap:14px;margin-top:4px;">'
+        +'<span style="font-size:10px;font-family:var(--mono);color:var(--dim);display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:2px;height:10px;background:#0d1b3e;opacity:0.3;border-radius:2px"></span>Sep '+sepVal+'%</span>'
+        +'<span style="font-size:10px;font-family:var(--mono);color:var(--muted);display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:2px;height:10px;background:#0d1b3e;border-radius:2px"></span>Oct '+val+'%</span>'
+        +'</div>' : '')
       +'<div class="bm-zone-ticks"><span>0%</span><span>5%</span><span>10%</span><span>14%</span><span>20%</span></div>';
   }
   // Circumference bar
@@ -2661,12 +2728,6 @@ function bmZoneBar(val, zone, max20) {
   var zonesHtml = zone.zones.map(function(z){
     return '<div style="flex:0 0 '+z.w+'%;background:'+z.c+'"></div>';
   }).join('');
-  var inGreen = zone.zones.reduce(function(acc,z,i){
-    var start=zone.zones.slice(0,i).reduce(function(s,z2){return s+z2.w;},0);
-    if(z.c==='#4ade80'&&pct>=start&&pct<=start+z.w) acc=true;
-    return acc;
-  },false);
-  var nColor = pct>=(zone.zones[0].w+zone.zones[1].w) && pct<=(zone.zones[0].w+zone.zones[1].w+zone.zones[2].w) ? '#2e7d32' : pct<5?'#cc6600':'#c0300a';
   return '<div class="bm-zone-outer">'
     +'<div class="bm-zone-track">'+zonesHtml+'</div>'
     +'<div class="bm-zone-needle-wrap" style="left:'+Math.round(pct)+'%">'
@@ -2692,6 +2753,7 @@ BM_SCREENING["Max Adelman"] = "<div class=\"sc-card\"><div class=\"sc-header\"><
 BM_SCREENING["Jacob Wiley"] = "<div class=\"sc-card\"><div class=\"sc-header\"><div><div class=\"sc-title\">Orthopedic Screening</div><div class=\"sc-subtitle\">Gal Ouralevich &middot; Head Physiotherapist</div></div><div style=\"background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;font-family:monospace\">Cleared \u2014 full participation</div></div><div class=\"sc-info-grid\"><div class=\"sc-info-item\"><div class=\"sc-info-label\">Age</div><div class=\"sc-info-val\">32</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Dom. hand</div><div class=\"sc-info-val\">Right</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Jump leg</div><div class=\"sc-info-val\">Left</div></div></div><div style=\"display:flex;gap:8px;margin-bottom:6px;font-size:12px\"><span class=\"sc-info-label\" style=\"width:60px;flex-shrink:0\">Orthotics</span><span style=\"color:#4a6080\">Does not use orthotics</span></div><div style=\"display:flex;gap:8px;margin-bottom:14px;font-size:12px\"><span class=\"sc-info-label\" style=\"width:60px;flex-shrink:0\">Taping</span><span style=\"color:#4a6080\">Does not use ankle taping</span></div><div class=\"sc-sec\">Medical History</div><div style=\"background:#f4f7fb;border-left:3px solid #1a56c4;border-radius:0 6px 6px 0;padding:10px 12px;margin-bottom:14px\"><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">2010</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right tibial plateau fracture \u2014 ORIF, ~8 months rehab.</span></div><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">2021</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Adductor brevis tear.</span></div><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">2023</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Plantar fasciitis.</span></div><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">2025</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">4th digit left hand fracture \u2014 surgical screw fixation.</span></div><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">2026</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right hip labral tear + L5-S1 disc herniation with sciatica \u2014 rehab Mar-Apr, returned late Aug.</span></div></div><div class=\"sc-sec\">Assessment Findings</div><div style=\"margin-bottom:14px\"><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral foot arch flattening + bilateral knee varus</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Scoliosis \u2014 left shoulder elevated, thorax rotated right</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">DF Lunge: R 11.5cm / L 14cm</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right hip: limited IR, positive quadrant test (impingement), iliopsoas tightness</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right: Trendelenburg during single-leg stance</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Left: mild hip ER limitation, rectus femoris tightness</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral gastrocnemius tightness</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Left 4th digit: restricted motion beyond MCP joint</span></div></div><div class=\"sc-sec\">Key Areas to Address</div><div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Load management \u2014 major priority</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Pelvic alignment and control (right-rotated pelvic position)</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Comprehensive right lower-extremity rehab: foot to hip</span></div></div></div>";
 BM_SCREENING["Igor Kulashov"] = "<div class=\"sc-card\"><div class=\"sc-header\"><div><div class=\"sc-title\">Orthopedic Screening</div><div class=\"sc-subtitle\">Gal Ouralevich &middot; Head Physiotherapist</div></div><div style=\"background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;font-family:monospace\">Cleared \u2014 full participation</div></div><div class=\"sc-info-grid\"><div class=\"sc-info-item\"><div class=\"sc-info-label\">Age</div><div class=\"sc-info-val\">31</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Height</div><div class=\"sc-info-val\">1.96 m</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Dom. hand</div><div class=\"sc-info-val\">Right</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Jump leg</div><div class=\"sc-info-val\">Left</div></div></div><div style=\"display:flex;gap:8px;margin-bottom:6px;font-size:12px\"><span class=\"sc-info-label\" style=\"width:60px;flex-shrink:0\">Orthotics</span><span style=\"color:#4a6080\">Custom foot orthotics</span></div><div style=\"display:flex;gap:8px;margin-bottom:14px;font-size:12px\"><span class=\"sc-info-label\" style=\"width:60px;flex-shrink:0\">Taping</span><span style=\"color:#4a6080\">Does not use ankle taping</span></div><div class=\"sc-sec\">Medical History</div><div style=\"background:#f4f7fb;border-left:3px solid #1a56c4;border-radius:0 6px 6px 0;padding:10px 12px;margin-bottom:14px\"><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">~12 yrs ago</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right knee arthroscopy + two subsequent debridement procedures (USA).</span></div><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">Ongoing</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Regular pre-practice lower-back and hip mobility exercises.</span></div></div><div class=\"sc-sec\">Assessment Findings</div><div style=\"margin-bottom:14px\"><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Scoliosis \u2014 left shoulder elevated, thorax rotated right, pelvis rotated left</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">DF Lunge: R 8cm / L 7cm \u2014 bilateral ankle dorsiflexion limitation</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right hip: limited IR, hamstring tightness, ~5 degree extension limitation, Thomas Test positive</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Left hip: limited IR, hamstring tightness, 5-10 degree extension limitation, greater gluteus medius tightness</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral knee: clinically stable</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral ankle: joint-related DF restriction, reduced stability</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Limited lumbar spine extension</span></div></div><div class=\"sc-sec\">Key Areas to Address</div><div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral hamstring flexibility</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral hip flexor flexibility</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral gluteus medius flexibility</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral ankle dorsiflexion ROM (joint mobility)</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Ankle stability training</span></div></div></div>";
 BM_SCREENING["Josh Christopher"] = "<div class=\"sc-card\"><div class=\"sc-header\"><div><div class=\"sc-title\">Orthopedic Screening</div><div class=\"sc-subtitle\">Gal Ouralevich &middot; Head Physiotherapist</div></div><div style=\"background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;font-family:monospace\">Cleared \u2014 full participation</div></div><div class=\"sc-info-grid\"><div class=\"sc-info-item\"><div class=\"sc-info-label\">Age</div><div class=\"sc-info-val\">24</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Height</div><div class=\"sc-info-val\">1.95 m</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Dom. hand</div><div class=\"sc-info-val\">Right</div></div><div class=\"sc-info-item\"><div class=\"sc-info-label\">Jump leg</div><div class=\"sc-info-val\">Left</div></div></div><div style=\"display:flex;gap:8px;margin-bottom:6px;font-size:12px\"><span class=\"sc-info-label\" style=\"width:60px;flex-shrink:0\">Orthotics</span><span style=\"color:#4a6080\">Custom foot orthotics</span></div><div style=\"display:flex;gap:8px;margin-bottom:14px;font-size:12px\"><span class=\"sc-info-label\" style=\"width:60px;flex-shrink:0\">Taping</span><span style=\"color:#4a6080\">Bilateral ankle taping/bracing</span></div><div class=\"sc-sec\">Medical History</div><div style=\"background:#f4f7fb;border-left:3px solid #1a56c4;border-radius:0 6px 6px 0;padding:10px 12px;margin-bottom:14px\"><div style=\"display:flex;gap:10px;margin-bottom:7px\"><span style=\"font-family:monospace;font-size:10px;color:#1a56c4;white-space:nowrap;min-width:72px;padding-top:1px\">2025</span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Anterior talar pain left ankle \u2014 overuse-related.</span></div></div><div class=\"sc-sec\">Assessment Findings</div><div style=\"margin-bottom:14px\"><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral knee varus</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">DF Lunge: R 8.5 cm / L 10 cm</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Left hip: limited IR and ER; FABER normal</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Left ankle: gastrocnemius tightness</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right hip: limited IR and ER (more than left); quadriceps tightness</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right ankle: joint-related DF limitation</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#8ca0bc;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Upper extremity ROM and strength within normal limits</span></div></div><div class=\"sc-sec\">Key Areas to Address</div><div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Load management \u2014 ankle pain history</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral hip IR/ER ROM</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Bilateral ankle dorsiflexion ROM</span></div><div style=\"display:flex;gap:7px;margin-bottom:5px\"><span style=\"width:6px;height:6px;border-radius:50%;background:#cc6600;display:inline-block;flex-shrink:0;margin-top:4px\"></span><span style=\"font-size:12px;color:#0d1b3e;line-height:1.4\">Right quadriceps flexibility</span></div></div></div>";
+BM_SCREENING["Shalev Lugashi"] = "<div class=\"sc-card\"><div class=\"sc-header\"><div><div class=\"sc-title\">Orthopedic Screening</div><div class=\"sc-subtitle\">Gal Ouralevich &middot; Head Physiotherapist</div></div><div style=\"background:#f4f7fb;color:#8ca0bc;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;font-family:monospace\">Pending</div></div><div style=\"background:#f4f7fb;border-radius:8px;padding:24px;text-align:center;color:#8ca0bc;font-size:13px;\"><div style=\"font-size:28px;margin-bottom:8px\">&#x1F4CB;</div>Screening data not yet available.</div></div>";
 
 function bmBuildCards() {
   var nav = document.getElementById('body-nav');
@@ -2714,23 +2776,60 @@ function bmBuildCards() {
     };})(i, p.name);
     nav.appendChild(btn);
 
-    var hasMeasurements = p.wkg !== null && p.fat !== null;
-    var lbm = hasMeasurements ? Math.round(p.wkg*(1-p.fat/100)*10)/10 : null;
-    var bmi = hasMeasurements ? Math.round(p.wkg/Math.pow(p.hcm/100,2)*10)/10 : null;
+    var s = p.sep; var o = p.oct;
+    var hasMeasurements = o !== null && s !== null;
+    var lbmOct = hasMeasurements ? Math.round(o.wkg*(1-o.fat/100)*10)/10 : null;
+    var lbmSep = hasMeasurements ? Math.round(s.wkg*(1-s.fat/100)*10)/10 : null;
+    var bmiOct = hasMeasurements ? Math.round(o.wkg/Math.pow(p.hcm/100,2)*10)/10 : null;
 
     var card = document.createElement('div');
     card.className = 'bm-card'+(i===0?' show':'');
     card.id = 'bm-card-'+i;
 
     var heightStr = p.hcm ? p.hcm+'cm' : '—';
-    var weightStr = p.wkg ? p.wkg+'kg' : '—';
+    var weightStr = hasMeasurements ? o.wkg+'kg' : '—';
+
+    // Sep/Oct column header style
+    var colSep = 'font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim)';
+    var colOct = 'font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue)';
 
     var measurementsHtml = hasMeasurements ? (
-      '<div class="bm-grid4">'
-        +'<div class="bm-mc"><p class="bm-ml">Body fat</p><p class="bm-mv" style="color:'+bmFatColor(p.fat)+'">'+p.fat+'%</p><p class="bm-ms">'+bmFatLabel(p.fat)+'</p></div>'
-        +'<div class="bm-mc"><p class="bm-ml">Lean mass</p><p class="bm-mv">'+lbm+'<span style="font-size:12px;font-weight:400;color:#8ca0bc"> kg</span></p><p class="bm-ms">'+Math.round(p.fat)+'% fat</p></div>'
-        +'<div class="bm-mc"><p class="bm-ml">Weight</p><p class="bm-mv">'+p.wkg+'<span style="font-size:12px;font-weight:400;color:#8ca0bc"> kg</span></p><p class="bm-ms">BMI '+bmi+'</p></div>'
-        +'<div class="bm-mc"><p class="bm-ml">Height</p><p class="bm-mv">'+p.hcm+'<span style="font-size:12px;font-weight:400;color:#8ca0bc"> cm</span></p></div>'
+      // Comparison table: key / Sep / Oct / Δ
+      '<div style="background:var(--surface2);border-radius:8px;padding:14px 16px;margin-bottom:16px;">'
+        +'<div style="display:grid;grid-template-columns:90px 1fr 1fr 56px;gap:6px;align-items:center;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px;">'
+          +'<div></div>'
+          +'<div style="'+colSep+'">Sep</div>'
+          +'<div style="'+colOct+'">Oct &#x25B8;</div>'
+          +'<div style="'+colSep+'">&#916;</div>'
+        +'</div>'
+        // Weight row
+        +'<div style="display:grid;grid-template-columns:90px 1fr 1fr 56px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">'
+          +'<div style="font-size:12px;color:var(--muted)">Weight</div>'
+          +'<div style="font-family:var(--mono);font-size:12px;color:var(--dim)">'+s.wkg+' kg</div>'
+          +'<div style="font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text)">'+o.wkg+' kg</div>'
+          +'<div>'+bmDeltaBadgeWt(o.wkg,s.wkg)+'</div>'
+        +'</div>'
+        // Body fat row
+        +'<div style="display:grid;grid-template-columns:90px 1fr 1fr 56px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">'
+          +'<div style="font-size:12px;color:var(--muted)">Body fat</div>'
+          +'<div style="font-family:var(--mono);font-size:12px;color:var(--dim)">'+s.fat+'%</div>'
+          +'<div style="font-family:var(--mono);font-size:13px;font-weight:500;color:'+bmFatColor(o.fat)+'">'+o.fat+'%</div>'
+          +'<div>'+bmDeltaBadge(o.fat,s.fat)+'</div>'
+        +'</div>'
+        // Lean mass row
+        +'<div style="display:grid;grid-template-columns:90px 1fr 1fr 56px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">'
+          +'<div style="font-size:12px;color:var(--muted)">Lean mass</div>'
+          +'<div style="font-family:var(--mono);font-size:12px;color:var(--dim)">'+lbmSep+' kg</div>'
+          +'<div style="font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text)">'+lbmOct+' kg</div>'
+          +'<div>'+bmDeltaBadgeLean(o.wkg,s.wkg,o.fat,s.fat)+'</div>'
+        +'</div>'
+        // BMI row
+        +'<div style="display:grid;grid-template-columns:90px 1fr 1fr 56px;gap:6px;align-items:center;padding:6px 0;">'
+          +'<div style="font-size:12px;color:var(--muted)">BMI</div>'
+          +'<div style="font-family:var(--mono);font-size:12px;color:var(--dim)">'+Math.round(s.wkg/Math.pow(p.hcm/100,2)*10)/10+'</div>'
+          +'<div style="font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text)">'+bmiOct+'</div>'
+          +'<div></div>'
+        +'</div>'
       +'</div>'
 
       +'<p class="bm-sec">Body fat &mdash; target zones</p>'
@@ -2739,7 +2838,7 @@ function bmBuildCards() {
         +'<span style="font-size:10px;font-family:monospace;color:#cc6600">&#x25CF; Moderate 10–14%</span>'
         +'<span style="font-size:10px;font-family:monospace;color:#c0300a">&#x25CF; High &gt;14%</span>'
       +'</div>'
-      +bmZoneBar(p.fat, null, true)
+      +bmZoneBar(o.fat, null, true, s.fat)
 
       +'<p class="bm-sec">Circumferences &mdash; reference zones</p>'
       +'<div style="margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap;">'
@@ -2747,14 +2846,14 @@ function bmBuildCards() {
         +'<span style="font-size:10px;font-family:monospace;color:#cc6600">&#x25CF; Borderline</span>'
         +'<span style="font-size:10px;font-family:monospace;color:#c0300a">&#x25CF; Concern</span>'
       +'</div>'
-      +'<div class="bm-circ-row"><span class="bm-circ-lbl">Waist</span><div style="flex:1">'+bmZoneBar(p.waist, BM_CIRC_ZONES.waist, false)+'</div></div>'
-      +'<div class="bm-circ-row"><span class="bm-circ-lbl">Chest</span><div style="flex:1">'+bmZoneBar(p.chest, BM_CIRC_ZONES.chest, false)+'</div></div>'
+      +'<div class="bm-circ-row"><span class="bm-circ-lbl">Waist</span><div style="flex:1">'+bmZoneBar(o.waist, BM_CIRC_ZONES.waist, false)+'</div></div>'
+      +'<div class="bm-circ-row"><span class="bm-circ-lbl">Chest</span><div style="flex:1">'+bmZoneBar(o.chest, BM_CIRC_ZONES.chest, false)+'</div></div>'
 
       +'<p class="bm-sec">Bilateral symmetry (cm)</p>'
       +'<div class="bm-sym-grid">'
-        +'<div class="bm-sym-item"><p class="bm-sym-title">Arms</p><div class="bm-sym-vals"><span class="bm-sym-badge bm-sym-l">L '+p.larm+'</span><span class="bm-sym-badge bm-sym-r">R '+p.rarm+'</span>'+bmSymDiff(p.larm,p.rarm)+'</div></div>'
-        +'<div class="bm-sym-item"><p class="bm-sym-title">Quads</p><div class="bm-sym-vals"><span class="bm-sym-badge bm-sym-l">L '+p.lquad+'</span><span class="bm-sym-badge bm-sym-r">R '+p.rquad+'</span>'+bmSymDiff(p.lquad,p.rquad)+'</div></div>'
-        +'<div class="bm-sym-item"><p class="bm-sym-title">Gastroc</p><div class="bm-sym-vals"><span class="bm-sym-badge bm-sym-l">L '+p.lgastr+'</span><span class="bm-sym-badge bm-sym-r">R '+p.rgastr+'</span>'+bmSymDiff(p.lgastr,p.rgastr)+'</div></div>'
+        +'<div class="bm-sym-item"><p class="bm-sym-title">Arms</p><div class="bm-sym-vals"><span class="bm-sym-badge bm-sym-l">L '+o.larm+'</span><span class="bm-sym-badge bm-sym-r">R '+o.rarm+'</span>'+bmSymDiff(o.larm,o.rarm)+'</div></div>'
+        +'<div class="bm-sym-item"><p class="bm-sym-title">Quads</p><div class="bm-sym-vals"><span class="bm-sym-badge bm-sym-l">L '+o.lquad+'</span><span class="bm-sym-badge bm-sym-r">R '+o.rquad+'</span>'+bmSymDiff(o.lquad,o.rquad)+'</div></div>'
+        +'<div class="bm-sym-item"><p class="bm-sym-title">Gastroc</p><div class="bm-sym-vals"><span class="bm-sym-badge bm-sym-l">L '+o.lgastr+'</span><span class="bm-sym-badge bm-sym-r">R '+o.rgastr+'</span>'+bmSymDiff(o.lgastr,o.rgastr)+'</div></div>'
       +'</div>'
     ) : '<div style="background:#f4f7fb;border-radius:8px;padding:24px;text-align:center;color:#8ca0bc;font-size:13px;margin-bottom:16px">'
         +'<div style="font-size:28px;margin-bottom:8px">&#x1F4CB;</div>'
